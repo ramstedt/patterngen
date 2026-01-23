@@ -1,24 +1,102 @@
-export type Lang = 'en' | 'sv';
+const en = {
+  appName: 'PatternGen',
+  measurements: 'Measurements',
+  generate: 'Generate pattern',
+  language: 'Language',
 
-export const translations = {
-  en: {
-    appName: 'PatternGen',
-    measurements: 'Measurements',
-    bust: 'Bust',
-    waist: 'Waist',
-    hip: 'Hip',
-    generate: 'Generate pattern',
-    language: 'Language',
-  },
-  sv: {
-    appName: 'PatternGen',
-    measurements: 'Mått',
-    bust: 'Byst',
-    waist: 'Midja',
-    hip: 'Stuss',
-    generate: 'Generera mönster',
-    language: 'Språk',
-  },
+  profiles: 'Profiles',
+  newProfile: 'New profile',
+  profileName: 'Profile name',
+  selectProfile: 'Select a profile',
+  editProfile: 'Edit',
+  deleteProfile: 'Delete',
+  saveProfile: 'Save profile',
+  cancel: 'Cancel',
+  saved: 'Saved',
+  confirmDeleteProfile: 'Delete this profile? This cannot be undone.',
+  cm: 'cm',
+
+  // measurements (from Måttschema)
+  backWaistLength: 'Back waist length',
+  totalLength: 'Total length',
+  backWidth: 'Back width',
+  neckCircumference: 'Neck circumference',
+  bustCircumference: 'Bust circumference',
+  waistCircumference: 'Waist circumference',
+  hipCircumference: 'Hip circumference',
+  hipDepth: 'Hip depth',
+  hipHeight: 'Hip height',
+  highHipCircumference: 'High hip circumference',
+  shoulderWidth: 'Shoulder width',
+  armLength: 'Arm length',
+  upperArmCircumference: 'Upper arm circumference',
+  elbowCircumference: 'Elbow circumference',
+
+  wristCircumference: 'Wrist circumference',
+  chestWidth: 'Chest width',
+  bustPoint: 'Bust point',
+  frontWaistLength: 'Front waist length',
+  bustHeight: 'Bust height',
+  sideHeight: 'Side height',
+  shoulderHeight: 'Shoulder height',
+  sideMeasurement: 'Side measurement',
+  kneeHeight: 'Knee height',
+  trouserLength: 'Trouser length',
+  inseamLength: 'Inseam length',
+  rise: 'Rise',
+  crotchDepth: 'Crotch depth',
 } as const;
 
-export type TranslationKey = keyof typeof translations.en;
+const sv: Record<keyof typeof en, string> = {
+  appName: 'PatternGen',
+  measurements: 'Mått',
+  generate: 'Generera mönster',
+  language: 'Språk',
+
+  profiles: 'Profiler',
+  newProfile: 'Ny profil',
+  profileName: 'Profilnamn',
+  selectProfile: 'Välj profil',
+  editProfile: 'Redigera',
+  deleteProfile: 'Ta bort',
+  saveProfile: 'Spara profil',
+  cancel: 'Avbryt',
+  saved: 'Sparat',
+  confirmDeleteProfile: 'Ta bort profilen? Detta går inte att ångra.',
+  cm: 'cm',
+
+  // measurements (från Måttschema)
+  backWaistLength: 'Livlängd bak',
+  totalLength: 'Hel längd',
+  backWidth: 'Ryggbredd',
+  neckCircumference: 'Halsvidd',
+  bustCircumference: 'Bystvidd',
+  waistCircumference: 'Midjevidd',
+  hipCircumference: 'Stussvidd',
+  hipDepth: 'Stusshöjd',
+  hipHeight: 'Höfthöjd',
+  highHipCircumference: 'Höftvidd',
+  shoulderWidth: 'Axelbredd',
+  armLength: 'Armlängd',
+  upperArmCircumference: 'Överarmsvidd',
+  elbowCircumference: 'Armbågsvidd',
+
+  wristCircumference: 'Handledsvidd',
+  chestWidth: 'Bröstbredd',
+  bustPoint: 'Bystpunkt',
+  frontWaistLength: 'Livlängd fram',
+  bustHeight: 'Bysthöjd',
+  sideHeight: 'Sidhöjd',
+  shoulderHeight: 'Axelhöjd',
+  sideMeasurement: 'Sidmått',
+  kneeHeight: 'Knähöjd',
+  trouserLength: 'Byxlängd',
+  inseamLength: 'Innerbenslängd',
+  rise: 'Byxhöjd',
+  crotchDepth: 'Grenmått',
+};
+
+export const translations = { en, sv } as const;
+
+export type Lang = keyof typeof translations;
+export type TranslationKey = keyof typeof en;
