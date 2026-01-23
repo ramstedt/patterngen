@@ -1,13 +1,20 @@
+import { ProfileManager } from './components/ProfileManager/ProfileManager';
 import { useI18n } from '../i18n/i18n';
 
 export default function App() {
   const { lang, setLang, t } = useI18n();
 
   return (
-    <div style={{ padding: 16, fontFamily: 'system-ui' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h1>{t('appName')}</h1>
-
+    <>
+      <header
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: 16,
+          fontFamily: 'system-ui',
+        }}
+      >
+        <strong>{t('appName')}</strong>
         <label>
           {t('language')}{' '}
           <select
@@ -20,8 +27,7 @@ export default function App() {
         </label>
       </header>
 
-      <h2>{t('measurements')}</h2>
-      <button>{t('generate')}</button>
-    </div>
+      <ProfileManager />
+    </>
   );
 }

@@ -1,0 +1,156 @@
+.pm-root {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.pm-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pm-layout {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.pm-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  background: white;
+}
+
+.pm-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pm-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.pm-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pm-row label {
+  width: 140px;
+  font-size: 0.9rem;
+}
+
+.pm-input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.pm-fields {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.pm-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pm-field {
+  display: grid;
+  grid-template-columns: 1fr 120px 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+.pm-btnrow {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pm-muted {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.pm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.pm-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.pm-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Mobile-first buttons */
+button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #eee;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Desktop layout enhancements */
+@media (min-width: 820px) {
+  .pm-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pm-layout {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .pm-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}

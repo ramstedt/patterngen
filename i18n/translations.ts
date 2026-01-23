@@ -14,7 +14,10 @@ const en = {
   cancel: 'Cancel',
   saved: 'Saved',
   confirmDeleteProfile: 'Delete this profile? This cannot be undone.',
-  cm: 'cm',
+  noProfileSelected: 'No profile selected.',
+  profileExists:
+    'A profile with this name already exists. Please choose a different name.',
+  eg: 'e.g.',
 
   // measurements (from Måttschema)
   backWaistLength: 'Back waist length',
@@ -31,7 +34,6 @@ const en = {
   armLength: 'Arm length',
   upperArmCircumference: 'Upper arm circumference',
   elbowCircumference: 'Elbow circumference',
-
   wristCircumference: 'Wrist circumference',
   chestWidth: 'Chest width',
   bustPoint: 'Bust point',
@@ -63,7 +65,10 @@ const sv: Record<keyof typeof en, string> = {
   cancel: 'Avbryt',
   saved: 'Sparat',
   confirmDeleteProfile: 'Ta bort profilen? Detta går inte att ångra.',
-  cm: 'cm',
+  noProfileSelected: 'Ingen profil vald.',
+  profileExists:
+    'Det finns redan en profil med det namnet. Vänligen välj ett annat namn.',
+  eg: 't.ex.',
 
   // measurements (från Måttschema)
   backWaistLength: 'Livlängd bak',
@@ -80,7 +85,6 @@ const sv: Record<keyof typeof en, string> = {
   armLength: 'Armlängd',
   upperArmCircumference: 'Överarmsvidd',
   elbowCircumference: 'Armbågsvidd',
-
   wristCircumference: 'Handledsvidd',
   chestWidth: 'Bröstbredd',
   bustPoint: 'Bystpunkt',
