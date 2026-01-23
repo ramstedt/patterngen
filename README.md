@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+# PatternGen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**PatternGen** is an experimental web-based tool for bespoke clothing pattern making.  
+It explores how body measurements and tailoring mathematics can be translated into code.
 
-Currently, two official plugins are available:
+This project is **early-stage and a work in progress**, built as part of a course I am taking in bespoke pattern construction.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> ⚠️ Current features represent the initial foundation. Pattern generation is not yet implemented.
 
-## Expanding the ESLint configuration
+- 📏 Comprehensive measurement schema based on tailoring practice
+- 👤 Multiple measurement profiles (for different people or clients)
+- 💾 Persistent storage using localStorage
+- 🌍 Bilingual UI (English / Swedish)
+- 📱 Mobile-first responsive UI
+- 🧵 Strongly typed measurement model in TypeScript
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🧠 Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **React** + **TypeScript**
+- **Vite**
+- **react-hook-form** + **Zod** (typed forms & validation)
+- **LocalStorage** for persistence
+- **CSS** keeping it simple with good old .css files!
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🧵 Measurements
+
+The measurement model follows traditional pattern drafting terminology, including:
+
+- Bust, waist, and hip circumferences
+- Back and front waist lengths
+- Bust point and bust height
+- Shoulder width and arm measurements
+- Trouser rise, inseam, and crotch depth
+
+All units are stored in **centimeters (cm)**.
+
+---
+
+## 🚀 Getting Started
+
+### Install dependencies
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Start the dev server
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Open:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🧪 Development Notes
+
+- Profiles are stored locally in the browser and persist between sessions.
+- Measurement profiles must have **unique names**.
+- The UI defaults to the browser language (Swedish or English) and can be changed manually.
+
+---
+
+## 🎯 Planned Roadmap
+
+- SVG pattern drafting and visual preview
+- Export to PDF / DXF for pattern printing
+- Parametric bodice, skirt, and trouser block generators
+- Measurement validation rules based on tailoring theory
+
+---
+
+## 📜 License
+
+This project is released for **personal and educational use only**.
+
+You are free to:
+
+- Use and modify the code for personal projects and learning
+- Run and experiment with the software locally
+
+You may **not**:
+
+- Use this project commercially
+- Redistribute or sell the software or derivatives
+- Use it in proprietary or paid products without permission
+
+If you would like to use this project commercially, please contact me.
