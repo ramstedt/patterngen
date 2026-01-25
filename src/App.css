@@ -4,20 +4,3 @@
   padding: 2rem;
   text-align: center;
 }
-
-button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f7f7f7;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #eee;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}

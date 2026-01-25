@@ -13,6 +13,13 @@ const en = {
   saveProfile: 'Save profile',
   cancel: 'Cancel',
   saved: 'Saved',
+  notSaved: 'Not saved',
+  unsavedChanges: 'Unsaved changes',
+  women: 'Women',
+  men: 'Men',
+  size: 'Size',
+  chart: 'Chart',
+  updated: 'Updated',
   confirmDeleteProfile: 'Delete this profile? This cannot be undone.',
   noProfileSelected: 'No profile selected.',
   profileExists:
@@ -20,7 +27,12 @@ const en = {
   eg: 'e.g.',
   standardSizes: 'Standard sizes',
   standardSizesExplanation:
-    'These sizes are only for testing purposes. For correct patterns, always use your own personal measurements!',
+    'These sizes are only for testing purposes. For correct patterns, always use your own personal measurements! The values are based on the European sizing systems (EN 13402 / ISO 8559). Values represent statistical averages, not bespoke tailoring measurements',
+  fillInMeaseurements:
+    'Fill in the measurements and save to create the profile',
+  rememberToSave: 'Remember to save your changes.',
+  nothingToSave: 'No changes to save.',
+  applyStandardSize: 'Apply standard size to form',
 
   // measurements (from Måttschema)
   backWaistLength: 'Back waist length',
@@ -67,6 +79,13 @@ const sv: Record<keyof typeof en, string> = {
   saveProfile: 'Spara profil',
   cancel: 'Avbryt',
   saved: 'Sparat',
+  notSaved: 'Inte sparat',
+  unsavedChanges: 'Osparade ändringar',
+  women: 'Dam',
+  men: 'Herr',
+  size: 'Storlek',
+  chart: 'Tabell',
+  updated: 'Uppdaterad',
   confirmDeleteProfile: 'Ta bort profilen? Detta går inte att ångra.',
   noProfileSelected: 'Ingen profil vald.',
   profileExists:
@@ -74,7 +93,12 @@ const sv: Record<keyof typeof en, string> = {
   eg: 't.ex.',
   standardSizes: 'Standardstorlekar',
   standardSizesExplanation:
-    'Dessa storlekar är endast för att testa. Du måste ange dina egna personliga mått för att kunna generera korrekta mönster!',
+    'Dessa storlekar är endast för att testa. Du måste ange dina egna personliga mått för att kunna generera korrekta mönster! Måtten är baserade på europeiska storlekssystem (EN 13402 / ISO 8559). Värdena representerar statistiska medelvärden, inte skräddarsydda mått.',
+  fillInMeaseurements:
+    'Skapa din profil genom att fylla i dina mått och spara.',
+  rememberToSave: 'Glöm inte att spara dina ändringar',
+  nothingToSave: 'Det finns inga ändringar att spara.',
+  applyStandardSize: 'Fyll i formuläret med måtten från standardstorleken.',
 
   // measurements (från Måttschema)
   backWaistLength: 'Livlängd bak',

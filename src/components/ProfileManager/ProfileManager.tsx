@@ -259,7 +259,7 @@ export function ProfileManager() {
                 className='pm-select'
               >
                 <option value='' disabled>
-                  —
+                  -
                 </option>
                 {profiles.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -272,7 +272,9 @@ export function ProfileManager() {
 
           {active && (
             <div className='pm-muted' style={{ marginTop: 12 }}>
-              <div>Updated: {new Date(active.updatedAt).toLocaleString()}</div>
+              <div>
+                {t('updated')}: {new Date(active.updatedAt).toLocaleString()}
+              </div>
             </div>
           )}
         </div>
@@ -284,10 +286,10 @@ export function ProfileManager() {
                 <label>{t('profileName')}</label>
                 <span className='pm-status' aria-live='polite'>
                   {mode === 'new'
-                    ? 'Not saved'
+                    ? t('notSaved')
                     : isDirty
-                      ? 'Unsaved changes'
-                      : 'Saved'}
+                      ? t('unsavedChanges')
+                      : t('saved')}
                 </span>
               </div>
               <input
@@ -299,119 +301,120 @@ export function ProfileManager() {
             </div>
 
             {mode === 'new' && (
-              <div className='pm-card' style={{ marginTop: 12 }}>
-                <div
-                  className='pm-row'
-                  style={{ justifyContent: 'space-between' }}
-                >
+              <details className='pm-accordion'>
+                <summary className='pm-accordionSummary'>
                   <strong>{t('standardSizes')}</strong>
-                </div>
-                <p>
-                  <small>{t('standardSizesExplanation')}</small>
-                </p>
-                <div style={{ marginTop: 10 }}>
-                  <label className='pm-label' style={{ marginBottom: 6 }}>
-                    Chart
-                  </label>
-                  <select
-                    value={standardChart}
-                    onChange={(e) =>
-                      setStandardChart(e.target.value as 'women' | 'men')
-                    }
-                    className='pm-select'
-                  >
-                    <option value='women'>Women</option>
-                    <option value='men'>Men</option>
-                  </select>
-                </div>
+                </summary>
 
-                <div style={{ marginTop: 10 }}>
-                  <label className='pm-label' style={{ marginBottom: 6 }}>
-                    Size
-                  </label>
+                <div className='pm-accordionBody'>
+                  <p className='pm-muted' style={{ marginTop: 8 }}>
+                    <small>{t('standardSizesExplanation')}</small>
+                  </p>
 
-                  {standardChart === 'women' ? (
+                  <div style={{ marginTop: 10 }}>
+                    <label className='pm-label' style={{ marginBottom: 6 }}>
+                      {t('chart')}
+                    </label>
                     <select
-                      value={womenSize}
+                      value={standardChart}
                       onChange={(e) =>
-                        setWomenSize(e.target.value as StandardSize)
+                        setStandardChart(e.target.value as 'women' | 'men')
                       }
                       className='pm-select'
                     >
-                      {(
-                        [
-                          'C30',
-                          'C32',
-                          'C34',
-                          'C36',
-                          'C38',
-                          'C40',
-                          'C42',
-                          'C44',
-                          'C46',
-                          'C48',
-                          'C50',
-                          'C52',
-                          'C54',
-                          'C56',
-                          'C58',
-                          'C60',
-                        ] as StandardSize[]
-                      ).map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
+                      <option value='women'>{t('women')}</option>
+                      <option value='men'>{t('men')}</option>
                     </select>
-                  ) : (
-                    <select
-                      value={menSize}
-                      onChange={(e) => setMenSize(e.target.value as MenSize)}
-                      className='pm-select'
-                    >
-                      {(
-                        [
-                          'C40',
-                          'C42',
-                          'C44',
-                          'C46',
-                          'C48',
-                          'C50',
-                          'C52',
-                          'C54',
-                          'C56',
-                          'C58',
-                          'C60',
-                          'C62',
-                          'C64',
-                          'C66',
-                          'C68',
-                          'C70',
-                        ] as MenSize[]
-                      ).map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
+                  </div>
 
-                <div className='pm-btnrow'>
-                  <button
-                    type='button'
-                    onClick={() => {
-                      const preset =
-                        standardChart === 'women'
-                          ? measurementsFromStandardSize(womenSize)
-                          : measurementsFromMenStandardSize(menSize);
-                      applyPresetToForm(preset);
-                    }}
-                  >
-                    Apply standard size to form
-                  </button>
+                  <div style={{ marginTop: 10 }}>
+                    <label className='pm-label' style={{ marginBottom: 6 }}>
+                      {t('size')}
+                    </label>
+
+                    {standardChart === 'women' ? (
+                      <select
+                        value={womenSize}
+                        onChange={(e) =>
+                          setWomenSize(e.target.value as StandardSize)
+                        }
+                        className='pm-select'
+                      >
+                        {(
+                          [
+                            'C30',
+                            'C32',
+                            'C34',
+                            'C36',
+                            'C38',
+                            'C40',
+                            'C42',
+                            'C44',
+                            'C46',
+                            'C48',
+                            'C50',
+                            'C52',
+                            'C54',
+                            'C56',
+                            'C58',
+                            'C60',
+                          ] as StandardSize[]
+                        ).map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select
+                        value={menSize}
+                        onChange={(e) => setMenSize(e.target.value as MenSize)}
+                        className='pm-select'
+                      >
+                        {(
+                          [
+                            'C40',
+                            'C42',
+                            'C44',
+                            'C46',
+                            'C48',
+                            'C50',
+                            'C52',
+                            'C54',
+                            'C56',
+                            'C58',
+                            'C60',
+                            'C62',
+                            'C64',
+                            'C66',
+                            'C68',
+                            'C70',
+                          ] as MenSize[]
+                        ).map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  <div className='pm-btnrow'>
+                    <button
+                      type='button'
+                      onClick={() => {
+                        const preset =
+                          standardChart === 'women'
+                            ? measurementsFromStandardSize(womenSize)
+                            : measurementsFromMenStandardSize(menSize);
+                        applyPresetToForm(preset);
+                      }}
+                    >
+                      {t('applyStandardSize')}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </details>
             )}
 
             <div className='pm-fields'>
@@ -462,10 +465,10 @@ export function ProfileManager() {
               {savedMsg && <span style={{ marginLeft: 8 }}>{t('saved')}</span>}
               <span className='pm-muted'>
                 {mode === 'new'
-                  ? 'Fill in the measurements and save to create the profile.'
+                  ? t('fillInMeaseurements')
                   : isDirty
-                    ? 'Remember to save your changes.'
-                    : 'No changes to save.'}
+                    ? t('rememberToSave')
+                    : t('nothingToSave')}
               </span>
             </div>
           </form>

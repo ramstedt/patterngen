@@ -1,14 +1,38 @@
+/* ProfileManager (scoped styles) */
 .pm-root {
+  /* theme tokens */
+  --pm-font: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --pm-text: #111;
+  --pm-muted: #555;
+
+  --pm-bg: #fff;
+  --pm-surface: #fff;
+
+  --pm-border: #ccc;
+  --pm-border-soft: #ddd;
+  --pm-divider: #eee;
+
+  --pm-radius: 12px;
+  --pm-radius-sm: 6px;
+
+  --pm-pad: 12px;
+  --pm-pad-sm: 8px;
+
+  --pm-gap: 8px;
+  --pm-gap-lg: 16px;
+
+  --pm-font-sm: 0.9rem;
+  --pm-font-xs: 0.8rem;
+  --pm-font-base: 1rem;
+
   max-width: 960px;
   margin: 0 auto;
   padding: 16px;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: var(--pm-font);
+  color: var(--pm-text);
 }
 
+/* Layout */
 .pm-header {
   display: flex;
   flex-direction: column;
@@ -18,55 +42,59 @@
 .pm-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--pm-gap);
 }
 
 .pm-layout {
   margin-top: 12px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: var(--pm-gap-lg);
 }
 
+/* Cards */
 .pm-card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 12px;
-  background: white;
+  border: 1px solid var(--pm-border-soft);
+  border-radius: var(--pm-radius);
+  padding: var(--pm-pad);
+  background: var(--pm-surface);
 }
 
+/* Form controls */
 .pm-label {
   display: block;
   margin-bottom: 6px;
-  font-size: 0.9rem;
+  font-size: var(--pm-font-sm);
   font-weight: 500;
 }
 
-.pm-select {
+.pm-input,
+.pm-select,
+.pm-field input[type='number'] {
   width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.pm-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.pm-row label {
-  width: 140px;
-  font-size: 0.9rem;
+  padding: var(--pm-pad-sm);
+  box-sizing: border-box;
+  border-radius: var(--pm-radius-sm);
+  border: 1px solid var(--pm-border);
+  font-size: var(--pm-font-base);
+  background: var(--pm-bg);
 }
 
 .pm-input {
   flex: 1;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+}
+
+/* Rows / fields */
+.pm-row {
+  display: flex;
+  gap: var(--pm-gap);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pm-row label {
+  width: 140px;
+  font-size: var(--pm-font-sm);
 }
 
 .pm-fields {
@@ -85,7 +113,7 @@
 .pm-field {
   display: grid;
   grid-template-columns: 1fr 120px 40px;
-  gap: 8px;
+  gap: var(--pm-gap);
   align-items: center;
 }
 
@@ -93,15 +121,17 @@
   margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--pm-gap);
   align-items: center;
 }
 
 .pm-muted {
-  font-size: 0.8rem;
+  font-size: var(--pm-font-xs);
   opacity: 0.7;
+  color: var(--pm-muted);
 }
 
+/* Tables */
 .pm-table {
   width: 100%;
   border-collapse: collapse;
@@ -110,7 +140,7 @@
 
 .pm-table td {
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--pm-divider);
   vertical-align: top;
 }
 
@@ -120,25 +150,42 @@
   font-weight: 500;
 }
 
-/* Mobile-first buttons */
-button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f7f7f7;
+/* Accordion */
+.pm-accordion {
+  border: 1px solid var(--pm-divider);
+  border-radius: var(--pm-radius);
+  padding: 10px 12px;
+  margin-top: 12px;
+  background: var(--pm-surface);
+}
+
+.pm-accordionSummary {
   cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pm-gap);
 }
 
-button:hover {
-  background: #eee;
+.pm-accordionSummary::-webkit-details-marker {
+  display: none;
 }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.pm-accordionSummary::after {
+  content: '▾';
+  opacity: 0.7;
 }
 
-/* Desktop layout enhancements */
+.pm-accordion[open] .pm-accordionSummary::after {
+  content: '▴';
+}
+
+.pm-accordionBody {
+  padding-top: 6px;
+}
+
+/* Responsive */
 @media (min-width: 820px) {
   .pm-header {
     flex-direction: row;
