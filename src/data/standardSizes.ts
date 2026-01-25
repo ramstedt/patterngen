@@ -42,7 +42,7 @@ export function measurementsFromStandardSize(
     hipDepth: v(r.hipDepth, size),
 
     // Not in chart: keep as 0
-    totalLength: womenChart.meta.heightCm,
+    totalLength: womenChart.meta.height,
     sideHeight: 0,
     shoulderHeight: 0,
     sideMeasurement: 0,

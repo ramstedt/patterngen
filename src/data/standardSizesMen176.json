@@ -1,7 +1,7 @@
 {
   "meta": {
     "label": "Standard sizes (men)",
-    "heightCm": 176,
+    "height": 176,
     "unit": "cm",
     "description": "Standard body measurement tables for menswear, based on European sizing systems (EN 13402 / ISO 8559) and industry grading references. Values represent statistical averages, not bespoke tailoring measurements."
   },
