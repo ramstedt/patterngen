@@ -1,8 +1,9 @@
 {
   "meta": {
-    "label": "Standardstorlekar herr 176 cm",
+    "label": "Standard sizes (men)",
     "heightCm": 176,
-    "units": "cm"
+    "unit": "cm",
+    "description": "Standard body measurement tables for menswear, based on European sizing systems (EN 13402 / ISO 8559) and industry grading references. Values represent statistical averages, not bespoke tailoring measurements."
   },
   "sizes": [
     "C40",

@@ -1,8 +1,9 @@
 {
   "meta": {
-    "label": "Standardstorlekar dam 168 cm",
+    "label": "Standard sizes (women)",
     "heightCm": 168,
-    "units": "cm"
+    "unit": "cm",
+    "description": "Standard female body measurements based on European sizing systems (EN 13402 / ISO 8559) and industry grading references. Values represent statistical averages, not bespoke tailoring measurements."
   },
   "sizes": [
     "C30",
