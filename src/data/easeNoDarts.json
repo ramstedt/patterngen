@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "unit": "cm",
+    "description": "Ease-based grading offsets for bodice and sleeve construction without darts",
+    "rounding": "0.5cm increments recommended",
+    "usage": "Select by ease or interpolate between steps for bespoke drafting."
+  },
+
+  "fitStyles": {
+    "tight": {
+      "easeMultiplier": 0.8,
+      "description": "Close-fitting, tailored"
+    },
+    "regular": {
+      "easeMultiplier": 1.0,
+      "description": "Standard classic fit"
+    },
+    "oversized": {
+      "easeMultiplier": 1.3,
+      "description": "Loose/oversized fashion fit"
+    }
+  },
+
+  "easeTable": [
+    {
+      "ease": 8,
+      "armholeDepth": 0.5,
+      "bust": 8,
+      "armholeWidth": { "bustUnder110": -1.25, "bustOverOrEqual110": -5.8 },
+      "neck": 0.75,
+      "shoulder": 1,
+      "sleeveLength": 0,
+      "upperArm": [6, 7],
+      "waistHipSeat": 8,
+      "wrist": 8
+    },
+    {
+      "ease": 10,
+      "armholeDepth": 1,
+      "bust": 10,
+      "armholeWidth": { "bustUnder110": -1, "bustOverOrEqual110": -5.6 },
+      "neck": 1.5,
+      "shoulder": 1,
+      "sleeveLength": 0,
+      "upperArm": [7, 8],
+      "waistHipSeat": 10,
+      "wrist": 8.5
+    },
+    {
+      "ease": 12,
+      "armholeDepth": 1.5,
+      "bust": 12,
+      "armholeWidth": { "bustUnder110": -0.75, "bustOverOrEqual110": -5.4 },
+      "neck": 2.25,
+      "shoulder": 1.5,
+      "sleeveLength": 1,
+      "upperArm": [8, 9],
+      "waistHipSeat": 12,
+      "wrist": 9.5
+    },
+    {
+      "ease": 14,
+      "armholeDepth": 2,
+      "bust": 14,
+      "armholeWidth": { "bustUnder110": -0.5, "bustOverOrEqual110": -5.2 },
+      "neck": 3,
+      "shoulder": 1.5,
+      "sleeveLength": 1,
+      "upperArm": [9, 10],
+      "waistHipSeat": 14,
+      "wrist": 10.5
+    },
+    {
+      "ease": 16,
+      "armholeDepth": 2.5,
+      "bust": 16,
+      "armholeWidth": { "bustUnder110": -0.25, "bustOverOrEqual110": -5 },
+      "neck": 3.75,
+      "shoulder": 1.5,
+      "sleeveLength": 1,
+      "upperArm": [10, 11],
+      "waistHipSeat": 16,
+      "wrist": 11.5
+    },
+    {
+      "ease": 18,
+      "armholeDepth": 3,
+      "bust": 18,
+      "armholeWidth": { "bustUnder110": 0, "bustOverOrEqual110": -4.8 },
+      "neck": 4.5,
+      "shoulder": 2,
+      "sleeveLength": 1,
+      "upperArm": [11, 12],
+      "waistHipSeat": 18,
+      "wrist": 12.5
+    },
+    {
+      "ease": 20,
+      "armholeDepth": 3.5,
+      "bust": 20,
+      "armholeWidth": { "bustUnder110": 0.25, "bustOverOrEqual110": -4.6 },
+      "neck": 5,
+      "shoulder": 2,
+      "sleeveLength": 2,
+      "upperArm": [12, 13],
+      "waistHipSeat": 20,
+      "wrist": 13.5
+    },
+    {
+      "ease": 22,
+      "armholeDepth": 4,
+      "bust": 22,
+      "armholeWidth": { "bustUnder110": 0.5, "bustOverOrEqual110": -4.4 },
+      "neck": 5.5,
+      "shoulder": 2,
+      "sleeveLength": 2,
+      "upperArm": [13, 14],
+      "waistHipSeat": 22,
+      "wrist": 14.5
+    },
+    {
+      "ease": 24,
+      "armholeDepth": 4.5,
+      "bust": 24,
+      "armholeWidth": { "bustUnder110": 0.75, "bustOverOrEqual110": -4.2 },
+      "neck": 6,
+      "shoulder": 2.5,
+      "sleeveLength": 2,
+      "upperArm": [14, 15],
+      "waistHipSeat": 24,
+      "wrist": 15.5
+    },
+    {
+      "ease": 26,
+      "armholeDepth": 5,
+      "bust": 26,
+      "armholeWidth": { "bustUnder110": 1, "bustOverOrEqual110": -4 },
+      "neck": 6.5,
+      "shoulder": 2.5,
+      "sleeveLength": 2,
+      "upperArm": [15, 16],
+      "waistHipSeat": 26,
+      "wrist": 16.5
+    },
+    {
+      "ease": 28,
+      "armholeDepth": 5.5,
+      "bust": 28,
+      "armholeWidth": { "bustUnder110": 1.25, "bustOverOrEqual110": -3.8 },
+      "neck": 6.75,
+      "shoulder": 2.5,
+      "sleeveLength": 2,
+      "upperArm": [16, 17],
+      "waistHipSeat": 28,
+      "wrist": 17.5
+    },
+    {
+      "ease": 30,
+      "armholeDepth": 6,
+      "bust": 30,
+      "armholeWidth": { "bustUnder110": 1.5, "bustOverOrEqual110": -3.6 },
+      "neck": 7,
+      "shoulder": 3,
+      "sleeveLength": 2,
+      "upperArm": [17, 18],
+      "waistHipSeat": 30,
+      "wrist": 18.5
+    },
+    {
+      "ease": 32,
+      "armholeDepth": 6.5,
+      "bust": 32,
+      "armholeWidth": { "bustUnder110": 1.75, "bustOverOrEqual110": -3.4 },
+      "neck": 7.25,
+      "shoulder": 3,
+      "sleeveLength": 2,
+      "upperArm": [18, 19],
+      "waistHipSeat": 32,
+      "wrist": 19.5
+    },
+    {
+      "ease": 34,
+      "armholeDepth": 7,
+      "bust": 34,
+      "armholeWidth": { "bustUnder110": 2, "bustOverOrEqual110": -3.2 },
+      "neck": 7.5,
+      "shoulder": 3,
+      "sleeveLength": 2,
+      "upperArm": [19, 20],
+      "waistHipSeat": 34,
+      "wrist": 20.5
+    },
+    {
+      "ease": 36,
+      "armholeDepth": 7.5,
+      "bust": 36,
+      "armholeWidth": { "bustUnder110": 2.25, "bustOverOrEqual110": -3 },
+      "neck": 7.75,
+      "shoulder": 3,
+      "sleeveLength": 2,
+      "upperArm": [20, 21],
+      "waistHipSeat": 36,
+      "wrist": 21.5
+    }
+  ]
+}

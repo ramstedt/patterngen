@@ -1,0 +1,18 @@
+{
+  "meta": {
+    "unit": "cm",
+    "description": "Armhole depth by bust/chest category. Values are vertical armscye depth from shoulder line.",
+    "rounding": "0.5cm increments recommended",
+    "usage": "Select by bust/chest range or interpolate between ranges for bespoke drafting."
+  },
+  "women": [
+    { "bustRange": "68-72", "armholeDepth": 19 },
+    { "bustRange": "73-77", "armholeDepth": 19.5 },
+    { "bustRange": "78-82", "armholeDepth": 20 }
+  ],
+
+  "men": [
+    { "chestRange": "71-77", "armholeDepth": 20.5 },
+    { "chestRange": "78-83", "armholeDepth": 21 }
+  ]
+}
