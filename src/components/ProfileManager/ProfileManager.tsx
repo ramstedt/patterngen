@@ -10,6 +10,12 @@ import {
   upsertProfile,
 } from '../../storage/profiles';
 import './ProfileManager.css';
+import {
+  measurementsFromStandardSize,
+  measurementsFromMenStandardSize,
+  type MenSize,
+  type StandardSize,
+} from '../../data/standardSizes';
 
 const measurementSchema = z.object({
   backWaistLength: z.number().nonnegative(),
@@ -52,7 +58,6 @@ function uid() {
 }
 
 const FIELDS: Array<{ key: keyof Measurements; group: 'upper' | 'lower' }> = [
-  // Left column group (upper body-ish)
   { key: 'backWaistLength', group: 'upper' },
   { key: 'totalLength', group: 'upper' },
   { key: 'backWidth', group: 'upper' },
@@ -67,6 +72,7 @@ const FIELDS: Array<{ key: keyof Measurements; group: 'upper' | 'lower' }> = [
   { key: 'armLength', group: 'upper' },
   { key: 'upperArmCircumference', group: 'upper' },
   { key: 'elbowCircumference', group: 'upper' },
+
   { key: 'wristCircumference', group: 'lower' },
   { key: 'chestWidth', group: 'lower' },
   { key: 'bustPoint', group: 'lower' },
@@ -93,6 +99,10 @@ export function ProfileManager() {
   const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view');
   const [savedMsg, setSavedMsg] = useState(false);
 
+  const [standardChart, setStandardChart] = useState<'women' | 'men'>('women');
+  const [womenSize, setWomenSize] = useState<StandardSize>('C44');
+  const [menSize, setMenSize] = useState<MenSize>('C50');
+
   useEffect(() => {
     const p = loadProfiles();
     setProfiles(p);
@@ -108,18 +118,21 @@ export function ProfileManager() {
     () => z.object({ name: z.string().min(1), ...measurementSchema.shape }),
     [],
   );
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: '', ...emptyMeasurements },
     mode: 'onSubmit',
   });
 
+  const { isDirty, isSubmitting } = form.formState;
+
   // When selecting a profile, load it into the form (view/edit)
   useEffect(() => {
     if (!active) return;
     form.reset({ name: active.name, ...active.measurements });
     setMode('view');
-  }, [activeId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeId]);
 
   function refresh() {
     const p = loadProfiles();
@@ -131,6 +144,21 @@ export function ProfileManager() {
     setMode('new');
     setActiveId(null);
     form.reset({ name: '', ...emptyMeasurements });
+  }
+
+  function applyPresetToForm(preset: Partial<Measurements>) {
+    // Keep typed name
+    for (const { key } of FIELDS) {
+      const raw =
+        (preset as Partial<Record<keyof Measurements, number>>)[key] ?? 0;
+      const next = roundToHalf(raw);
+      form.setValue(key as any, next, { shouldDirty: true });
+    }
+  }
+
+  function roundToHalf(value: number) {
+    // Round to nearest 0.5 cm
+    return Math.round(value * 2) / 2;
   }
 
   function startEdit() {
@@ -163,7 +191,7 @@ export function ProfileManager() {
     }
 
     const measurements: Measurements = Object.fromEntries(
-      FIELDS.map((f) => [f.key, values[f.key]]),
+      FIELDS.map((f) => [f.key, roundToHalf(values[f.key])]),
     ) as Measurements;
 
     const profile: Profile = {
@@ -184,9 +212,27 @@ export function ProfileManager() {
 
   function onDelete() {
     if (!active) return;
+    const deletingId = active.id;
+
     if (!confirm(t('confirmDeleteProfile'))) return;
-    deleteProfile(active.id);
-    refresh();
+
+    deleteProfile(deletingId);
+
+    // Reload and update UI immediately so the deleted profile disappears without refresh
+    const p = loadProfiles();
+    setProfiles(p);
+
+    const nextActiveId = p[0]?.id ?? null;
+    setActiveId(nextActiveId);
+
+    setMode('view');
+
+    if (nextActiveId) {
+      const next = p.find((x) => x.id === nextActiveId);
+      if (next) form.reset({ name: next.name, ...next.measurements });
+    } else {
+      form.reset({ name: '', ...emptyMeasurements });
+    }
   }
 
   return (
@@ -194,44 +240,35 @@ export function ProfileManager() {
       <div className='pm-header'>
         <h2 style={{ margin: 0 }}>{t('profiles')}</h2>
         <div className='pm-actions'>
-          <button type='button' onClick={startNew}>
-            {t('newProfile')}
-          </button>
-          <button
-            type='button'
-            onClick={startEdit}
-            disabled={!active || mode === 'new'}
-          >
-            {t('editProfile')}
-          </button>
-          <button
-            type='button'
-            onClick={onDelete}
-            disabled={!active || mode === 'new'}
-          >
-            {t('deleteProfile')}
-          </button>
+          {!canEdit && (
+            <button type='button' onClick={startNew}>
+              {t('newProfile')}
+            </button>
+          )}
         </div>
       </div>
 
       <div className='pm-layout'>
         <div>
-          <label className='pm-label'>{t('selectProfile')}</label>
-          <select
-            value={activeId ?? ''}
-            onChange={(e) => setActiveId(e.target.value || null)}
-            disabled={mode === 'new'}
-            className='pm-select'
-          >
-            <option value='' disabled>
-              —
-            </option>
-            {profiles.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          {!canEdit && profiles.length > 0 && (
+            <>
+              <label className='pm-label'>{t('selectProfile')}</label>
+              <select
+                value={activeId ?? ''}
+                onChange={(e) => setActiveId(e.target.value || null)}
+                className='pm-select'
+              >
+                <option value='' disabled>
+                  —
+                </option>
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
 
           {active && (
             <div className='pm-muted' style={{ marginTop: 12 }}>
@@ -242,8 +279,17 @@ export function ProfileManager() {
 
         {showForm && (
           <form onSubmit={form.handleSubmit(onSave)} className='pm-card'>
-            <div className='pm-row'>
-              <label>{t('profileName')}</label>
+            <div className='pm-row' style={{ justifyContent: 'space-between' }}>
+              <div className='pm-row'>
+                <label>{t('profileName')}</label>
+                <span className='pm-status' aria-live='polite'>
+                  {mode === 'new'
+                    ? 'Not saved'
+                    : isDirty
+                      ? 'Unsaved changes'
+                      : 'Saved'}
+                </span>
+              </div>
               <input
                 {...form.register('name')}
                 disabled={!canEdit}
@@ -251,6 +297,122 @@ export function ProfileManager() {
                 className='pm-input'
               />
             </div>
+
+            {mode === 'new' && (
+              <div className='pm-card' style={{ marginTop: 12 }}>
+                <div
+                  className='pm-row'
+                  style={{ justifyContent: 'space-between' }}
+                >
+                  <strong>{t('standardSizes')}</strong>
+                </div>
+                <p>
+                  <small>{t('standardSizesExplanation')}</small>
+                </p>
+                <div style={{ marginTop: 10 }}>
+                  <label className='pm-label' style={{ marginBottom: 6 }}>
+                    Chart
+                  </label>
+                  <select
+                    value={standardChart}
+                    onChange={(e) =>
+                      setStandardChart(e.target.value as 'women' | 'men')
+                    }
+                    className='pm-select'
+                  >
+                    <option value='women'>Women</option>
+                    <option value='men'>Men</option>
+                  </select>
+                </div>
+
+                <div style={{ marginTop: 10 }}>
+                  <label className='pm-label' style={{ marginBottom: 6 }}>
+                    Size
+                  </label>
+
+                  {standardChart === 'women' ? (
+                    <select
+                      value={womenSize}
+                      onChange={(e) =>
+                        setWomenSize(e.target.value as StandardSize)
+                      }
+                      className='pm-select'
+                    >
+                      {(
+                        [
+                          'C30',
+                          'C32',
+                          'C34',
+                          'C36',
+                          'C38',
+                          'C40',
+                          'C42',
+                          'C44',
+                          'C46',
+                          'C48',
+                          'C50',
+                          'C52',
+                          'C54',
+                          'C56',
+                          'C58',
+                          'C60',
+                        ] as StandardSize[]
+                      ).map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <select
+                      value={menSize}
+                      onChange={(e) => setMenSize(e.target.value as MenSize)}
+                      className='pm-select'
+                    >
+                      {(
+                        [
+                          'C40',
+                          'C42',
+                          'C44',
+                          'C46',
+                          'C48',
+                          'C50',
+                          'C52',
+                          'C54',
+                          'C56',
+                          'C58',
+                          'C60',
+                          'C62',
+                          'C64',
+                          'C66',
+                          'C68',
+                          'C70',
+                        ] as MenSize[]
+                      ).map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div className='pm-btnrow'>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const preset =
+                        standardChart === 'women'
+                          ? measurementsFromStandardSize(womenSize)
+                          : measurementsFromMenStandardSize(menSize);
+                      applyPresetToForm(preset);
+                    }}
+                  >
+                    Apply standard size to form
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className='pm-fields'>
               {['upper', 'lower'].map((group) => (
@@ -260,10 +422,19 @@ export function ProfileManager() {
                       <label>{t(key as any)}</label>
                       <input
                         type='number'
-                        step='0.1'
+                        step='0.01'
                         inputMode='decimal'
                         disabled={!canEdit}
                         {...form.register(key as any, { valueAsNumber: true })}
+                        onBlur={(e) => {
+                          const raw = e.target.valueAsNumber;
+                          if (!isNaN(raw)) {
+                            const rounded = roundToHalf(raw);
+                            form.setValue(key as any, rounded, {
+                              shouldDirty: true,
+                            });
+                          }
+                        }}
                         style={{ padding: 8 }}
                       />
                       <span style={{ opacity: 0.8 }}>cm</span>
@@ -274,18 +445,32 @@ export function ProfileManager() {
             </div>
 
             <div className='pm-btnrow'>
-              <button type='submit' disabled={!canEdit}>
+              <button
+                type='submit'
+                disabled={!canEdit || !isDirty || isSubmitting}
+              >
                 {t('saveProfile')}
               </button>
+              {mode === 'edit' && active && (
+                <button type='button' onClick={onDelete}>
+                  {t('deleteProfile')}
+                </button>
+              )}
               <button type='button' onClick={cancel}>
                 {t('cancel')}
               </button>
               {savedMsg && <span style={{ marginLeft: 8 }}>{t('saved')}</span>}
+              <span className='pm-muted'>
+                {mode === 'new'
+                  ? 'Fill in the measurements and save to create the profile.'
+                  : isDirty
+                    ? 'Remember to save your changes.'
+                    : 'No changes to save.'}
+              </span>
             </div>
           </form>
         )}
 
-        {/* read-only measurement viewer when not editing/creating a profile */}
         {!showForm && (
           <div className='pm-card'>
             {!active ? (
@@ -296,7 +481,12 @@ export function ProfileManager() {
                   className='pm-row'
                   style={{ justifyContent: 'space-between' }}
                 >
-                  <strong>{active.name}</strong>
+                  <div className='pm-row'>
+                    <strong>{active.name}</strong>
+                    <button type='button' onClick={startEdit}>
+                      {t('editProfile')}
+                    </button>
+                  </div>
                   <span className='pm-muted'>cm</span>
                 </div>
 

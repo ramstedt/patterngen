@@ -18,6 +18,9 @@ const en = {
   profileExists:
     'A profile with this name already exists. Please choose a different name.',
   eg: 'e.g.',
+  standardSizes: 'Standard sizes',
+  standardSizesExplanation:
+    'These sizes are only for testing purposes. For correct patterns, always use your own personal measurements!',
 
   // measurements (from Måttschema)
   backWaistLength: 'Back waist length',
@@ -69,6 +72,9 @@ const sv: Record<keyof typeof en, string> = {
   profileExists:
     'Det finns redan en profil med det namnet. Vänligen välj ett annat namn.',
   eg: 't.ex.',
+  standardSizes: 'Standardstorlekar',
+  standardSizesExplanation:
+    'Dessa storlekar är endast för att testa. Du måste ange dina egna personliga mått för att kunna generera korrekta mönster!',
 
   // measurements (från Måttschema)
   backWaistLength: 'Livlängd bak',
