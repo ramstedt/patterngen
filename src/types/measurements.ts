@@ -20,7 +20,10 @@ export type Measurements = {
   frontWaistLength: number; // Livlängd fram
   bustHeight: number; // Bysthöjd
   sideHeight: number; // Sidhöjd
-  shoulderHeight: number; // Axelhöjd
+  shoulderHeightRightBack: number; // Axelhöjd höger bak
+  shoulderHeightRightFull: number; // Axelhöjd höger hela
+  shoulderHeightLeftBack: number; // Axelhöjd vänster bak
+  shoulderHeightLeftFull: number; // Axelhöjd vänster hela
   sideMeasurement: number; // Sidmått
   kneeHeight: number; // Knähöjd
   trouserLength: number; // Byxlängd

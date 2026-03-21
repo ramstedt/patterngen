@@ -1,0 +1,101 @@
+.ps-root {
+  max-width: 960px;
+  margin: 24px auto 0;
+  padding: 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #111;
+}
+
+.ps-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ps-card {
+  margin-top: 12px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.ps-field + .ps-field {
+  margin-top: 12px;
+}
+
+.ps-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ps-select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.ps-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ps-muted {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  color: #555;
+}
+
+.ps-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+}
+
+.ps-section + .ps-section {
+  margin-top: 16px;
+}
+
+.ps-sectionTitle {
+  margin: 16px 0 0;
+  font-size: 1rem;
+}
+
+.ps-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.ps-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+@media (min-width: 820px) {
+  .ps-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .ps-field + .ps-field {
+    margin-top: 0;
+  }
+
+  .ps-actions {
+    margin-top: 0;
+  }
+}

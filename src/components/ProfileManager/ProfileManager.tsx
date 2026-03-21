@@ -5,6 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useI18n } from '../../../i18n/i18n';
 import type { Measurements, Profile } from '../../types/measurements';
 import {
+  createEmptyMeasurements,
+  formatMeasurement,
+  MEASUREMENT_FIELDS,
+  roundToHalf,
+} from '../../lib/measurements';
+import {
   deleteProfile,
   loadProfiles,
   upsertProfile,
@@ -39,7 +45,10 @@ const measurementSchema = z.object({
   frontWaistLength: z.number().nonnegative(),
   bustHeight: z.number().nonnegative(),
   sideHeight: z.number().nonnegative(),
-  shoulderHeight: z.number().nonnegative(),
+  shoulderHeightRightBack: z.number().nonnegative(),
+  shoulderHeightRightFull: z.number().nonnegative(),
+  shoulderHeightLeftBack: z.number().nonnegative(),
+  shoulderHeightLeftFull: z.number().nonnegative(),
   sideMeasurement: z.number().nonnegative(),
   kneeHeight: z.number().nonnegative(),
   trouserLength: z.number().nonnegative(),
@@ -57,40 +66,8 @@ function uid() {
   );
 }
 
-const FIELDS: Array<{ key: keyof Measurements; group: 'upper' | 'lower' }> = [
-  { key: 'backWaistLength', group: 'upper' },
-  { key: 'totalLength', group: 'upper' },
-  { key: 'backWidth', group: 'upper' },
-  { key: 'neckCircumference', group: 'upper' },
-  { key: 'bustCircumference', group: 'upper' },
-  { key: 'waistCircumference', group: 'upper' },
-  { key: 'hipCircumference', group: 'upper' },
-  { key: 'hipDepth', group: 'upper' },
-  { key: 'hipHeight', group: 'upper' },
-  { key: 'highHipCircumference', group: 'upper' },
-  { key: 'shoulderWidth', group: 'upper' },
-  { key: 'armLength', group: 'upper' },
-  { key: 'upperArmCircumference', group: 'upper' },
-  { key: 'elbowCircumference', group: 'upper' },
-
-  { key: 'wristCircumference', group: 'lower' },
-  { key: 'chestWidth', group: 'lower' },
-  { key: 'bustPoint', group: 'lower' },
-  { key: 'frontWaistLength', group: 'lower' },
-  { key: 'bustHeight', group: 'lower' },
-  { key: 'sideHeight', group: 'lower' },
-  { key: 'shoulderHeight', group: 'lower' },
-  { key: 'sideMeasurement', group: 'lower' },
-  { key: 'kneeHeight', group: 'lower' },
-  { key: 'trouserLength', group: 'lower' },
-  { key: 'inseamLength', group: 'lower' },
-  { key: 'rise', group: 'lower' },
-  { key: 'crotchDepth', group: 'lower' },
-];
-
-const emptyMeasurements: Measurements = Object.fromEntries(
-  FIELDS.map((f) => [f.key, 0]),
-) as Measurements;
+const FIELDS = MEASUREMENT_FIELDS;
+const emptyMeasurements = createEmptyMeasurements();
 
 export function ProfileManager() {
   const { t } = useI18n();
@@ -154,11 +131,6 @@ export function ProfileManager() {
       const next = roundToHalf(raw);
       form.setValue(key as any, next, { shouldDirty: true });
     }
-  }
-
-  function roundToHalf(value: number) {
-    // Round to nearest 0.5 cm
-    return Math.round(value * 2) / 2;
   }
 
   function startEdit() {
@@ -281,6 +253,10 @@ export function ProfileManager() {
 
         {showForm && (
           <form onSubmit={form.handleSubmit(onSave)} className='pm-card'>
+            <p className='pm-muted' style={{ marginTop: 0 }}>
+              <small>{t('measurementRoundingHelp')}</small>
+            </p>
+
             <div className='pm-row' style={{ justifyContent: 'space-between' }}>
               <div className='pm-row'>
                 <label>{t('profileName')}</label>
@@ -498,7 +474,7 @@ export function ProfileManager() {
                     {FIELDS.map(({ key }) => (
                       <tr key={String(key)}>
                         <td>{t(key as any)}</td>
-                        <td>{active.measurements[key].toFixed(1)} cm</td>
+                        <td>{formatMeasurement(active.measurements[key])} cm</td>
                       </tr>
                     ))}
                   </tbody>

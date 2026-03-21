@@ -1,4 +1,5 @@
 import { ProfileManager } from './components/ProfileManager/ProfileManager';
+import { PatternSection } from './components/PatternSection/PatternSection';
 import { useI18n } from '../i18n/i18n';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
       </header>
 
       <ProfileManager />
+      <PatternSection />
     </>
   );
 }
