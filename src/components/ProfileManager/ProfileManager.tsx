@@ -138,27 +138,36 @@ function renderMeasurementField(
   return (
     <Stack
       key={String(key)}
-      direction='row'
-      spacing={1.5}
-      alignItems='center'
+      direction={{ xs: 'column', sm: 'row' }}
+      spacing={{ xs: 0.75, sm: 1.5 }}
+      alignItems={{ xs: 'stretch', sm: 'center' }}
       sx={{ width: '100%' }}
     >
-      <Typography sx={{ flex: '1 1 0', minWidth: 0 }}>{label}</Typography>
-      <TextField
-        type='number'
-        size='small'
-        inputProps={{ step: '0.01', inputMode: 'decimal' }}
-        disabled={!canEdit}
-        sx={{ width: 132 }}
-        {...register(key as never, { valueAsNumber: true })}
-        onBlur={(event) => {
-          const raw = (event.target as HTMLInputElement).valueAsNumber;
-          if (!isNaN(raw)) {
-            onBlur(roundToHalf(raw));
-          }
-        }}
-      />
-      <Typography color='text.secondary'>cm</Typography>
+      <Typography sx={{ minWidth: 0, flex: { sm: '1 1 0' } }}>{label}</Typography>
+      <Stack
+        direction='row'
+        spacing={1}
+        alignItems='center'
+        sx={{ width: { xs: '100%', sm: 'auto' } }}
+      >
+        <TextField
+          type='number'
+          size='small'
+          inputProps={{ step: '0.01', inputMode: 'decimal' }}
+          disabled={!canEdit}
+          sx={{ width: { xs: '100%', sm: 132 } }}
+          {...register(key as never, { valueAsNumber: true })}
+          onBlur={(event) => {
+            const raw = (event.target as HTMLInputElement).valueAsNumber;
+            if (!isNaN(raw)) {
+              onBlur(roundToHalf(raw));
+            }
+          }}
+        />
+        <Typography color='text.secondary' sx={{ flexShrink: 0 }}>
+          cm
+        </Typography>
+      </Stack>
     </Stack>
   );
 }
@@ -313,6 +322,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
   const canEdit = mode === 'edit' || mode === 'new';
   const showForm = mode === 'new' || mode === 'edit';
+  const hasProfiles = profiles.length > 0;
 
   return (
     <Stack spacing={3} sx={{ width: '100%', maxWidth: 768, mx: 'auto' }}>
@@ -324,7 +334,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
           alignItems={{ xs: 'flex-start', sm: 'center' }}
         >
           <Typography variant='h5'>{t('profiles')}</Typography>
-          {!canEdit && (
+          {!canEdit && hasProfiles && (
             <Button variant='contained' onClick={startNew}>
               {t('newProfile')}
             </Button>
@@ -332,7 +342,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
         </Stack>
       )}
 
-      {!showHeader && !canEdit && (
+      {!showHeader && !canEdit && hasProfiles && (
         <Box>
           <Button variant='contained' onClick={startNew}>
             {t('newProfile')}
@@ -341,26 +351,24 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
       )}
 
       <Stack spacing={3}>
-        {!canEdit && (
-          <Paper variant='outlined' sx={{ p: 2 }}>
+        {!canEdit && hasProfiles && (
+          <Paper variant='outlined' sx={{ p: 2, borderColor: 'divider' }}>
             <Stack spacing={2}>
-              {profiles.length > 0 && (
-                <TextField
-                  select
-                  label={t('selectProfile')}
-                  value={activeId ?? ''}
-                  onChange={(event) =>
-                    selectActiveProfile(event.target.value || null)
-                  }
-                  size='small'
-                >
-                  {profiles.map((profile) => (
-                    <MenuItem key={profile.id} value={profile.id}>
-                      {profile.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
+              <TextField
+                select
+                label={t('selectProfile')}
+                value={activeId ?? ''}
+                onChange={(event) =>
+                  selectActiveProfile(event.target.value || null)
+                }
+                size='small'
+              >
+                {profiles.map((profile) => (
+                  <MenuItem key={profile.id} value={profile.id}>
+                    {profile.name}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               {active && (
                 <Typography variant='body2' color='text.secondary'>
@@ -376,10 +384,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
             component='form'
             variant='outlined'
             onSubmit={form.handleSubmit(onSave)}
-            sx={{ p: 2.5 }}
+            sx={{ p: { xs: 2, sm: 2.5 } }}
           >
             <Stack spacing={2.5}>
-              {mode === 'new' && (
+              {(mode === 'new' || (mode === 'edit' && isDirty)) && (
                 <Alert severity='error'>{t('notSaved')}</Alert>
               )}
 
@@ -389,7 +397,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   gap: 2,
                   gridTemplateColumns: {
                     xs: '1fr',
-                    lg: mode === 'new' ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr',
+                    md: mode === 'new' ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr',
                   },
                   alignItems: 'start',
                 }}
@@ -398,13 +406,16 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   spacing={1.25}
                   alignItems='stretch'
                   justifyContent='space-between'
-                  sx={{ minHeight: 84 }}
+                  sx={{ minHeight: { xs: 'auto', lg: 84 } }}
                 >
                   <Stack spacing={0.5}>
                     <Typography variant='subtitle1'>{t('profileName')}</Typography>
-                    {mode !== 'new' && (
-                      <Typography variant='body2' color='text.secondary'>
-                        {isDirty ? t('unsavedChanges') : t('saved')}
+                    {mode !== 'new' && !isDirty && (
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                      >
+                        {t('saved')}
                       </Typography>
                     )}
                   </Stack>
@@ -414,7 +425,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                     disabled={!canEdit}
                     placeholder={`${t('eg')} Anna`}
                     size='small'
-                    sx={{ maxWidth: 280 }}
+                    sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: 280 }}
                   />
                 </Stack>
 
@@ -512,11 +523,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                 )}
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
                 <Typography
                   variant='body2'
                   color='text.secondary'
-                  sx={{ textAlign: 'right', maxWidth: 360 }}
+                  sx={{ textAlign: { xs: 'left', sm: 'right' }, maxWidth: 360 }}
                 >
                   {t('measurementRoundingHelp')}
                 </Typography>
@@ -526,7 +537,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                 sx={{
                   display: 'grid',
                   gap: 2,
-                  gridTemplateColumns: { xs: '1fr', xl: '1fr 1fr' },
+                  gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
                 }}
               >
                 {['upper', 'lower'].map((group) => (
@@ -555,6 +566,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={1}
                   flexWrap='wrap'
+                  sx={{
+                    '& > button': {
+                      width: { xs: '100%', sm: 'auto' },
+                    },
+                  }}
                 >
                   <Button
                     type='submit'
@@ -585,8 +601,20 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
               </Stack>
             </Stack>
           </Paper>
+        ) : !hasProfiles ? (
+          <Paper variant='outlined' sx={{ p: { xs: 2.5, sm: 3 }, borderColor: 'divider' }}>
+            <Stack spacing={1} alignItems='flex-start'>
+              <Typography variant='h6'>{t('noProfilesTitle')}</Typography>
+              <Typography color='text.secondary'>
+                {t('noProfilesBody')}
+              </Typography>
+              <Button variant='contained' onClick={startNew} sx={{ mt: 1 }}>
+                {t('newProfile')}
+              </Button>
+            </Stack>
+          </Paper>
         ) : (
-          <Paper variant='outlined' sx={{ p: 2.5 }}>
+          <Paper variant='outlined' sx={{ p: 2.5, borderColor: 'divider' }}>
             {!active ? (
               <Typography color='text.secondary'>
                 {t('noProfileSelected')}
@@ -614,8 +642,25 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   <TableBody>
                     {FIELDS.map(({ key }) => (
                       <TableRow key={String(key)}>
-                        <TableCell sx={{ pl: 0 }}>{t(key as never)}</TableCell>
-                        <TableCell align='right' sx={{ pr: 0 }}>
+                        <TableCell
+                          sx={{
+                            pl: 0,
+                            pr: { xs: 1.5, sm: 0 },
+                            width: { xs: '60%', sm: 'auto' },
+                            verticalAlign: 'top',
+                          }}
+                        >
+                          {t(key as never)}
+                        </TableCell>
+                        <TableCell
+                          align='right'
+                          sx={{
+                            pr: 0,
+                            whiteSpace: { xs: 'nowrap', sm: 'normal' },
+                            width: { xs: '40%', sm: 'auto' },
+                            verticalAlign: 'top',
+                          }}
+                        >
                           {formatMeasurement(active.measurements[key])} cm
                         </TableCell>
                       </TableRow>

@@ -31,11 +31,17 @@ const SECTION_ORDER = [
   'dartPlacement',
 ] as const;
 
-export function PatternSection({ showHeader = true }: { showHeader?: boolean }) {
+export function PatternSection({
+  showHeader = true,
+}: {
+  showHeader?: boolean;
+}) {
   const { t } = useI18n();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState('');
-  const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>('');
+  const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>(
+    '',
+  );
   const [submittedProfileId, setSubmittedProfileId] = useState('');
   const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>(
     '',
@@ -136,12 +142,14 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
           </Typography>
         </Stack>
       )}
-
       <Paper
         component='form'
-        variant='outlined'
         onSubmit={onSubmit}
-        sx={{ p: 2.5 }}
+        sx={{
+          p: { xs: 0, sm: 2.5 },
+          bgcolor: { xs: 'transparent', sm: 'background.paper' },
+          boxShadow: 'none',
+        }}
       >
         <Box
           sx={{
@@ -158,7 +166,7 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
             onChange={(event) => setSelectedProfileId(event.target.value)}
             size='small'
           >
-            <MenuItem value=''>{t('chooseProfile')}</MenuItem>
+            <MenuItem value=''>{t('selectProfile')}</MenuItem>
             {profiles.map((profile) => (
               <MenuItem key={profile.id} value={profile.id}>
                 {profile.name}
@@ -175,7 +183,7 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
             }
             size='small'
           >
-            <MenuItem value=''>{t('choosePattern')}</MenuItem>
+            <MenuItem value=''>{t('selectPattern')}</MenuItem>
             {PATTERN_OPTIONS.map((pattern) => (
               <MenuItem key={pattern} value={pattern}>
                 {t(pattern)}
@@ -183,11 +191,14 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
             ))}
           </TextField>
 
-          <Stack spacing={1}>
+          <Stack spacing={1} sx={{ width: { xs: '100%', md: 'auto' } }}>
             <Button
               type='submit'
               variant='contained'
-              disabled={!profiles.length || !selectedProfileId || !selectedPattern}
+              disabled={
+                !profiles.length || !selectedProfileId || !selectedPattern
+              }
+              sx={{ width: { xs: '100%', md: 'auto' } }}
             >
               {t('calculatePattern')}
             </Button>
@@ -199,9 +210,17 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
           </Stack>
         </Box>
       </Paper>
-
       {submittedProfile && submittedPattern && (
-        <Paper variant='outlined' sx={{ p: 2.5 }}>
+        <Paper
+          variant='outlined'
+          sx={{
+            p: { xs: 0, sm: 2.5 },
+            border: { xs: 0, sm: 1 },
+            borderColor: 'divider',
+            bgcolor: { xs: 'transparent', sm: 'background.paper' },
+            boxShadow: 'none',
+          }}
+        >
           <Stack spacing={3}>
             <Stack spacing={0.5}>
               <Typography variant='h6'>{t(submittedPattern)}</Typography>
@@ -231,22 +250,33 @@ export function PatternSection({ showHeader = true }: { showHeader?: boolean }) 
                   <TableBody>
                     {sectionCalculations.map((calculation) => (
                       <TableRow key={calculation.id}>
-                        <TableCell sx={{ pl: 0 }}>
+                        <TableCell sx={{ pl: 0, fontSize: '0.95rem' }}>
                           <Stack spacing={0.5}>
-                            <Typography fontWeight={600}>
+                            <Typography
+                              fontWeight={600}
+                              sx={{ fontSize: '0.95rem' }}
+                            >
                               {calculation.label}
                             </Typography>
                             {calculation.description && (
                               <Typography
                                 variant='body2'
                                 color='text.secondary'
+                                sx={{ fontSize: '0.875rem' }}
                               >
                                 {calculation.description}
                               </Typography>
                             )}
                           </Stack>
                         </TableCell>
-                        <TableCell align='right' sx={{ pr: 0, whiteSpace: 'nowrap' }}>
+                        <TableCell
+                          align='right'
+                          sx={{
+                            pr: 0,
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.95rem',
+                          }}
+                        >
                           {formatMeasurement(calculation.value)} cm
                         </TableCell>
                       </TableRow>

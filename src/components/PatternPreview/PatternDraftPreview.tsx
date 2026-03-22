@@ -22,15 +22,22 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
   const points = new Map(draft.points.map((point) => [point.id, point]));
 
   return (
-    <Box sx={{ mt: 3, pt: 3, borderTop: 1, borderColor: 'divider' }}>
+    <Box
+      sx={{
+        mt: { xs: 2, sm: 3 },
+        pt: { xs: 0, sm: 3 },
+        borderTop: { xs: 0, sm: 1 },
+        borderColor: 'divider',
+      }}
+    >
       <Typography variant='h6'>Draft</Typography>
       <Box
         sx={{
           mt: 2,
-          border: 1,
+          border: { xs: 0, sm: 1 },
           borderColor: 'divider',
-          overflow: 'auto',
-          p: 2,
+          overflowX: { xs: 'hidden', sm: 'auto' },
+          p: { xs: 0, sm: 2 },
           bgcolor: 'background.paper',
         }}
       >
@@ -40,9 +47,11 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
           aria-label='Pattern draft preview'
           style={{
             display: 'block',
-            width: 'auto',
+            width: '100%',
             maxWidth: '100%',
-            height: 'min(420px, 70vh)',
+            height: 'auto',
+            maxHeight: '420px',
+            margin: '0 auto',
           }}
         >
           <rect

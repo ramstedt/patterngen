@@ -13,15 +13,22 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
 import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
-import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import MenuIcon from '@mui/icons-material/Menu';
 import { alpha } from '@mui/material/styles';
 import { useI18n } from '../i18n/useI18n';
 import { PATTERN_OPTIONS } from './lib/patterns';
@@ -54,6 +61,7 @@ export default function App() {
   const { lang, setLang, t } = useI18n();
   const [currentPage, setCurrentPage] = useState<AppPage>('start');
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const syncProfiles = () => {
@@ -84,8 +92,9 @@ export default function App() {
     setCurrentPage(value);
   }
 
-  function handleLanguageChange(event: SelectChangeEvent<'en' | 'sv'>) {
-    setLang(event.target.value as 'en' | 'sv');
+  function handleMobilePageSelect(page: AppPage) {
+    setCurrentPage(page);
+    setMobileMenuOpen(false);
   }
 
   return (
@@ -120,17 +129,18 @@ export default function App() {
           <Toolbar
             disableGutters
             sx={{
-              py: { xs: 0.5, md: 1 },
-              gap: 2,
-              flexDirection: { xs: 'row', md: 'row' },
-              alignItems: { xs: 'center', md: 'center' },
+              py: { xs: 0.25, md: 1 },
+              gap: { xs: 1, md: 2 },
+              minHeight: { xs: 56, md: 64 },
+              flexDirection: 'row',
+              alignItems: 'center',
               justifyContent: 'space-between',
-              flexWrap: { xs: 'wrap', md: 'nowrap' },
+              flexWrap: 'nowrap',
             }}
           >
             <Stack
               direction='row'
-              spacing={1.5}
+              spacing={{ xs: 1, md: 1.5 }}
               alignItems='center'
               component='button'
               type='button'
@@ -147,13 +157,13 @@ export default function App() {
             >
               <Box
                 sx={{
-                  width: 42,
-                  height: 42,
+                  width: { xs: 34, md: 42 },
+                  height: { xs: 34, md: 42 },
                   border: 2,
                   borderColor: 'primary.main',
                   display: 'grid',
                   placeItems: 'center',
-                  typography: 'subtitle1',
+                  typography: { xs: 'body2', md: 'subtitle1' },
                   fontWeight: 700,
                   color: 'primary.main',
                   bgcolor: alpha('#ffffff', 0.72),
@@ -162,21 +172,37 @@ export default function App() {
                 PG
               </Box>
               <Box>
-                <Typography variant='overline' color='secondary.main'>
+                <Typography
+                  variant='overline'
+                  color='secondary.main'
+                  sx={{ display: { xs: 'none', sm: 'block' }, lineHeight: 1.2 }}
+                >
                   {t('appTagline')}
                 </Typography>
-                <Typography variant='h6' component='div'>
+                <Typography
+                  variant='h6'
+                  component='div'
+                  sx={{ fontSize: { xs: '1rem', md: '1.25rem' }, lineHeight: 1.2 }}
+                >
                   {t('appName')}
                 </Typography>
               </Box>
             </Stack>
 
             <Stack
-              direction={{ xs: 'row', md: 'column' }}
+              direction='row'
               spacing={1}
-              alignItems={{ xs: 'center', md: 'flex-end' }}
-              sx={{ ml: 'auto' }}
+              alignItems='center'
+              sx={{ ml: 'auto', minWidth: 0 }}
             >
+              <IconButton
+                aria-label={t('primaryNavigation')}
+                onClick={() => setMobileMenuOpen(true)}
+                sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+              >
+                <MenuIcon />
+              </IconButton>
+
               <Tabs
                 value={currentPage === 'start' ? false : currentPage}
                 onChange={handlePageChange}
@@ -186,10 +212,14 @@ export default function App() {
                 textColor='primary'
                 indicatorColor='secondary'
                 sx={{
-                  minHeight: { xs: 40, md: 48 },
+                  display: { xs: 'none', md: 'flex' },
+                  minHeight: 48,
+                  minWidth: 0,
                   '& .MuiTab-root': {
-                    minHeight: { xs: 40, md: 48 },
-                    px: { xs: 1.25, md: 2 },
+                    minHeight: 48,
+                    minWidth: 90,
+                    px: 2,
+                    fontSize: '0.875rem',
                   },
                 }}
               >
@@ -198,19 +228,75 @@ export default function App() {
                 ))}
               </Tabs>
 
-              <FormControl
-                size='small'
-                sx={{ minWidth: { xs: 110, md: 140 }, flexShrink: 0 }}
+              <Stack
+                sx={{ display: { xs: 'none', md: 'block' }, flexShrink: 0 }}
               >
-                <Select value={lang} onChange={handleLanguageChange}>
-                  <MenuItem value='en'>English</MenuItem>
-                  <MenuItem value='sv'>Svenska</MenuItem>
-                </Select>
-              </FormControl>
+                <FormControl size='small' sx={{ minWidth: 110 }}>
+                  <Select
+                    value={lang}
+                    onChange={(event) => setLang(event.target.value as 'en' | 'sv')}
+                    renderValue={(value) =>
+                      `${t('language')}: ${value === 'en' ? 'English' : 'Svenska'}`
+                    }
+                  >
+                    <MenuItem value='en'>English</MenuItem>
+                    <MenuItem value='sv'>Svenska</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
             </Stack>
           </Toolbar>
         </Container>
       </AppBar>
+
+      <Drawer
+        anchor='right'
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        PaperProps={{ sx: { width: 280 } }}
+      >
+        <Box sx={{ p: 2.5 }}>
+          <Typography variant='h6'>{t('appName')}</Typography>
+        </Box>
+
+        <Divider />
+
+        <List disablePadding>
+          {pageLinks.map((link) => (
+            <ListItemButton
+              key={link.id}
+              selected={currentPage === link.id}
+              onClick={() => handleMobilePageSelect(link.id)}
+            >
+              <ListItemText primary={link.label} />
+            </ListItemButton>
+          ))}
+        </List>
+
+        <Divider />
+
+        <Box sx={{ p: 2 }}>
+          <Typography
+            variant='body2'
+            color='text.secondary'
+            sx={{ mb: 1 }}
+          >
+            {t('language')}
+          </Typography>
+          <FormControl fullWidth size='small'>
+            <Select
+              value={lang}
+              onChange={(event) => setLang(event.target.value as 'en' | 'sv')}
+              renderValue={(value) =>
+                `${t('language')}: ${value === 'en' ? 'English' : 'Svenska'}`
+              }
+            >
+              <MenuItem value='en'>English</MenuItem>
+              <MenuItem value='sv'>Svenska</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Drawer>
 
       <Container maxWidth='lg' sx={{ py: 4 }}>
         {currentPage === 'start' && (
@@ -372,91 +458,48 @@ export default function App() {
 
         {currentPage !== 'start' && (
           <Stack spacing={3}>
-            <Paper
-              variant='outlined'
-              sx={{
-                p: { xs: 3, md: 4 },
-                bgcolor: alpha('#fbf8f2', 0.94),
-              }}
-            >
-              <Stack
-                spacing={2}
-                direction={{ xs: 'column', md: 'row' }}
-                justifyContent='space-between'
-                alignItems={{ xs: 'flex-start', md: 'center' }}
-              >
-                <Box sx={{ maxWidth: '62ch' }}>
-                  <Typography variant='overline' color='secondary.main'>
-                    {t('startPageKicker')}
-                  </Typography>
-                  <Typography variant='h2' sx={{ mt: 1 }}>
-                    {t(
-                      currentPage === 'profiles'
-                        ? 'profilePageTitle'
-                        : 'patternPageTitle',
-                    )}
-                  </Typography>
-                  <Typography
-                    color='text.secondary'
-                    sx={{ mt: 1.25, lineHeight: 1.8 }}
-                  >
-                    {t(
-                      currentPage === 'profiles'
-                        ? 'profilePageDescription'
-                        : 'patternPageDescription',
-                    )}
-                  </Typography>
-                </Box>
-
-                <Button
-                  variant='outlined'
-                  onClick={() =>
-                    setCurrentPage(
-                      currentPage === 'profiles' ? 'patterns' : 'profiles',
-                    )
-                  }
-                >
-                  {t(
-                    currentPage === 'profiles'
-                      ? 'goToPatterns'
-                      : 'goToProfiles',
-                  )}
-                </Button>
-              </Stack>
-            </Paper>
-
             {currentPage === 'profiles' ? (
               <Paper
                 variant='outlined'
                 sx={{
-                  p: { xs: 2.5, md: 3 },
-                  bgcolor: 'background.paper',
+                  p: { xs: 0, md: 3 },
+                  bgcolor: { xs: 'transparent', md: 'background.paper' },
+                  border: { xs: 0, md: 1 },
+                  borderColor: 'divider',
+                  boxShadow: 'none',
                 }}
               >
-                <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
-                  <Box>
-                    <Typography variant='overline' color='secondary.main'>
-                      {t('profilePageNav')}
-                    </Typography>
-                    <Typography variant='h6' sx={{ mt: 0.75 }}>
-                      {t('startProfilesTitle')}
-                    </Typography>
-                    <Typography color='text.secondary' sx={{ mt: 1, lineHeight: 1.8 }}>
-                      {t('startProfilesBody')}
-                    </Typography>
-                  </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <Box sx={{ width: '100%', maxWidth: 768 }}>
+                  <Stack spacing={2.5}>
+                    <Box>
+                      <Typography variant='overline' color='secondary.main'>
+                        {t('profilePageNav')}
+                      </Typography>
+                      <Typography variant='h6' sx={{ mt: 0.75 }}>
+                        {t('startProfilesTitle')}
+                      </Typography>
+                      <Typography color='text.secondary' sx={{ mt: 1, lineHeight: 1.8 }}>
+                        {t('startProfilesBody')}
+                      </Typography>
+                    </Box>
 
-                  <Suspense fallback={<PageLoader />}>
-                    <ProfileManagerPage showHeader={false} />
-                  </Suspense>
-                </Stack>
+                    <Suspense fallback={<PageLoader />}>
+                      <ProfileManagerPage showHeader={false} />
+                    </Suspense>
+                  </Stack>
+                  </Box>
+                </Box>
               </Paper>
             ) : (
               <Paper
                 variant='outlined'
                 sx={{
-                  p: { xs: 2.5, md: 3 },
-                  bgcolor: 'background.paper',
+                  p: { xs: 0, md: 3 },
+                  bgcolor: { xs: 'transparent', md: 'background.paper' },
+                  border: { xs: 0, md: 1 },
+                  borderColor: 'divider',
+                  boxShadow: 'none',
                 }}
               >
                 <Stack spacing={2.5}>

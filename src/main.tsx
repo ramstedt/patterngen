@@ -28,7 +28,7 @@ const theme = createTheme({
       primary: '#1e1914',
       secondary: '#564d45',
     },
-    divider: '#d4c8b8',
+    divider: '#e2d8ca',
   },
   shape: {
     borderRadius: 0,
@@ -108,9 +108,9 @@ const theme = createTheme({
           },
         },
         outlinedPrimary: {
-          borderColor: '#1f3641',
+          borderColor: '#e2d8ca',
           '&:hover': {
-            borderColor: '#15262f',
+            borderColor: '#d4c8b8',
             backgroundColor: 'rgba(31,54,65,0.06)',
           },
         },
@@ -121,12 +121,23 @@ const theme = createTheme({
         root: {
           borderRadius: 0,
         },
+        outlined: {
+          borderColor: '#e2d8ca',
+        },
+      },
+    },
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          borderColor: '#e2d8ca',
+        },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
           borderRadius: 0,
+          borderColor: '#e2d8ca',
         },
       },
     },
@@ -134,6 +145,16 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#e2d8ca',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#d4c8b8',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#8a4e33',
+            borderWidth: 1,
+          },
         },
       },
     },
@@ -148,7 +169,7 @@ const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: '1px solid #d4c8b8',
+          borderBottom: '1px solid #e2d8ca',
         },
       },
     },
