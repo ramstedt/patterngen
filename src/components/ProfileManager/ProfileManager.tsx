@@ -1,11 +1,27 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useI18n } from '../../../i18n/i18n';
+import { useI18n } from '../../../i18n/useI18n';
 import type { Measurements, Profile } from '../../types/measurements';
 import {
-  createEmptyMeasurements,
   formatMeasurement,
   MEASUREMENT_FIELDS,
   roundToHalf,
@@ -15,49 +31,95 @@ import {
   loadProfiles,
   upsertProfile,
 } from '../../storage/profiles';
-import './ProfileManager.css';
 import {
-  measurementsFromStandardSize,
   measurementsFromMenStandardSize,
+  measurementsFromStandardSize,
   type MenSize,
   type StandardSize,
 } from '../../data/standardSizes';
 
 const measurementSchema = z.object({
-  backWaistLength: z.number().nonnegative(),
-  totalLength: z.number().nonnegative(),
-  backWidth: z.number().nonnegative(),
-  neckCircumference: z.number().nonnegative(),
-  bustCircumference: z.number().nonnegative(),
-  waistCircumference: z.number().nonnegative(),
-  hipCircumference: z.number().nonnegative(),
-  hipDepth: z.number().nonnegative(),
-  hipHeight: z.number().nonnegative(),
-  highHipCircumference: z.number().nonnegative(),
-  shoulderWidth: z.number().nonnegative(),
-  armLength: z.number().nonnegative(),
-  upperArmCircumference: z.number().nonnegative(),
-  elbowCircumference: z.number().nonnegative(),
-
-  wristCircumference: z.number().nonnegative(),
-  chestWidth: z.number().nonnegative(),
-  bustPoint: z.number().nonnegative(),
-  frontWaistLength: z.number().nonnegative(),
-  bustHeight: z.number().nonnegative(),
-  sideHeight: z.number().nonnegative(),
-  shoulderHeightRightBack: z.number().nonnegative(),
-  shoulderHeightRightFull: z.number().nonnegative(),
-  shoulderHeightLeftBack: z.number().nonnegative(),
-  shoulderHeightLeftFull: z.number().nonnegative(),
-  sideMeasurement: z.number().nonnegative(),
-  kneeHeight: z.number().nonnegative(),
-  trouserLength: z.number().nonnegative(),
-  inseamLength: z.number().nonnegative(),
-  rise: z.number().nonnegative(),
-  crotchDepth: z.number().nonnegative(),
+  backWaistLength: z.number().nonnegative().or(z.nan()),
+  totalLength: z.number().nonnegative().or(z.nan()),
+  backWidth: z.number().nonnegative().or(z.nan()),
+  neckCircumference: z.number().nonnegative().or(z.nan()),
+  bustCircumference: z.number().nonnegative().or(z.nan()),
+  waistCircumference: z.number().nonnegative().or(z.nan()),
+  hipCircumference: z.number().nonnegative().or(z.nan()),
+  hipDepth: z.number().nonnegative().or(z.nan()),
+  hipHeight: z.number().nonnegative().or(z.nan()),
+  highHipCircumference: z.number().nonnegative().or(z.nan()),
+  shoulderWidth: z.number().nonnegative().or(z.nan()),
+  armLength: z.number().nonnegative().or(z.nan()),
+  upperArmCircumference: z.number().nonnegative().or(z.nan()),
+  elbowCircumference: z.number().nonnegative().or(z.nan()),
+  wristCircumference: z.number().nonnegative().or(z.nan()),
+  chestWidth: z.number().nonnegative().or(z.nan()),
+  bustPoint: z.number().nonnegative().or(z.nan()),
+  frontWaistLength: z.number().nonnegative().or(z.nan()),
+  bustHeight: z.number().nonnegative().or(z.nan()),
+  sideHeight: z.number().nonnegative().or(z.nan()),
+  shoulderHeightRightBack: z.number().nonnegative().or(z.nan()),
+  shoulderHeightRightFull: z.number().nonnegative().or(z.nan()),
+  shoulderHeightLeftBack: z.number().nonnegative().or(z.nan()),
+  shoulderHeightLeftFull: z.number().nonnegative().or(z.nan()),
+  sideMeasurement: z.number().nonnegative().or(z.nan()),
+  kneeHeight: z.number().nonnegative().or(z.nan()),
+  trouserLength: z.number().nonnegative().or(z.nan()),
+  inseamLength: z.number().nonnegative().or(z.nan()),
+  rise: z.number().nonnegative().or(z.nan()),
+  crotchDepth: z.number().nonnegative().or(z.nan()),
 });
 
 type FormValues = Measurements & { name: string };
+
+const FIELDS = MEASUREMENT_FIELDS;
+const WOMEN_SIZES: StandardSize[] = [
+  'C30',
+  'C32',
+  'C34',
+  'C36',
+  'C38',
+  'C40',
+  'C42',
+  'C44',
+  'C46',
+  'C48',
+  'C50',
+  'C52',
+  'C54',
+  'C56',
+  'C58',
+  'C60',
+];
+const MEN_SIZES: MenSize[] = [
+  'C40',
+  'C42',
+  'C44',
+  'C46',
+  'C48',
+  'C50',
+  'C52',
+  'C54',
+  'C56',
+  'C58',
+  'C60',
+  'C62',
+  'C64',
+  'C66',
+  'C68',
+  'C70',
+];
+
+function createBlankMeasurements(): Measurements {
+  return Object.fromEntries(
+    FIELDS.map(({ key }) => [key, Number.NaN]),
+  ) as Measurements;
+}
+
+function getCurrentTimestamp() {
+  return Date.now();
+}
 
 function uid() {
   return (
@@ -66,28 +128,57 @@ function uid() {
   );
 }
 
-const FIELDS = MEASUREMENT_FIELDS;
-const emptyMeasurements = createEmptyMeasurements();
+function renderMeasurementField(
+  key: keyof Measurements,
+  label: string,
+  canEdit: boolean,
+  onBlur: (next: number) => void,
+  register: ReturnType<typeof useForm<FormValues>>['register'],
+) {
+  return (
+    <Stack
+      key={String(key)}
+      direction='row'
+      spacing={1.5}
+      alignItems='center'
+      sx={{ width: '100%' }}
+    >
+      <Typography sx={{ flex: '1 1 0', minWidth: 0 }}>{label}</Typography>
+      <TextField
+        type='number'
+        size='small'
+        inputProps={{ step: '0.01', inputMode: 'decimal' }}
+        disabled={!canEdit}
+        sx={{ width: 132 }}
+        {...register(key as never, { valueAsNumber: true })}
+        onBlur={(event) => {
+          const raw = (event.target as HTMLInputElement).valueAsNumber;
+          if (!isNaN(raw)) {
+            onBlur(roundToHalf(raw));
+          }
+        }}
+      />
+      <Typography color='text.secondary'>cm</Typography>
+    </Stack>
+  );
+}
 
-export function ProfileManager() {
+export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) {
   const { t } = useI18n();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const initialProfiles = useMemo(() => loadProfiles(), []);
+  const initialActiveProfile = initialProfiles[0] ?? null;
+  const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
+  const [activeId, setActiveId] = useState<string | null>(
+    initialActiveProfile?.id ?? null,
+  );
   const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view');
   const [savedMsg, setSavedMsg] = useState(false);
-
   const [standardChart, setStandardChart] = useState<'women' | 'men'>('women');
   const [womenSize, setWomenSize] = useState<StandardSize>('C44');
   const [menSize, setMenSize] = useState<MenSize>('C50');
 
-  useEffect(() => {
-    const p = loadProfiles();
-    setProfiles(p);
-    setActiveId(p[0]?.id ?? null);
-  }, []);
-
   const active = useMemo(
-    () => profiles.find((p) => p.id === activeId) ?? null,
+    () => profiles.find((profile) => profile.id === activeId) ?? null,
     [profiles, activeId],
   );
 
@@ -98,39 +189,44 @@ export function ProfileManager() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', ...emptyMeasurements },
+    defaultValues: initialActiveProfile
+      ? {
+          name: initialActiveProfile.name,
+          ...initialActiveProfile.measurements,
+        }
+      : { name: '', ...createBlankMeasurements() },
     mode: 'onSubmit',
   });
 
   const { isDirty, isSubmitting } = form.formState;
 
-  // When selecting a profile, load it into the form (view/edit)
-  useEffect(() => {
-    if (!active) return;
-    form.reset({ name: active.name, ...active.measurements });
-    setMode('view');
-  }, [activeId]);
+  function selectActiveProfile(nextActiveId: string | null) {
+    setActiveId(nextActiveId);
+
+    const nextProfile =
+      profiles.find((profile) => profile.id === nextActiveId) ?? null;
+
+    if (nextProfile) {
+      form.reset({ name: nextProfile.name, ...nextProfile.measurements });
+      setMode('view');
+      return;
+    }
+
+    form.reset({ name: '', ...createBlankMeasurements() });
+  }
 
   function refresh() {
-    const p = loadProfiles();
-    setProfiles(p);
-    if (!p.find((x) => x.id === activeId)) setActiveId(p[0]?.id ?? null);
+    const nextProfiles = loadProfiles();
+    setProfiles(nextProfiles);
+    if (!nextProfiles.find((profile) => profile.id === activeId)) {
+      setActiveId(nextProfiles[0]?.id ?? null);
+    }
   }
 
   function startNew() {
     setMode('new');
     setActiveId(null);
-    form.reset({ name: '', ...emptyMeasurements });
-  }
-
-  function applyPresetToForm(preset: Partial<Measurements>) {
-    // Keep typed name
-    for (const { key } of FIELDS) {
-      const raw =
-        (preset as Partial<Record<keyof Measurements, number>>)[key] ?? 0;
-      const next = roundToHalf(raw);
-      form.setValue(key as any, next, { shouldDirty: true });
-    }
+    form.reset({ name: '', ...createBlankMeasurements() });
   }
 
   function startEdit() {
@@ -144,26 +240,37 @@ export function ProfileManager() {
     if (!active && profiles[0]) setActiveId(profiles[0].id);
   }
 
-  const canEdit = mode === 'edit' || mode === 'new';
-  const showForm = mode === 'new' || mode === 'edit';
+  function applyPresetToForm(preset: Partial<Measurements>) {
+    for (const { key } of FIELDS) {
+      const raw =
+        (preset as Partial<Record<keyof Measurements, number>>)[key] ?? 0;
+      form.setValue(key as never, roundToHalf(raw) as never, {
+        shouldDirty: true,
+      });
+    }
+  }
 
   function isDuplicateName(name: string) {
     const normalized = name.trim().toLowerCase();
     return profiles.some(
-      (p) => p.name.trim().toLowerCase() === normalized && p.id !== active?.id,
+      (profile) =>
+        profile.name.trim().toLowerCase() === normalized &&
+        profile.id !== active?.id,
     );
   }
 
   function onSave(values: FormValues) {
-    const now = Date.now();
-
     if (isDuplicateName(values.name)) {
       alert(t('profileExists'));
       return;
     }
 
+    const now = getCurrentTimestamp();
     const measurements: Measurements = Object.fromEntries(
-      FIELDS.map((f) => [f.key, roundToHalf(values[f.key])]),
+      FIELDS.map((field) => [
+        field.key,
+        Number.isNaN(values[field.key]) ? 0 : roundToHalf(values[field.key]),
+      ]),
     ) as Measurements;
 
     const profile: Profile = {
@@ -184,306 +291,342 @@ export function ProfileManager() {
 
   function onDelete() {
     if (!active) return;
-    const deletingId = active.id;
-
     if (!confirm(t('confirmDeleteProfile'))) return;
 
-    deleteProfile(deletingId);
+    deleteProfile(active.id);
 
-    // Reload and update UI immediately so the deleted profile disappears without refresh
-    const p = loadProfiles();
-    setProfiles(p);
-
-    const nextActiveId = p[0]?.id ?? null;
+    const nextProfiles = loadProfiles();
+    setProfiles(nextProfiles);
+    const nextActiveId = nextProfiles[0]?.id ?? null;
     setActiveId(nextActiveId);
-
     setMode('view');
 
     if (nextActiveId) {
-      const next = p.find((x) => x.id === nextActiveId);
-      if (next) form.reset({ name: next.name, ...next.measurements });
+      const nextProfile = nextProfiles.find((profile) => profile.id === nextActiveId);
+      if (nextProfile) {
+        form.reset({ name: nextProfile.name, ...nextProfile.measurements });
+      }
     } else {
-      form.reset({ name: '', ...emptyMeasurements });
+      form.reset({ name: '', ...createBlankMeasurements() });
     }
   }
 
+  const canEdit = mode === 'edit' || mode === 'new';
+  const showForm = mode === 'new' || mode === 'edit';
+
   return (
-    <div className='pm-root'>
-      <div className='pm-header'>
-        <h2 style={{ margin: 0 }}>{t('profiles')}</h2>
-        <div className='pm-actions'>
+    <Stack spacing={3} sx={{ width: '100%', maxWidth: 768, mx: 'auto' }}>
+      {showHeader && (
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          justifyContent='space-between'
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+        >
+          <Typography variant='h5'>{t('profiles')}</Typography>
           {!canEdit && (
-            <button type='button' onClick={startNew}>
+            <Button variant='contained' onClick={startNew}>
               {t('newProfile')}
-            </button>
+            </Button>
           )}
-        </div>
-      </div>
+        </Stack>
+      )}
 
-      <div className='pm-layout'>
-        <div>
-          {!canEdit && profiles.length > 0 && (
-            <>
-              <label className='pm-label'>{t('selectProfile')}</label>
-              <select
-                value={activeId ?? ''}
-                onChange={(e) => setActiveId(e.target.value || null)}
-                className='pm-select'
+      {!showHeader && !canEdit && (
+        <Box>
+          <Button variant='contained' onClick={startNew}>
+            {t('newProfile')}
+          </Button>
+        </Box>
+      )}
+
+      <Stack spacing={3}>
+        {!canEdit && (
+          <Paper variant='outlined' sx={{ p: 2 }}>
+            <Stack spacing={2}>
+              {profiles.length > 0 && (
+                <TextField
+                  select
+                  label={t('selectProfile')}
+                  value={activeId ?? ''}
+                  onChange={(event) =>
+                    selectActiveProfile(event.target.value || null)
+                  }
+                  size='small'
+                >
+                  {profiles.map((profile) => (
+                    <MenuItem key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+
+              {active && (
+                <Typography variant='body2' color='text.secondary'>
+                  {t('updated')}: {new Date(active.updatedAt).toLocaleString()}
+                </Typography>
+              )}
+            </Stack>
+          </Paper>
+        )}
+
+        {showForm ? (
+          <Paper
+            component='form'
+            variant='outlined'
+            onSubmit={form.handleSubmit(onSave)}
+            sx={{ p: 2.5 }}
+          >
+            <Stack spacing={2.5}>
+              {mode === 'new' && (
+                <Alert severity='error'>{t('notSaved')}</Alert>
+              )}
+
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 2,
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    lg: mode === 'new' ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr',
+                  },
+                  alignItems: 'start',
+                }}
               >
-                <option value='' disabled>
-                  -
-                </option>
-                {profiles.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-
-          {active && (
-            <div className='pm-muted' style={{ marginTop: 12 }}>
-              <div>
-                {t('updated')}: {new Date(active.updatedAt).toLocaleString()}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {showForm && (
-          <form onSubmit={form.handleSubmit(onSave)} className='pm-card'>
-            <p className='pm-muted' style={{ marginTop: 0 }}>
-              <small>{t('measurementRoundingHelp')}</small>
-            </p>
-
-            <div className='pm-row' style={{ justifyContent: 'space-between' }}>
-              <div className='pm-row'>
-                <label>{t('profileName')}</label>
-                <span className='pm-status' aria-live='polite'>
-                  {mode === 'new'
-                    ? t('notSaved')
-                    : isDirty
-                      ? t('unsavedChanges')
-                      : t('saved')}
-                </span>
-              </div>
-              <input
-                {...form.register('name')}
-                disabled={!canEdit}
-                placeholder={`${t('eg')} Anna`}
-                className='pm-input'
-              />
-            </div>
-
-            {mode === 'new' && (
-              <details className='pm-accordion'>
-                <summary className='pm-accordionSummary'>
-                  <strong>{t('standardSizes')}</strong>
-                </summary>
-
-                <div className='pm-accordionBody'>
-                  <p className='pm-muted' style={{ marginTop: 8 }}>
-                    <small>{t('standardSizesExplanation')}</small>
-                  </p>
-
-                  <div style={{ marginTop: 10 }}>
-                    <label className='pm-label' style={{ marginBottom: 6 }}>
-                      {t('chart')}
-                    </label>
-                    <select
-                      value={standardChart}
-                      onChange={(e) =>
-                        setStandardChart(e.target.value as 'women' | 'men')
-                      }
-                      className='pm-select'
-                    >
-                      <option value='women'>{t('women')}</option>
-                      <option value='men'>{t('men')}</option>
-                    </select>
-                  </div>
-
-                  <div style={{ marginTop: 10 }}>
-                    <label className='pm-label' style={{ marginBottom: 6 }}>
-                      {t('size')}
-                    </label>
-
-                    {standardChart === 'women' ? (
-                      <select
-                        value={womenSize}
-                        onChange={(e) =>
-                          setWomenSize(e.target.value as StandardSize)
-                        }
-                        className='pm-select'
-                      >
-                        {(
-                          [
-                            'C30',
-                            'C32',
-                            'C34',
-                            'C36',
-                            'C38',
-                            'C40',
-                            'C42',
-                            'C44',
-                            'C46',
-                            'C48',
-                            'C50',
-                            'C52',
-                            'C54',
-                            'C56',
-                            'C58',
-                            'C60',
-                          ] as StandardSize[]
-                        ).map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <select
-                        value={menSize}
-                        onChange={(e) => setMenSize(e.target.value as MenSize)}
-                        className='pm-select'
-                      >
-                        {(
-                          [
-                            'C40',
-                            'C42',
-                            'C44',
-                            'C46',
-                            'C48',
-                            'C50',
-                            'C52',
-                            'C54',
-                            'C56',
-                            'C58',
-                            'C60',
-                            'C62',
-                            'C64',
-                            'C66',
-                            'C68',
-                            'C70',
-                          ] as MenSize[]
-                        ).map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
+                <Stack
+                  spacing={1.25}
+                  alignItems='stretch'
+                  justifyContent='space-between'
+                  sx={{ minHeight: 84 }}
+                >
+                  <Stack spacing={0.5}>
+                    <Typography variant='subtitle1'>{t('profileName')}</Typography>
+                    {mode !== 'new' && (
+                      <Typography variant='body2' color='text.secondary'>
+                        {isDirty ? t('unsavedChanges') : t('saved')}
+                      </Typography>
                     )}
-                  </div>
+                  </Stack>
 
-                  <div className='pm-btnrow'>
-                    <button
-                      type='button'
-                      onClick={() => {
-                        const preset =
-                          standardChart === 'women'
-                            ? measurementsFromStandardSize(womenSize)
-                            : measurementsFromMenStandardSize(menSize);
-                        applyPresetToForm(preset);
+                  <TextField
+                    {...form.register('name')}
+                    disabled={!canEdit}
+                    placeholder={`${t('eg')} Anna`}
+                    size='small'
+                    sx={{ maxWidth: 280 }}
+                  />
+                </Stack>
+
+                {mode === 'new' && (
+                  <Accordion
+                    disableGutters
+                    elevation={0}
+                    square
+                    sx={{
+                      border: 1,
+                      borderColor: 'divider',
+                      minHeight: 84,
+                      '&::before': { display: 'none' },
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{
+                        px: 2,
+                        py: 0.25,
+                        '& .MuiAccordionSummary-content': {
+                          my: 0.75,
+                        },
                       }}
                     >
-                      {t('applyStandardSize')}
-                    </button>
-                  </div>
-                </div>
-              </details>
-            )}
+                      <Stack spacing={0.5}>
+                        <Typography variant='subtitle1'>
+                          {t('standardSizes')}
+                        </Typography>
+                        <Typography variant='body2' color='text.secondary'>
+                          {t('openStandardSizesHelp')}
+                        </Typography>
+                      </Stack>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Stack spacing={2}>
+                        <Typography variant='body2' color='text.secondary'>
+                          {t('standardSizesExplanation')}
+                        </Typography>
 
-            <div className='pm-fields'>
-              {['upper', 'lower'].map((group) => (
-                <div key={group} className='pm-col'>
-                  {FIELDS.filter((f) => f.group === group).map(({ key }) => (
-                    <div key={String(key)} className='pm-field'>
-                      <label>{t(key as any)}</label>
-                      <input
-                        type='number'
-                        step='0.01'
-                        inputMode='decimal'
-                        disabled={!canEdit}
-                        {...form.register(key as any, { valueAsNumber: true })}
-                        onBlur={(e) => {
-                          const raw = e.target.valueAsNumber;
-                          if (!isNaN(raw)) {
-                            const rounded = roundToHalf(raw);
-                            form.setValue(key as any, rounded, {
-                              shouldDirty: true,
-                            });
+                        <TextField
+                          select
+                          size='small'
+                          label={t('chart')}
+                          value={standardChart}
+                          onChange={(event) =>
+                            setStandardChart(event.target.value as 'women' | 'men')
                           }
-                        }}
-                        style={{ padding: 8 }}
-                      />
-                      <span style={{ opacity: 0.8 }}>cm</span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+                        >
+                          <MenuItem value='women'>{t('women')}</MenuItem>
+                          <MenuItem value='men'>{t('men')}</MenuItem>
+                        </TextField>
 
-            <div className='pm-btnrow'>
-              <button
-                type='submit'
-                disabled={!canEdit || !isDirty || isSubmitting}
-              >
-                {t('saveProfile')}
-              </button>
-              {mode === 'edit' && active && (
-                <button type='button' onClick={onDelete}>
-                  {t('deleteProfile')}
-                </button>
-              )}
-              <button type='button' onClick={cancel}>
-                {t('cancel')}
-              </button>
-              {savedMsg && <span style={{ marginLeft: 8 }}>{t('saved')}</span>}
-              <span className='pm-muted'>
-                {mode === 'new'
-                  ? t('fillInMeaseurements')
-                  : isDirty
-                    ? t('rememberToSave')
-                    : t('nothingToSave')}
-              </span>
-            </div>
-          </form>
-        )}
+                        <TextField
+                          select
+                          size='small'
+                          label={t('size')}
+                          value={standardChart === 'women' ? womenSize : menSize}
+                          onChange={(event) => {
+                            if (standardChart === 'women') {
+                              setWomenSize(event.target.value as StandardSize);
+                            } else {
+                              setMenSize(event.target.value as MenSize);
+                            }
+                          }}
+                        >
+                          {(standardChart === 'women'
+                            ? WOMEN_SIZES
+                            : MEN_SIZES
+                          ).map((size) => (
+                            <MenuItem key={size} value={size}>
+                              {size}
+                            </MenuItem>
+                          ))}
+                        </TextField>
 
-        {!showForm && (
-          <div className='pm-card'>
-            {!active ? (
-              <div className='pm-muted'>{t('noProfileSelected')}</div>
-            ) : (
-              <>
-                <div
-                  className='pm-row'
-                  style={{ justifyContent: 'space-between' }}
+                        <Box>
+                          <Button
+                            type='button'
+                            variant='contained'
+                            onClick={() => {
+                              const preset =
+                                standardChart === 'women'
+                                  ? measurementsFromStandardSize(womenSize)
+                                  : measurementsFromMenStandardSize(menSize);
+                              applyPresetToForm(preset);
+                            }}
+                          >
+                            {t('applyStandardSize')}
+                          </Button>
+                        </Box>
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
+                )}
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{ textAlign: 'right', maxWidth: 360 }}
                 >
-                  <div className='pm-row'>
-                    <strong>{active.name}</strong>
-                    <button type='button' onClick={startEdit}>
-                      {t('editProfile')}
-                    </button>
-                  </div>
-                  <span className='pm-muted'>cm</span>
-                </div>
+                  {t('measurementRoundingHelp')}
+                </Typography>
+              </Box>
 
-                <table className='pm-table' style={{ marginTop: 12 }}>
-                  <tbody>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 2,
+                  gridTemplateColumns: { xs: '1fr', xl: '1fr 1fr' },
+                }}
+              >
+                {['upper', 'lower'].map((group) => (
+                  <Stack key={group} spacing={1.25}>
+                    {FIELDS.filter((field) => field.group === group).map(
+                      ({ key }) =>
+                        renderMeasurementField(
+                          key,
+                          t(key as never),
+                          canEdit,
+                          (next) =>
+                            form.setValue(key as never, next as never, {
+                              shouldDirty: true,
+                            }),
+                          form.register,
+                        ),
+                    )}
+                  </Stack>
+                ))}
+              </Box>
+
+              <Divider />
+
+              <Stack spacing={1.5}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={1}
+                  flexWrap='wrap'
+                >
+                  <Button
+                    type='submit'
+                    variant='contained'
+                    disabled={!canEdit || !isDirty || isSubmitting}
+                  >
+                    {t('saveProfile')}
+                  </Button>
+                  {mode === 'edit' && active && (
+                    <Button type='button' color='error' onClick={onDelete}>
+                      {t('deleteProfile')}
+                    </Button>
+                  )}
+                  <Button type='button' variant='outlined' onClick={cancel}>
+                    {t('cancel')}
+                  </Button>
+                </Stack>
+
+                {savedMsg && <Alert severity='success'>{t('saved')}</Alert>}
+
+                <Typography variant='body2' color='text.secondary'>
+                  {mode === 'new'
+                    ? t('fillInMeaseurements')
+                    : isDirty
+                      ? t('rememberToSave')
+                      : t('nothingToSave')}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Paper>
+        ) : (
+          <Paper variant='outlined' sx={{ p: 2.5 }}>
+            {!active ? (
+              <Typography color='text.secondary'>
+                {t('noProfileSelected')}
+              </Typography>
+            ) : (
+              <Stack spacing={2}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={1}
+                  justifyContent='space-between'
+                  alignItems={{ xs: 'flex-start', sm: 'center' }}
+                >
+                  <Stack direction='row' spacing={1} alignItems='center'>
+                    <Typography variant='h6'>{active.name}</Typography>
+                    <Button variant='outlined' size='small' onClick={startEdit}>
+                      {t('editProfile')}
+                    </Button>
+                  </Stack>
+                  <Typography variant='body2' color='text.secondary'>
+                    cm
+                  </Typography>
+                </Stack>
+
+                <Table size='small'>
+                  <TableBody>
                     {FIELDS.map(({ key }) => (
-                      <tr key={String(key)}>
-                        <td>{t(key as any)}</td>
-                        <td>{formatMeasurement(active.measurements[key])} cm</td>
-                      </tr>
+                      <TableRow key={String(key)}>
+                        <TableCell sx={{ pl: 0 }}>{t(key as never)}</TableCell>
+                        <TableCell align='right' sx={{ pr: 0 }}>
+                          {formatMeasurement(active.measurements[key])} cm
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
-              </>
+                  </TableBody>
+                </Table>
+              </Stack>
             )}
-          </div>
+          </Paper>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 }

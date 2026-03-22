@@ -53,12 +53,6 @@ export function formatMeasurement(value: number) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
-export function createEmptyMeasurements(): Measurements {
-  return Object.fromEntries(
-    MEASUREMENT_FIELDS.map(({ key }) => [key, 0]),
-  ) as Measurements;
-}
-
 export function normalizeMeasurements(
   measurements: LegacyMeasurements,
 ): Measurements {

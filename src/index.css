@@ -1,51 +1,9 @@
-:root {
-  --btn-border: #ccc;
-  --btn-bg: #f7f7f7;
-  --btn-bg-hover: #efefef;
-  --btn-focus: #333;
-  --btn-radius: 6px;
-  --btn-pad: 6px 10px;
-  --btn-font-size: 0.9rem;
-  --btn-danger-border: #d55;
-  --btn-danger-bg: #fff5f5;
-  --btn-danger-bg-hover: #ffecec;
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
-button {
-  appearance: none;
-  border: 1px solid var(--btn-border);
-  background: var(--btn-bg);
-  padding: var(--btn-pad);
-  border-radius: var(--btn-radius);
-  font-size: var(--btn-font-size);
-  font-weight: 500;
-  cursor: pointer;
-  line-height: 1.2;
-}
-
-button:hover {
-  background: var(--btn-bg-hover);
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-button:focus-visible {
-  outline: 2px solid var(--btn-focus);
-  outline-offset: 2px;
-}
-
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-button.pm-danger {
-  border-color: var(--btn-danger-border);
-  background: var(--btn-danger-bg);
-}
-
-button.pm-danger:hover {
-  background: var(--btn-danger-bg-hover);
+body {
+  margin: 0;
 }

@@ -1,28 +1,13 @@
-import type { TranslationKey } from '../../i18n/translations';
-import type { Profile } from '../types/measurements';
-import { formatMeasurement, roundToHalf } from './measurements';
+import type { Profile } from '../../../types/measurements';
+import { formatMeasurement, roundToHalf } from '../../measurements';
+import type {
+  PatternCalculation,
+  Translate,
+} from '../types';
 
-export type PatternOption = 'grundkjol';
-type PatternSectionKey =
-  | 'basicMeasurements'
-  | 'dartPlacement'
-  | 'dartWidth'
-  | 'sideLine';
-
-export type PatternCalculation = {
-  id: string;
-  label: string;
-  value: number;
-  description: string;
-  section?: PatternSectionKey;
-};
-
-export const PATTERN_OPTIONS: PatternOption[] = ['grundkjol'];
-
-type Translate = (key: TranslationKey) => string;
 type DartWidthCalculation = PatternCalculation & { section: 'dartWidth' };
 
-function getGrundkjolDartValues(difference: number) {
+function getStraightSkirtDartValues(difference: number) {
   if (difference >= 30) {
     return {
       front: 2,
@@ -62,7 +47,7 @@ function getGrundkjolDartValues(difference: number) {
   };
 }
 
-function calculateGrundkjol(
+export function calculateStraightSkirt(
   profile: Profile,
   t: Translate,
 ): PatternCalculation[] {
@@ -77,7 +62,7 @@ function calculateGrundkjol(
   const waistHalf = roundToHalf((waist + 2) / 2);
   const highHipHalf = roundToHalf((highHip + 2) / 2);
   const hipHalf = roundToHalf((hip + 2) / 2);
-  const dartValues = getGrundkjolDartValues(waistToHipDifference);
+  const dartValues = getStraightSkirtDartValues(waistToHipDifference);
   const backDartPlacement = roundToHalf(
     waistHalf / 10 + dartValues.back / 2,
   );
@@ -230,17 +215,4 @@ function calculateGrundkjol(
       section: 'sideLine',
     },
   ];
-}
-
-export function calculatePattern(
-  pattern: PatternOption,
-  profile: Profile,
-  t: Translate,
-): PatternCalculation[] {
-  switch (pattern) {
-    case 'grundkjol':
-      return calculateGrundkjol(profile, t);
-    default:
-      return [];
-  }
 }

@@ -1,16 +1,37 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useI18n } from '../../../i18n/i18n';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import type { TranslationKey } from '../../../i18n/translations';
+import { useI18n } from '../../../i18n/useI18n';
+import { PatternDraftPreview } from '../PatternPreview/PatternDraftPreview';
 import {
-  calculatePattern,
   PATTERN_OPTIONS,
+  buildPatternDraft,
+  calculatePattern,
   type PatternOption,
 } from '../../lib/patterns';
 import { formatMeasurement } from '../../lib/measurements';
 import { loadProfiles, subscribeProfiles } from '../../storage/profiles';
 import type { Profile } from '../../types/measurements';
-import './PatternSection.css';
 
-export function PatternSection() {
+const SECTION_ORDER = [
+  'basicMeasurements',
+  'dartWidth',
+  'sideLine',
+  'dartPlacement',
+] as const;
+
+export function PatternSection({ showHeader = true }: { showHeader?: boolean }) {
   const { t } = useI18n();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState('');
@@ -65,8 +86,27 @@ export function PatternSection() {
       sections.set(section, existing);
     }
 
-    return Array.from(sections.entries());
+    return Array.from(sections.entries()).sort(([left], [right]) => {
+      const leftIndex = SECTION_ORDER.indexOf(
+        left as (typeof SECTION_ORDER)[number],
+      );
+      const rightIndex = SECTION_ORDER.indexOf(
+        right as (typeof SECTION_ORDER)[number],
+      );
+
+      const normalizedLeft =
+        leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
+      const normalizedRight =
+        rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
+
+      return normalizedLeft - normalizedRight;
+    });
   }, [calculations]);
+
+  const draft = useMemo(() => {
+    if (!submittedProfile || !submittedPattern) return null;
+    return buildPatternDraft(submittedPattern, submittedProfile, t);
+  }, [submittedPattern, submittedProfile, t]);
 
   const showLargeDifferenceDartHelp = useMemo(
     () =>
@@ -87,106 +127,137 @@ export function PatternSection() {
   }
 
   return (
-    <section className='ps-root'>
-      <div className='ps-header'>
-        <h2 style={{ margin: 0 }}>{t('patterns')}</h2>
-        <p className='ps-muted'>{t('patternSectionDescription')}</p>
-      </div>
+    <Stack spacing={3}>
+      {showHeader && (
+        <Stack spacing={1}>
+          <Typography variant='h5'>{t('patterns')}</Typography>
+          <Typography color='text.secondary'>
+            {t('patternSectionDescription')}
+          </Typography>
+        </Stack>
+      )}
 
-      <form onSubmit={onSubmit} className='ps-card ps-form'>
-        <div className='ps-field'>
-          <label htmlFor='pattern-profile' className='ps-label'>
-            {t('selectProfile')}
-          </label>
-          <select
-            id='pattern-profile'
+      <Paper
+        component='form'
+        variant='outlined'
+        onSubmit={onSubmit}
+        sx={{ p: 2.5 }}
+      >
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr auto' },
+            alignItems: 'end',
+          }}
+        >
+          <TextField
+            select
+            label={t('selectProfile')}
             value={selectedProfileId}
             onChange={(event) => setSelectedProfileId(event.target.value)}
-            className='ps-select'
+            size='small'
           >
-            <option value=''>{t('chooseProfile')}</option>
+            <MenuItem value=''>{t('chooseProfile')}</MenuItem>
             {profiles.map((profile) => (
-              <option key={profile.id} value={profile.id}>
+              <MenuItem key={profile.id} value={profile.id}>
                 {profile.name}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </TextField>
 
-        <div className='ps-field'>
-          <label htmlFor='pattern-name' className='ps-label'>
-            {t('selectPattern')}
-          </label>
-          <select
-            id='pattern-name'
+          <TextField
+            select
+            label={t('selectPattern')}
             value={selectedPattern}
             onChange={(event) =>
               setSelectedPattern(event.target.value as PatternOption | '')
             }
-            className='ps-select'
+            size='small'
           >
-            <option value=''>{t('choosePattern')}</option>
+            <MenuItem value=''>{t('choosePattern')}</MenuItem>
             {PATTERN_OPTIONS.map((pattern) => (
-              <option key={pattern} value={pattern}>
+              <MenuItem key={pattern} value={pattern}>
                 {t(pattern)}
-              </option>
+              </MenuItem>
             ))}
-          </select>
-        </div>
+          </TextField>
 
-        <div className='ps-actions'>
-          <button
-            type='submit'
-            disabled={!profiles.length || !selectedProfileId || !selectedPattern}
-          >
-            {t('calculatePattern')}
-          </button>
-          {!profiles.length && (
-            <span className='ps-muted'>{t('noProfilesAvailable')}</span>
-          )}
-        </div>
-      </form>
+          <Stack spacing={1}>
+            <Button
+              type='submit'
+              variant='contained'
+              disabled={!profiles.length || !selectedProfileId || !selectedPattern}
+            >
+              {t('calculatePattern')}
+            </Button>
+            {!profiles.length && (
+              <Typography variant='body2' color='text.secondary'>
+                {t('noProfilesAvailable')}
+              </Typography>
+            )}
+          </Stack>
+        </Box>
+      </Paper>
 
       {submittedProfile && submittedPattern && (
-        <div className='ps-card'>
-          <strong>{t(submittedPattern)}</strong>
-          <p className='ps-muted'>
-            {t('patternCalculationPending').replace(
-              '{profileName}',
-              submittedProfile.name,
-            )}
-          </p>
-          {!!calculationsBySection.length && (
-            <>
-              {calculationsBySection.map(([section, sectionCalculations]) => (
-                <div key={section} className='ps-section'>
-                  <h3 className='ps-sectionTitle'>{t(section as any)}</h3>
-                  {section === 'dartWidth' && showLargeDifferenceDartHelp && (
-                    <p className='ps-muted'>{t('dartWidthLargeDifferenceHelp')}</p>
-                  )}
-                  <table className='ps-table'>
-                    <tbody>
-                      {sectionCalculations.map((calculation) => (
-                        <tr key={calculation.id}>
-                          <td>
-                            <strong>{calculation.label}</strong>
+        <Paper variant='outlined' sx={{ p: 2.5 }}>
+          <Stack spacing={3}>
+            <Stack spacing={0.5}>
+              <Typography variant='h6'>{t(submittedPattern)}</Typography>
+              <Typography color='text.secondary'>
+                {t('patternCalculationPending').replace(
+                  '{profileName}',
+                  submittedProfile.name,
+                )}
+              </Typography>
+            </Stack>
+
+            {draft && <PatternDraftPreview draft={draft} />}
+
+            {calculationsBySection.map(([section, sectionCalculations]) => (
+              <Box key={section}>
+                <Typography variant='h6' sx={{ mb: 1.5 }}>
+                  {t(section as TranslationKey)}
+                </Typography>
+
+                {section === 'dartWidth' && showLargeDifferenceDartHelp && (
+                  <Alert severity='info' sx={{ mb: 1.5 }}>
+                    {t('dartWidthLargeDifferenceHelp')}
+                  </Alert>
+                )}
+
+                <Table size='small'>
+                  <TableBody>
+                    {sectionCalculations.map((calculation) => (
+                      <TableRow key={calculation.id}>
+                        <TableCell sx={{ pl: 0 }}>
+                          <Stack spacing={0.5}>
+                            <Typography fontWeight={600}>
+                              {calculation.label}
+                            </Typography>
                             {calculation.description && (
-                              <div className='ps-muted'>
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                              >
                                 {calculation.description}
-                              </div>
+                              </Typography>
                             )}
-                          </td>
-                          <td>{formatMeasurement(calculation.value)} cm</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
+                          </Stack>
+                        </TableCell>
+                        <TableCell align='right' sx={{ pr: 0, whiteSpace: 'nowrap' }}>
+                          {formatMeasurement(calculation.value)} cm
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            ))}
+          </Stack>
+        </Paper>
       )}
-    </section>
+    </Stack>
   );
 }

@@ -2,12 +2,40 @@ import womenChart from './standardSizesWomen168.json';
 import menChart from './standardSizesMen176.json';
 import type { Measurements } from '../types/measurements';
 
-function v<T extends Record<string, number | null | undefined>>(
+type StandardChartRow = Record<string, number | null | undefined>;
+type StandardMeasurementDefaults = Partial<Measurements>;
+
+const WOMEN_FALLBACK_MEASUREMENTS: StandardMeasurementDefaults = {
+  sideHeight: 0,
+  shoulderHeightRightBack: 0,
+  shoulderHeightRightFull: 0,
+  shoulderHeightLeftBack: 0,
+  shoulderHeightLeftFull: 0,
+  sideMeasurement: 0,
+  chestWidth: 0,
+  crotchDepth: 0,
+};
+
+const MEN_FALLBACK_MEASUREMENTS: StandardMeasurementDefaults = {
+  totalLength: 0,
+  hipHeight: 0,
+  hipDepth: 0,
+  sideHeight: 0,
+  shoulderHeightRightBack: 0,
+  shoulderHeightRightFull: 0,
+  shoulderHeightLeftBack: 0,
+  shoulderHeightLeftFull: 0,
+  sideMeasurement: 0,
+  bustHeight: 0,
+  bustPoint: 0,
+};
+
+function getChartValue<T extends StandardChartRow, K extends string>(
   row: T | undefined,
-  size: keyof T | string,
+  size: K,
 ): number {
   if (!row) return 0;
-  const value = (row as any)[size] as number | null | undefined;
+  const value = row[size as keyof T];
   return typeof value === 'number' ? value : 0;
 }
 
@@ -19,38 +47,29 @@ export function measurementsFromStandardSize(
   const r = womenChart.rows;
 
   return {
-    bustCircumference: v(r.bustCircumference, size),
-    waistCircumference: v(r.waistCircumference, size),
-    highHipCircumference: v(r.highHipCircumference, size),
-    hipCircumference: v(r.hipCircumference, size),
-    backWaistLength: v(r.backWaistLength, size),
-    backWidth: v(r.backWidth, size),
-    shoulderWidth: v(r.shoulderWidth, size),
-    neckCircumference: v(r.neckCircumference, size),
-    frontWaistLength: v(r.frontWaistLength, size),
-    bustHeight: v(r.bustHeight, size),
-    bustPoint: v(r.bustPoint, size),
-    armLength: v(r.armLength, size),
-    upperArmCircumference: v(r.upperArmCircumference, size),
-    elbowCircumference: v(r.elbowCircumference, size),
-    wristCircumference: v(r.wristCircumference, size),
-    trouserLength: v(r.trouserLength, size),
-    rise: v(r.rise, size),
-    inseamLength: v(r.inseamLength, size),
-    kneeHeight: v(r.kneeHeight, size),
-    hipHeight: v(r.hipHeight, size),
-    hipDepth: v(r.hipDepth, size),
-
-    // Not in chart: keep as 0
+    bustCircumference: getChartValue(r.bustCircumference, size),
+    waistCircumference: getChartValue(r.waistCircumference, size),
+    highHipCircumference: getChartValue(r.highHipCircumference, size),
+    hipCircumference: getChartValue(r.hipCircumference, size),
+    backWaistLength: getChartValue(r.backWaistLength, size),
+    backWidth: getChartValue(r.backWidth, size),
+    shoulderWidth: getChartValue(r.shoulderWidth, size),
+    neckCircumference: getChartValue(r.neckCircumference, size),
+    frontWaistLength: getChartValue(r.frontWaistLength, size),
+    bustHeight: getChartValue(r.bustHeight, size),
+    bustPoint: getChartValue(r.bustPoint, size),
+    armLength: getChartValue(r.armLength, size),
+    upperArmCircumference: getChartValue(r.upperArmCircumference, size),
+    elbowCircumference: getChartValue(r.elbowCircumference, size),
+    wristCircumference: getChartValue(r.wristCircumference, size),
+    trouserLength: getChartValue(r.trouserLength, size),
+    rise: getChartValue(r.rise, size),
+    inseamLength: getChartValue(r.inseamLength, size),
+    kneeHeight: getChartValue(r.kneeHeight, size),
+    hipHeight: getChartValue(r.hipHeight, size),
+    hipDepth: getChartValue(r.hipDepth, size),
     totalLength: womenChart.meta.height,
-    sideHeight: 0,
-    shoulderHeightRightBack: 0,
-    shoulderHeightRightFull: 0,
-    shoulderHeightLeftBack: 0,
-    shoulderHeightLeftFull: 0,
-    sideMeasurement: 0,
-    chestWidth: 0,
-    crotchDepth: 0,
+    ...WOMEN_FALLBACK_MEASUREMENTS,
   };
 }
 
@@ -72,37 +91,25 @@ export function measurementsFromMenStandardSize(
   const r = menChart.rows;
 
   return {
-    bustCircumference: v(r.chestCircumference, size),
-    waistCircumference: v(r.waistCircumference, size),
-    highHipCircumference: v(r.highHipCircumference, size),
-    hipCircumference: v(r.hipCircumference, size),
-    backWaistLength: v(r.backWaistLength, size),
-    backWidth: v(r.backWidth, size),
-    chestWidth: v(r.chestWidth, size),
-    shoulderWidth: v(r.shoulderWidth, size),
-    neckCircumference: v(r.neckCircumference, size),
-    frontWaistLength: v(r.frontWaistLength, size),
-    armLength: v(r.armLength, size),
-    upperArmCircumference: v(r.upperArmCircumference, size),
-    elbowCircumference: v(r.elbowCircumference, size),
-    wristCircumference: v(r.wristCircumference, size),
-    trouserLength: v(r.trouserLength, size),
-    rise: v(r.rise, size),
-    inseamLength: v(r.inseamLength, size),
-    kneeHeight: v(r.kneeHeight, size),
-    crotchDepth: v(r.crotchDepth, size),
-
-    // Not in mens table
-    totalLength: 0,
-    hipHeight: 0,
-    hipDepth: 0,
-    sideHeight: 0,
-    shoulderHeightRightBack: 0,
-    shoulderHeightRightFull: 0,
-    shoulderHeightLeftBack: 0,
-    shoulderHeightLeftFull: 0,
-    sideMeasurement: 0,
-    bustHeight: 0,
-    bustPoint: 0,
+    bustCircumference: getChartValue(r.chestCircumference, size),
+    waistCircumference: getChartValue(r.waistCircumference, size),
+    highHipCircumference: getChartValue(r.highHipCircumference, size),
+    hipCircumference: getChartValue(r.hipCircumference, size),
+    backWaistLength: getChartValue(r.backWaistLength, size),
+    backWidth: getChartValue(r.backWidth, size),
+    chestWidth: getChartValue(r.chestWidth, size),
+    shoulderWidth: getChartValue(r.shoulderWidth, size),
+    neckCircumference: getChartValue(r.neckCircumference, size),
+    frontWaistLength: getChartValue(r.frontWaistLength, size),
+    armLength: getChartValue(r.armLength, size),
+    upperArmCircumference: getChartValue(r.upperArmCircumference, size),
+    elbowCircumference: getChartValue(r.elbowCircumference, size),
+    wristCircumference: getChartValue(r.wristCircumference, size),
+    trouserLength: getChartValue(r.trouserLength, size),
+    rise: getChartValue(r.rise, size),
+    inseamLength: getChartValue(r.inseamLength, size),
+    kneeHeight: getChartValue(r.kneeHeight, size),
+    crotchDepth: getChartValue(r.crotchDepth, size),
+    ...MEN_FALLBACK_MEASUREMENTS,
   };
 }
