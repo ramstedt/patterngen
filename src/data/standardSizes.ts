@@ -47,6 +47,7 @@ export function measurementsFromStandardSize(
   const r = womenChart.rows;
 
   return {
+    ...WOMEN_FALLBACK_MEASUREMENTS,
     bustCircumference: getChartValue(r.bustCircumference, size),
     waistCircumference: getChartValue(r.waistCircumference, size),
     highHipCircumference: getChartValue(r.highHipCircumference, size),
@@ -69,7 +70,6 @@ export function measurementsFromStandardSize(
     hipHeight: getChartValue(r.hipHeight, size),
     hipDepth: getChartValue(r.hipDepth, size),
     totalLength: womenChart.meta.height,
-    ...WOMEN_FALLBACK_MEASUREMENTS,
   };
 }
 
@@ -91,6 +91,7 @@ export function measurementsFromMenStandardSize(
   const r = menChart.rows;
 
   return {
+    ...MEN_FALLBACK_MEASUREMENTS,
     bustCircumference: getChartValue(r.chestCircumference, size),
     waistCircumference: getChartValue(r.waistCircumference, size),
     highHipCircumference: getChartValue(r.highHipCircumference, size),
@@ -110,6 +111,5 @@ export function measurementsFromMenStandardSize(
     inseamLength: getChartValue(r.inseamLength, size),
     kneeHeight: getChartValue(r.kneeHeight, size),
     crotchDepth: getChartValue(r.crotchDepth, size),
-    ...MEN_FALLBACK_MEASUREMENTS,
   };
 }

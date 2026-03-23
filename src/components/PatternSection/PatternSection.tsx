@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ListSubheader from '@mui/material/ListSubheader';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -15,9 +16,10 @@ import type { TranslationKey } from '../../../i18n/translations';
 import { useI18n } from '../../../i18n/useI18n';
 import { PatternDraftPreview } from '../PatternPreview/PatternDraftPreview';
 import {
-  PATTERN_OPTIONS,
+  PATTERN_CATEGORIES,
   buildPatternDraft,
   calculatePattern,
+  getPatternDefinition,
   type PatternOption,
 } from '../../lib/patterns';
 import { formatMeasurement } from '../../lib/measurements';
@@ -76,6 +78,14 @@ export function PatternSection({
     () => profiles.find((profile) => profile.id === submittedProfileId) ?? null,
     [profiles, submittedProfileId],
   );
+  const submittedPatternDefinition = useMemo(
+    () => (submittedPattern ? getPatternDefinition(submittedPattern) : null),
+    [submittedPattern],
+  );
+  const selectedProfile = useMemo(
+    () => profiles.find((profile) => profile.id === selectedProfileId) ?? null,
+    [profiles, selectedProfileId],
+  );
 
   const calculations = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return [];
@@ -122,6 +132,41 @@ export function PatternSection({
           calculation.id === 'backDartWidthSecondary',
       ),
     [calculations],
+  );
+
+  const requiredMeasurementStatus = useMemo(
+    () =>
+      submittedProfile && submittedPatternDefinition
+        ? submittedPatternDefinition.requiredMeasurements.map((key) => ({
+            key,
+            value: submittedProfile.measurements[key],
+          }))
+        : [],
+    [submittedPatternDefinition, submittedProfile],
+  );
+  const hasMissingRequiredMeasurements = useMemo(
+    () => requiredMeasurementStatus.some((measurement) => measurement.value === 0),
+    [requiredMeasurementStatus],
+  );
+  const missingRequiredMeasurements = useMemo(
+    () => requiredMeasurementStatus.filter((measurement) => measurement.value === 0),
+    [requiredMeasurementStatus],
+  );
+
+  const selectedPatternDefinition = useMemo(
+    () => (selectedPattern ? getPatternDefinition(selectedPattern) : null),
+    [selectedPattern],
+  );
+  const hasPatternProfileTypeMismatch = useMemo(
+    () =>
+      Boolean(
+        selectedProfile &&
+          selectedPatternDefinition &&
+          !selectedPatternDefinition.supportedProfileTypes.includes(
+            selectedProfile.profileType,
+          ),
+      ),
+    [selectedPatternDefinition, selectedProfile],
   );
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -184,11 +229,14 @@ export function PatternSection({
             size='small'
           >
             <MenuItem value=''>{t('selectPattern')}</MenuItem>
-            {PATTERN_OPTIONS.map((pattern) => (
-              <MenuItem key={pattern} value={pattern}>
-                {t(pattern)}
-              </MenuItem>
-            ))}
+            {PATTERN_CATEGORIES.map(({ category, patterns }) => [
+              <ListSubheader key={category}>{t(category as TranslationKey)}</ListSubheader>,
+              ...patterns.map((pattern) => (
+                <MenuItem key={pattern} value={pattern}>
+                  {t(pattern)}
+                </MenuItem>
+              )),
+            ])}
           </TextField>
 
           <Stack spacing={1} sx={{ width: { xs: '100%', md: 'auto' } }}>
@@ -209,6 +257,11 @@ export function PatternSection({
             )}
           </Stack>
         </Box>
+        {hasPatternProfileTypeMismatch && (
+          <Alert severity='warning' sx={{ mt: 2 }}>
+            {t('patternProfileTypeWarning')}
+          </Alert>
+        )}
       </Paper>
       {submittedProfile && submittedPattern && (
         <Paper
@@ -231,6 +284,21 @@ export function PatternSection({
                 )}
               </Typography>
             </Stack>
+
+            {hasMissingRequiredMeasurements && (
+              <Alert severity='warning'>
+                <Stack spacing={1}>
+                  <Typography fontWeight={600}>
+                    {t('zeroMeasurementsWarning')}
+                  </Typography>
+                  {missingRequiredMeasurements.map((measurement) => (
+                    <Typography key={measurement.key} variant='body2'>
+                      {t(measurement.key as TranslationKey)}: {formatMeasurement(measurement.value)} cm
+                    </Typography>
+                  ))}
+                </Stack>
+              </Alert>
+            )}
 
             {draft && <PatternDraftPreview draft={draft} />}
 

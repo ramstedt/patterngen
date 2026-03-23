@@ -1,21 +1,21 @@
-import type { Profile } from '../../../types/measurements';
 import { calculateStraightSkirt } from './calculations';
 import { buildStraightSkirtDraft } from './draft';
 import type {
-  PatternCalculation,
-  PatternDraft,
-  PatternOption,
-  Translate,
+  PatternDefinition,
 } from '../types';
-
-export type PatternDefinition = {
-  id: PatternOption;
-  calculate: (profile: Profile, t: Translate) => PatternCalculation[];
-  buildDraft: (profile: Profile, t: Translate) => PatternDraft;
-};
 
 export const straightSkirtPattern: PatternDefinition = {
   id: 'straightSkirt',
+  category: 'skirts',
+  supportedProfileTypes: ['women'],
+  requiredMeasurements: [
+    'waistCircumference',
+    'highHipCircumference',
+    'hipCircumference',
+    'hipHeight',
+    'hipDepth',
+    'kneeHeight',
+  ],
   calculate(profile, t) {
     return calculateStraightSkirt(profile, t);
   },

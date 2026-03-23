@@ -1,3 +1,5 @@
+export type ProfileType = 'women' | 'men';
+
 export type Measurements = {
   backWaistLength: number;
   totalLength: number;
@@ -35,6 +37,7 @@ export type Measurements = {
 export type Profile = {
   id: string;
   name: string;
+  profileType: ProfileType;
   measurements: Measurements;
   createdAt: number;
   updatedAt: number;

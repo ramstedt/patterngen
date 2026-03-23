@@ -36,6 +36,7 @@ const en = {
   patterns: 'Patterns',
   newProfile: 'New profile',
   profileName: 'Profile name',
+  profileType: 'Profile type',
   selectProfile: 'Select a profile',
   selectPattern: 'Select a pattern',
   editProfile: 'Edit',
@@ -43,6 +44,10 @@ const en = {
   saveProfile: 'Save profile',
   calculatePattern: 'Calculate pattern',
   noProfilesAvailable: 'Create a profile before calculating a pattern.',
+  zeroMeasurementsWarning:
+    'One or more required measurements are 0. The pattern will not look correct until those values are filled in. Some measurements are specific to the selected profile type (women/men).',
+  patternProfileTypeWarning:
+    'This pattern requires measurements that are not available for the selected profile type.',
   noProfilesTitle: 'No profiles yet',
   noProfilesBody:
     'Create a profile to save measurements and use them in pattern calculations.',
@@ -69,11 +74,15 @@ const en = {
     'Use standard sizes only as a starting point. For accurate patterns, replace them with personal measurements. The values are based on European sizing systems (EN 13402 / ISO 8559) and represent averages, not custom measurements.',
   fillInMeaseurements: 'Enter the measurements and save the profile.',
   measurementRoundingHelp:
-    'Use whole or half centimeters. Other values are rounded automatically.',
+    'Use whole or half centimeters. Other values are rounded automatically. Some measurements are specific to the selected profile type (women/men).',
   rememberToSave: 'Remember to save your changes.',
   nothingToSave: 'No changes to save.',
   applyStandardSize: 'Apply standard size to form',
+  bodices: 'Bodices',
+  skirts: 'Skirts',
   straightSkirt: 'Straight skirt',
+  bodiceWithoutDarts: 'Bodice without darts',
+  patternInPreparation: 'Pattern in preparation',
   skirtLength: 'Skirt length',
   basicMeasurements: 'Basic measurements',
   dartPlacement: 'Dart placement',
@@ -169,6 +178,7 @@ const sv: Record<keyof typeof en, string> = {
   patterns: 'Mönster',
   newProfile: 'Ny profil',
   profileName: 'Profilnamn',
+  profileType: 'Profiltyp',
   selectProfile: 'Välj profil',
   selectPattern: 'Välj mönster',
   editProfile: 'Redigera',
@@ -176,6 +186,10 @@ const sv: Record<keyof typeof en, string> = {
   saveProfile: 'Spara profil',
   calculatePattern: 'Beräkna mönster',
   noProfilesAvailable: 'Skapa en profil innan du beräknar ett mönster.',
+  zeroMeasurementsWarning:
+    'Ett eller flera nödvändiga mått är 0. Mönstret kommer inte att se korrekt ut förrän de värdena är ifyllda. Vissa mått är specifika för vald profiltyp (dam/herr).',
+  patternProfileTypeWarning:
+    'Det här mönstret kräver mått som inte finns tillgängliga för den valda profiltypen.',
   noProfilesTitle: 'Inga profiler ännu',
   noProfilesBody:
     'Skapa en profil för att spara mått och använda dem i mönsterberäkningar.',
@@ -202,11 +216,15 @@ const sv: Record<keyof typeof en, string> = {
     'Använd standardstorlekar endast som utgångspunkt. För korrekta mönster behöver du ersätta dem med personliga mått. Värdena bygger på europeiska storlekssystem (EN 13402 / ISO 8559) och är medelvärden, inte individuella mått.',
   fillInMeaseurements: 'Fyll i måtten och spara profilen.',
   measurementRoundingHelp:
-    'Använd hela eller halva centimeter. Andra värden avrundas automatiskt.',
+    'Använd hela eller halva centimeter. Andra värden avrundas automatiskt. Vissa mått är specifika för vald profiltyp (dam/herr).',
   rememberToSave: 'Glöm inte att spara dina ändringar',
   nothingToSave: 'Det finns inga ändringar att spara.',
   applyStandardSize: 'Fyll i formuläret med måtten från standardstorleken.',
+  bodices: 'Liv',
+  skirts: 'Kjolar',
   straightSkirt: 'Grundkjol',
+  bodiceWithoutDarts: 'Liv utan insnitt',
+  patternInPreparation: 'Mönster under arbete',
   skirtLength: 'Kjollängd',
   basicMeasurements: 'Grundmått',
   dartPlacement: 'Placering av insnitt',

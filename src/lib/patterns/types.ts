@@ -1,6 +1,8 @@
 import type { TranslationKey } from '../../../i18n/translations';
+import type { Measurements, Profile, ProfileType } from '../../types/measurements';
 
-export type PatternOption = 'straightSkirt';
+export type PatternOption = 'straightSkirt' | 'bodiceWithoutDarts';
+export type PatternCategory = 'skirts' | 'bodices';
 
 export type PatternSectionKey =
   | 'basicMeasurements'
@@ -54,3 +56,12 @@ export type PatternDraft = {
 };
 
 export type Translate = (key: TranslationKey) => string;
+
+export type PatternDefinition = {
+  id: PatternOption;
+  category: PatternCategory;
+  supportedProfileTypes: ProfileType[];
+  requiredMeasurements: (keyof Measurements)[];
+  calculate: (profile: Profile, t: Translate) => PatternCalculation[];
+  buildDraft: (profile: Profile, t: Translate) => PatternDraft;
+};

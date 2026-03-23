@@ -1,19 +1,40 @@
-import type { Profile } from '../types/measurements';
+import type { Profile, ProfileType } from '../types/measurements';
 import { normalizeMeasurements } from '../lib/measurements';
 
 const STORAGE_KEY = 'patterngen.profiles.v1';
 const PROFILES_UPDATED_EVENT = 'patterngen:profiles-updated';
 
 type LegacyProfile = Omit<Profile, 'measurements'> & {
+  profileType?: ProfileType;
   measurements: Partial<Profile['measurements']> & {
     shoulderHeight?: number;
     shoulderHeightBackFront?: number;
   };
 };
 
+function inferProfileType(profile: LegacyProfile): ProfileType {
+  if (profile.profileType) return profile.profileType;
+
+  const measurements = profile.measurements ?? {};
+
+  if ((measurements.bustPoint ?? 0) > 0 || (measurements.bustHeight ?? 0) > 0) {
+    return 'women';
+  }
+
+  if (
+    (measurements.chestWidth ?? 0) > 0 ||
+    (measurements.crotchDepth ?? 0) > 0
+  ) {
+    return 'men';
+  }
+
+  return 'women';
+}
+
 function normalizeProfile(profile: LegacyProfile): Profile {
   return {
     ...profile,
+    profileType: inferProfileType(profile),
     measurements: normalizeMeasurements(profile.measurements),
   };
 }

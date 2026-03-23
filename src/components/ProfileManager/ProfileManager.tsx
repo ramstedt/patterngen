@@ -20,7 +20,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useI18n } from '../../../i18n/useI18n';
-import type { Measurements, Profile } from '../../types/measurements';
+import type {
+  Measurements,
+  Profile,
+  ProfileType,
+} from '../../types/measurements';
 import {
   formatMeasurement,
   MEASUREMENT_FIELDS,
@@ -71,9 +75,13 @@ const measurementSchema = z.object({
   crotchDepth: z.number().nonnegative().or(z.nan()),
 });
 
-type FormValues = Measurements & { name: string };
+type FormValues = Measurements & { name: string; profileType: ProfileType };
+type ProfileTypeFormValue = ProfileType | '';
 
 const FIELDS = MEASUREMENT_FIELDS;
+const WOMEN_ONLY_FIELDS: (keyof Measurements)[] = ['bustPoint', 'bustHeight'];
+const MEN_ONLY_FIELDS: (keyof Measurements)[] = ['chestWidth', 'crotchDepth'];
+const MEN_HIDDEN_FIELDS: (keyof Measurements)[] = ['hipDepth', 'hipHeight'];
 const WOMEN_SIZES: StandardSize[] = [
   'C30',
   'C32',
@@ -110,6 +118,27 @@ const MEN_SIZES: MenSize[] = [
   'C68',
   'C70',
 ];
+
+function getVisibleFields(profileType: ProfileType | undefined) {
+  if (profileType === 'women') {
+    return FIELDS.filter((field) => !MEN_ONLY_FIELDS.includes(field.key));
+  }
+
+  if (profileType === 'men') {
+    return FIELDS.filter(
+      (field) =>
+        !WOMEN_ONLY_FIELDS.includes(field.key) &&
+        !MEN_HIDDEN_FIELDS.includes(field.key),
+    );
+  }
+
+  return FIELDS.filter(
+    (field) =>
+      !WOMEN_ONLY_FIELDS.includes(field.key) &&
+      !MEN_ONLY_FIELDS.includes(field.key) &&
+      !MEN_HIDDEN_FIELDS.includes(field.key),
+  );
+}
 
 function createBlankMeasurements(): Measurements {
   return Object.fromEntries(
@@ -182,7 +211,6 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   );
   const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view');
   const [savedMsg, setSavedMsg] = useState(false);
-  const [standardChart, setStandardChart] = useState<'women' | 'men'>('women');
   const [womenSize, setWomenSize] = useState<StandardSize>('C44');
   const [menSize, setMenSize] = useState<MenSize>('C50');
 
@@ -192,7 +220,12 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   );
 
   const schema = useMemo(
-    () => z.object({ name: z.string().min(1), ...measurementSchema.shape }),
+    () =>
+      z.object({
+        name: z.string().min(1),
+        profileType: z.enum(['women', 'men']),
+        ...measurementSchema.shape,
+      }),
     [],
   );
 
@@ -201,6 +234,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     defaultValues: initialActiveProfile
       ? {
           name: initialActiveProfile.name,
+          profileType: initialActiveProfile.profileType,
           ...initialActiveProfile.measurements,
         }
       : { name: '', ...createBlankMeasurements() },
@@ -208,6 +242,40 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   });
 
   const { isDirty, isSubmitting } = form.formState;
+  const watchedValues = form.watch();
+  const selectedProfileType = form.watch('profileType');
+  const visibleFields = useMemo(
+    () => getVisibleFields(selectedProfileType),
+    [selectedProfileType],
+  );
+  const activeVisibleFields = useMemo(
+    () => getVisibleFields(active?.profileType),
+    [active?.profileType],
+  );
+
+  function setProfileType(nextProfileType: ProfileTypeFormValue) {
+    form.setValue(
+      'profileType',
+      (nextProfileType || undefined) as never,
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
+
+    const keysToClear =
+      nextProfileType === 'women'
+        ? MEN_ONLY_FIELDS
+        : nextProfileType === 'men'
+          ? WOMEN_ONLY_FIELDS
+          : [...WOMEN_ONLY_FIELDS, ...MEN_ONLY_FIELDS];
+
+    for (const key of keysToClear) {
+      form.setValue(key as never, Number.NaN as never, {
+        shouldDirty: true,
+      });
+    }
+  }
 
   function selectActiveProfile(nextActiveId: string | null) {
     setActiveId(nextActiveId);
@@ -216,7 +284,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
       profiles.find((profile) => profile.id === nextActiveId) ?? null;
 
     if (nextProfile) {
-      form.reset({ name: nextProfile.name, ...nextProfile.measurements });
+      form.reset({
+        name: nextProfile.name,
+        profileType: nextProfile.profileType,
+        ...nextProfile.measurements,
+      });
       setMode('view');
       return;
     }
@@ -244,7 +316,13 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   }
 
   function cancel() {
-    if (active) form.reset({ name: active.name, ...active.measurements });
+    if (active) {
+      form.reset({
+        name: active.name,
+        profileType: active.profileType,
+        ...active.measurements,
+      });
+    }
     setMode('view');
     if (!active && profiles[0]) setActiveId(profiles[0].id);
   }
@@ -285,6 +363,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     const profile: Profile = {
       id: active?.id ?? uid(),
       name: values.name,
+      profileType: values.profileType,
       measurements,
       createdAt: active?.createdAt ?? now,
       updatedAt: now,
@@ -313,7 +392,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     if (nextActiveId) {
       const nextProfile = nextProfiles.find((profile) => profile.id === nextActiveId);
       if (nextProfile) {
-        form.reset({ name: nextProfile.name, ...nextProfile.measurements });
+        form.reset({
+          name: nextProfile.name,
+          profileType: nextProfile.profileType,
+          ...nextProfile.measurements,
+        });
       }
     } else {
       form.reset({ name: '', ...createBlankMeasurements() });
@@ -323,9 +406,19 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   const canEdit = mode === 'edit' || mode === 'new';
   const showForm = mode === 'new' || mode === 'edit';
   const hasProfiles = profiles.length > 0;
+  const showMeasurementInputs = Boolean(selectedProfileType);
+  const isFormComplete = useMemo(() => {
+    if (!watchedValues.name?.trim()) return false;
+    if (!selectedProfileType) return false;
+
+    return visibleFields.every(({ key }) => {
+      const value = watchedValues[key];
+      return typeof value === 'number' && !Number.isNaN(value);
+    });
+  }, [selectedProfileType, visibleFields, watchedValues]);
 
   return (
-    <Stack spacing={3} sx={{ width: '100%', maxWidth: 768, mx: 'auto' }}>
+    <Stack spacing={3} sx={{ width: '100%', maxWidth: 922, mx: 'auto' }}>
       {showHeader && (
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
@@ -365,15 +458,20 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
               >
                 {profiles.map((profile) => (
                   <MenuItem key={profile.id} value={profile.id}>
-                    {profile.name}
+                    {profile.name} ({t(profile.profileType)})
                   </MenuItem>
                 ))}
               </TextField>
 
               {active && (
-                <Typography variant='body2' color='text.secondary'>
-                  {t('updated')}: {new Date(active.updatedAt).toLocaleString()}
-                </Typography>
+                <Stack spacing={0.5}>
+                  <Typography variant='body2' color='text.secondary'>
+                    {t('profileType')}: {t(active.profileType)}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    {t('updated')}: {new Date(active.updatedAt).toLocaleString()}
+                  </Typography>
+                </Stack>
               )}
             </Stack>
           </Paper>
@@ -406,7 +504,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   spacing={1.25}
                   alignItems='stretch'
                   justifyContent='space-between'
-                  sx={{ minHeight: { xs: 'auto', lg: 84 } }}
+                  sx={{ minHeight: { xs: 'auto', lg: 165 } }}
                 >
                   <Stack spacing={0.5}>
                     <Typography variant='subtitle1'>{t('profileName')}</Typography>
@@ -429,7 +527,32 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   />
                 </Stack>
 
-                {mode === 'new' && (
+                <Stack
+                  spacing={1.25}
+                  alignItems='stretch'
+                  justifyContent='space-between'
+                  sx={{ minHeight: { xs: 'auto', lg: 165 } }}
+                >
+                  <Stack spacing={0.5}>
+                    <Typography variant='subtitle1'>{t('profileType')}</Typography>
+                  </Stack>
+                  <TextField
+                    select
+                    size='small'
+                    value={selectedProfileType ?? ''}
+                    onChange={(event) =>
+                      setProfileType(event.target.value as ProfileTypeFormValue)
+                    }
+                    disabled={!canEdit}
+                    sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: 280 }}
+                  >
+                    <MenuItem value=''></MenuItem>
+                    <MenuItem value='women'>{t('women')}</MenuItem>
+                    <MenuItem value='men'>{t('men')}</MenuItem>
+                  </TextField>
+                </Stack>
+
+                {mode === 'new' && selectedProfileType && (
                   <Accordion
                     disableGutters
                     elevation={0}
@@ -469,32 +592,22 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                         <TextField
                           select
                           size='small'
-                          label={t('chart')}
-                          value={standardChart}
-                          onChange={(event) =>
-                            setStandardChart(event.target.value as 'women' | 'men')
-                          }
-                        >
-                          <MenuItem value='women'>{t('women')}</MenuItem>
-                          <MenuItem value='men'>{t('men')}</MenuItem>
-                        </TextField>
-
-                        <TextField
-                          select
-                          size='small'
                           label={t('size')}
-                          value={standardChart === 'women' ? womenSize : menSize}
+                          disabled={!selectedProfileType}
+                          value={
+                            selectedProfileType === 'men' ? menSize : womenSize
+                          }
                           onChange={(event) => {
-                            if (standardChart === 'women') {
+                            if (selectedProfileType === 'women') {
                               setWomenSize(event.target.value as StandardSize);
-                            } else {
+                            } else if (selectedProfileType === 'men') {
                               setMenSize(event.target.value as MenSize);
                             }
                           }}
                         >
-                          {(standardChart === 'women'
-                            ? WOMEN_SIZES
-                            : MEN_SIZES
+                          {(selectedProfileType === 'men'
+                            ? MEN_SIZES
+                            : WOMEN_SIZES
                           ).map((size) => (
                             <MenuItem key={size} value={size}>
                               {size}
@@ -506,11 +619,12 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                           <Button
                             type='button'
                             variant='contained'
+                            disabled={!selectedProfileType}
                             onClick={() => {
                               const preset =
-                                standardChart === 'women'
-                                  ? measurementsFromStandardSize(womenSize)
-                                  : measurementsFromMenStandardSize(menSize);
+                                selectedProfileType === 'men'
+                                  ? measurementsFromMenStandardSize(menSize)
+                                  : measurementsFromStandardSize(womenSize);
                               applyPresetToForm(preset);
                             }}
                           >
@@ -523,41 +637,47 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                 )}
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                  sx={{ textAlign: { xs: 'left', sm: 'right' }, maxWidth: 360 }}
-                >
-                  {t('measurementRoundingHelp')}
-                </Typography>
-              </Box>
+              {showMeasurementInputs && (
+                <>
+                  <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+                    <Typography
+                      variant='body2'
+                      color='text.secondary'
+                      sx={{ textAlign: { xs: 'left', sm: 'right' }, maxWidth: 360 }}
+                    >
+                      {t('measurementRoundingHelp')}
+                    </Typography>
+                  </Box>
 
-              <Box
-                sx={{
-                  display: 'grid',
-                  gap: 2,
-                  gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
-                }}
-              >
-                {['upper', 'lower'].map((group) => (
-                  <Stack key={group} spacing={1.25}>
-                    {FIELDS.filter((field) => field.group === group).map(
-                      ({ key }) =>
-                        renderMeasurementField(
-                          key,
-                          t(key as never),
-                          canEdit,
-                          (next) =>
-                            form.setValue(key as never, next as never, {
-                              shouldDirty: true,
-                            }),
-                          form.register,
-                        ),
-                    )}
-                  </Stack>
-                ))}
-              </Box>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      columnGap: 6,
+                      rowGap: 2,
+                      gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                    }}
+                  >
+                    {['upper', 'lower'].map((group) => (
+                      <Stack key={group} spacing={2}>
+                        {visibleFields
+                          .filter((field) => field.group === group)
+                          .map(({ key }) =>
+                            renderMeasurementField(
+                              key,
+                              t(key as never),
+                              canEdit,
+                              (next) =>
+                                form.setValue(key as never, next as never, {
+                                  shouldDirty: true,
+                                }),
+                              form.register,
+                            ),
+                          )}
+                      </Stack>
+                    ))}
+                  </Box>
+                </>
+              )}
 
               <Divider />
 
@@ -575,7 +695,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   <Button
                     type='submit'
                     variant='contained'
-                    disabled={!canEdit || !isDirty || isSubmitting}
+                    disabled={!canEdit || !isDirty || !isFormComplete || isSubmitting}
                   >
                     {t('saveProfile')}
                   </Button>
@@ -640,7 +760,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
                 <Table size='small'>
                   <TableBody>
-                    {FIELDS.map(({ key }) => (
+                    {activeVisibleFields.map(({ key }) => (
                       <TableRow key={String(key)}>
                         <TableCell
                           sx={{
