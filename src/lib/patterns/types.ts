@@ -28,7 +28,14 @@ export type DraftLine = {
   id: string;
   from: string;
   to: string;
-  kind?: 'outline' | 'construction' | 'hidden' | 'grainline';
+  kind?:
+    | 'outline'
+    | 'seam'
+    | 'seamAllowance'
+    | 'construction'
+    | 'hidden'
+    | 'grainline'
+    | 'guide';
 };
 
 export type DraftLabel = {
@@ -37,12 +44,20 @@ export type DraftLabel = {
   x: number;
   y: number;
   rotate?: number;
+  kind?: 'default' | 'guide';
 };
 
 export type DraftPath = {
   id: string;
   d: string;
-  kind?: 'outline' | 'construction' | 'hidden' | 'grainline';
+  kind?:
+    | 'outline'
+    | 'seam'
+    | 'seamAllowance'
+    | 'construction'
+    | 'hidden'
+    | 'grainline'
+    | 'guide';
 };
 
 export type PatternDraft = {

@@ -1,8 +1,22 @@
 import type { Profile } from '../../../types/measurements';
 import { formatMeasurement } from '../../measurements';
+import {
+  cubicTangentAtX,
+  cubicYAtX,
+  offsetClosedPolyline,
+  pointsToPath,
+  sampleCubicSegmentByXRange,
+  sampleCubicSegmentPointsByXRange,
+  sampleQuadraticPoints,
+  smoothPolylinePoints,
+} from '../geometry';
+import type { CubicSeamCurve, Point } from '../geometry';
+import {
+  buildTruedDartSeamSegments,
+  solveFrontVerticalDartTop,
+} from '../dartSeams';
 import type { PatternCalculation, PatternDraft, Translate } from '../types';
 
-type Point = { x: number; y: number };
 type Layout = {
   leftMeasureSpaceMm: number;
   patternWidthMm: number;
@@ -15,6 +29,11 @@ type Layout = {
   startY: number;
   endY: number;
   centerY: number;
+};
+
+type SideSeamBuild = {
+  path: string;
+  points: Point[];
 };
 
 const MM_PER_CM = 10;
@@ -37,37 +56,259 @@ function quadraticPath(start: Point, control: Point, end: Point) {
   return `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`;
 }
 
-function cubicPath(start: Point, control1: Point, control2: Point, end: Point) {
-  return `M ${start.x} ${start.y} C ${control1.x} ${control1.y} ${control2.x} ${control2.y} ${end.x} ${end.y}`;
+function pointOnCubicSeam(curve: CubicSeamCurve, x: number): Point {
+  return {
+    x,
+    y: cubicYAtX({ curve, x }),
+  };
 }
 
-function easeOutQuadratic(value: number) {
-  return 1 - (1 - value) * (1 - value);
+function pointsMatch(a: Point, b: Point, epsilon = 0.001) {
+  return Math.abs(a.x - b.x) < epsilon && Math.abs(a.y - b.y) < epsilon;
 }
 
-function waistlineYAtX({
-  x,
-  flatStartX,
-  end,
-  baselineY,
+function combinePointSegments(...segments: Point[][]) {
+  const combined: Point[] = [];
+
+  for (const segment of segments) {
+    if (segment.length === 0) {
+      continue;
+    }
+
+    if (combined.length === 0) {
+      combined.push(...segment);
+      continue;
+    }
+
+    const startIndex = pointsMatch(combined[combined.length - 1], segment[0])
+      ? 1
+      : 0;
+
+    combined.push(...segment.slice(startIndex));
+  }
+
+  return combined;
+}
+
+function reversePoints(points: Point[]) {
+  return [...points].reverse();
+}
+
+function translatePathDataX(path: string, dx: number) {
+  const tokens = path.match(/[MLQCZ]|-?\d*\.?\d+/g);
+
+  if (!tokens || dx === 0) {
+    return path;
+  }
+
+  let command = '';
+  let valueIndex = 0;
+
+  return tokens
+    .map((token) => {
+      if (/^[MLQCZ]$/.test(token)) {
+        command = token;
+        valueIndex = 0;
+        return token;
+      }
+
+      const value = Number(token);
+      let isX = false;
+
+      if (command === 'M' || command === 'L') {
+        isX = valueIndex % 2 === 0;
+      } else if (command === 'Q') {
+        isX = valueIndex === 0 || valueIndex === 2;
+      } else if (command === 'C') {
+        isX = valueIndex === 0 || valueIndex === 2 || valueIndex === 4;
+      }
+
+      valueIndex += 1;
+      return String(isX ? value + dx : value);
+    })
+    .join(' ');
+}
+
+function splitAllowancePointsAtCenterRun({
+  points,
+  centerX,
+  splitY,
+  epsilon = 0.75,
 }: {
-  x: number;
-  flatStartX: number;
-  end: Point;
-  baselineY: number;
+  points: Point[];
+  centerX: number;
+  splitY: number;
+  epsilon?: number;
 }) {
-  if (x <= flatStartX) {
-    return baselineY;
+  const centerIndices = points
+    .map((point, index) => ({ point, index }))
+    .filter(
+      ({ point }) =>
+        Math.abs(point.x - centerX) <= epsilon && point.y >= splitY - epsilon,
+    )
+    .map(({ index }) => index);
+
+  if (centerIndices.length < 2) {
+    return [points];
   }
 
-  if (x >= end.x) {
-    return end.y;
+  const firstIndex = centerIndices[0];
+  const lastIndex = centerIndices[centerIndices.length - 1];
+
+  return [points.slice(0, firstIndex + 1), points.slice(lastIndex)].filter(
+    (segment) => segment.length > 1,
+  );
+}
+
+function appendBoundarySegment({
+  boundaryPoints,
+  edgeOffsets,
+  segmentPoints,
+  edgeOffset,
+}: {
+  boundaryPoints: Point[];
+  edgeOffsets: number[];
+  segmentPoints: Point[];
+  edgeOffset: number;
+}) {
+  if (segmentPoints.length === 0) {
+    return;
   }
 
-  const t = (x - flatStartX) / (end.x - flatStartX);
-  const easedT = easeOutQuadratic(t);
+  if (boundaryPoints.length === 0) {
+    boundaryPoints.push(segmentPoints[0]);
+  }
 
-  return baselineY + (end.y - baselineY) * easedT;
+  const startIndex = pointsMatch(
+    boundaryPoints[boundaryPoints.length - 1],
+    segmentPoints[0],
+  )
+    ? 1
+    : 0;
+
+  for (let i = startIndex; i < segmentPoints.length; i += 1) {
+    const point = segmentPoints[i];
+
+    if (pointsMatch(boundaryPoints[boundaryPoints.length - 1], point)) {
+      continue;
+    }
+
+    edgeOffsets.push(edgeOffset);
+    boundaryPoints.push(point);
+  }
+}
+
+function buildSideSeam({
+  start,
+  lowerControl,
+  hipPoint,
+  upperControl,
+  waistPoint,
+  steps,
+}: {
+  start: Point;
+  lowerControl: Point;
+  hipPoint: Point;
+  upperControl: Point;
+  waistPoint: Point;
+  steps: number;
+}): SideSeamBuild {
+  const lowerPoints = sampleQuadraticPoints({
+    start,
+    control: lowerControl,
+    end: hipPoint,
+    steps,
+  });
+  const upperPoints = sampleQuadraticPoints({
+    start: hipPoint,
+    control: upperControl,
+    end: waistPoint,
+    steps,
+  });
+
+  return {
+    path: [
+      quadraticPath(start, lowerControl, hipPoint),
+      `Q ${upperControl.x} ${upperControl.y} ${waistPoint.x} ${waistPoint.y}`,
+    ].join(' '),
+    points: combinePointSegments(lowerPoints, upperPoints),
+  };
+}
+
+function buildPieceSeamAllowancePaths({
+  boundaryStart,
+  boundaryEnd,
+  hemInnerPoint,
+  hemOuterPoint,
+  sideSeamPoints,
+  waistSeamPoints,
+  seamAllowanceMm,
+  smoothingPasses,
+  splitCenterX,
+  splitY,
+}: {
+  boundaryStart: Point;
+  boundaryEnd: Point;
+  hemInnerPoint: Point;
+  hemOuterPoint: Point;
+  sideSeamPoints: Point[];
+  waistSeamPoints: Point[];
+  seamAllowanceMm: number;
+  smoothingPasses: number;
+  splitCenterX: number;
+  splitY: number;
+}) {
+  const boundaryPoints: Point[] = [];
+  const boundaryOffsets: number[] = [];
+
+  appendBoundarySegment({
+    boundaryPoints,
+    edgeOffsets: boundaryOffsets,
+    segmentPoints: [boundaryStart, boundaryEnd],
+    edgeOffset: 0,
+  });
+  appendBoundarySegment({
+    boundaryPoints,
+    edgeOffsets: boundaryOffsets,
+    segmentPoints: [hemInnerPoint, hemOuterPoint],
+    edgeOffset: seamAllowanceMm,
+  });
+  appendBoundarySegment({
+    boundaryPoints,
+    edgeOffsets: boundaryOffsets,
+    segmentPoints: sideSeamPoints,
+    edgeOffset: seamAllowanceMm,
+  });
+  appendBoundarySegment({
+    boundaryPoints,
+    edgeOffsets: boundaryOffsets,
+    segmentPoints: reversePoints(waistSeamPoints),
+    edgeOffset: seamAllowanceMm,
+  });
+
+  if (
+    boundaryPoints.length > 1 &&
+    pointsMatch(boundaryPoints[boundaryPoints.length - 1], boundaryPoints[0])
+  ) {
+    boundaryPoints.pop();
+  }
+
+  const smoothedBoundaryPoints = smoothPolylinePoints({
+    points: boundaryPoints,
+    passes: smoothingPasses,
+    cornerAngleDeg: 18,
+  });
+
+  const seamAllowancePoints = offsetClosedPolyline({
+    points: smoothedBoundaryPoints,
+    edgeOffsets: boundaryOffsets,
+  });
+
+  return splitAllowancePointsAtCenterRun({
+    points: seamAllowancePoints,
+    centerX: splitCenterX,
+    splitY,
+  }).map((segment) => pointsToPath(segment));
 }
 
 function validateDraftInputs({
@@ -80,11 +321,15 @@ function validateDraftInputs({
   hipDepthMm: number;
 }) {
   if (hipHeightMm > skirtLengthMm) {
-    throw new Error('Hip height cannot exceed skirt length for straight skirt draft.');
+    throw new Error(
+      'Hip height cannot exceed skirt length for straight skirt draft.',
+    );
   }
 
   if (hipDepthMm > skirtLengthMm) {
-    throw new Error('Hip depth cannot exceed skirt length for straight skirt draft.');
+    throw new Error(
+      'Hip depth cannot exceed skirt length for straight skirt draft.',
+    );
   }
 }
 
@@ -166,10 +411,18 @@ export function buildStraightSkirtDraft(
 
   const marginMm = 56;
   const rightLabelSpaceMm = 88;
-  const dimensionOffsetMm = 16;
-  const dimensionLabelGapMm = 28;
   const grainlineInsetY = 22;
   const arrowSizeMm = 7;
+  const waistTrueingOffsetMm = 35;
+  const seamAllowanceMm = 10;
+  const pieceSpacingMm = 100;
+  const printTestSquareSizeMm = 40;
+  const printTestSquareInsetMm = 16;
+  const printTestSquareTextInsetMm = 8;
+  const seamAllowanceLabelGapMm = 12;
+  const helperTextDropMm = 2;
+  const seamCurveSamplingSteps = 72;
+  const seamAllowanceSmoothingPasses = 0;
 
   const lowerCurveOffsetMm = 2;
   const lowerCurveLiftMm = 8;
@@ -186,198 +439,467 @@ export function buildStraightSkirtDraft(
     topBottomMarginMm: marginMm,
   });
 
-  const { width, height, leftX, lineX, sideLineX, startY, endY, centerY } =
-    layout;
+  const { width, height, leftX, lineX, sideLineX, startY, endY } = layout;
+  const centerFrontX = leftX;
+  const centerBackX = lineX;
   const loweredBackWaistY = startY + loweredBackWaistMm;
   const hipMarkerY = startY + hipHeightMm;
   const seatMarkerY = startY + hipDepthMm;
 
-  const lengthMeasureX = leftX - dimensionOffsetMm;
-  const widthMeasureY = endY + dimensionOffsetMm;
-  const widthCenterX = leftX + bottomWidthMm / 2;
   const grainlineTopY = startY + grainlineInsetY;
   const grainlineBottomY = endY - grainlineInsetY;
+  const printTestSquareLeftX = (width - printTestSquareSizeMm) / 2;
+  const printTestSquareRightX = printTestSquareLeftX + printTestSquareSizeMm;
+  const printTestSquareTopY = startY - printTestSquareSizeMm;
+  const printTestSquareBottomY = printTestSquareTopY + printTestSquareSizeMm;
+  const printTestSquareCenterX =
+    printTestSquareLeftX + printTestSquareSizeMm / 2;
+  const printTestSquareCenterY =
+    printTestSquareTopY + printTestSquareSizeMm / 2;
+  const seamAllowanceLabelText = `Seam allowance included: ${formatMeasurement(seamAllowanceMm / 10)} cm`;
+  const estimatedSeamAllowanceLabelWidth =
+    seamAllowanceLabelText.length * 8.8;
+  const seamAllowanceLabelHalfWidth =
+    estimatedSeamAllowanceLabelWidth / 2;
+  const seamAllowanceLabelX = Math.min(
+    width - seamAllowanceLabelHalfWidth - printTestSquareInsetMm,
+    Math.max(
+      seamAllowanceLabelHalfWidth + printTestSquareInsetMm,
+      printTestSquareCenterX,
+    ),
+  );
+  const seamAllowanceLabelY =
+    printTestSquareTopY - seamAllowanceLabelGapMm + helperTextDropMm;
 
-  const backDartX = lineX - backDartPlacementMm;
+  // Step 1: Establish drafting points from measurements.
+  const backDartCenterX = centerBackX - backDartPlacementMm;
   const backDartBottomY = hipMarkerY + (seatMarkerY - hipMarkerY) / 2;
 
   const frontDartX = sideLineX - halfSideLineWaistMm - frontDartPlacementMm;
   const frontDartLeftX = frontDartX - frontDartWidthMm;
   const frontDartBottomY = hipMarkerY - frontDartDepthMm;
 
-  const leftWaistPoint = {
+  const frontSideWaistPoint = {
     x: sideLineX - halfSideLineWaistMm,
     y: startY - raisedWaistDotMm,
   };
-  const leftHipPoint = { x: sideLineX - halfSideLineHipMm, y: hipMarkerY };
-  const rightWaistPoint = {
+  const frontSideHipPoint = {
+    x: sideLineX - halfSideLineHipMm,
+    y: hipMarkerY,
+  };
+  const backSideWaistPoint = {
     x: sideLineX + halfSideLineWaistMm,
     y: startY - raisedWaistDotMm,
   };
-  const rightHipPoint = { x: sideLineX + halfSideLineHipMm, y: hipMarkerY };
-  const seatCenterPoint = { x: sideLineX, y: seatMarkerY };
-
-  const leftCurvePath = [
-    quadraticPath(
-      seatCenterPoint,
-      { x: sideLineX - lowerCurveOffsetMm, y: seatMarkerY - lowerCurveLiftMm },
-      leftHipPoint,
-    ),
-    `Q ${leftHipPoint.x - upperCurveOffsetMm} ${leftWaistPoint.y + upperCurveDropMm} ${leftWaistPoint.x} ${leftWaistPoint.y}`,
-  ].join(' ');
-
-  const rightCurvePath = [
-    quadraticPath(
-      seatCenterPoint,
-      { x: sideLineX + lowerCurveOffsetMm, y: seatMarkerY - lowerCurveLiftMm },
-      rightHipPoint,
-    ),
-    `Q ${rightHipPoint.x + upperCurveOffsetMm} ${rightWaistPoint.y + upperCurveDropMm} ${rightWaistPoint.x} ${rightWaistPoint.y}`,
-  ].join(' ');
-
-  const rightWaistCurveStartX = lineX - 40;
-  const rightWaistCurveMeetX = lineX - (lineX - rightWaistPoint.x) / 2;
-  const rightWaistCurvePath = [
-    `M ${lineX} ${loweredBackWaistY}`,
-    `L ${rightWaistCurveStartX} ${loweredBackWaistY}`,
-    `Q ${rightWaistCurveStartX - backDartPlacementMm / 6} ${loweredBackWaistY} ${rightWaistCurveMeetX} ${startY}`,
-    `Q ${rightWaistPoint.x + 24} ${rightWaistPoint.y + 2} ${rightWaistPoint.x} ${rightWaistPoint.y}`,
-  ].join(' ');
-
-  const leftWaistCurveMeetX = leftX + (leftWaistPoint.x - leftX) / 2;
-  const leftWaistCurveStart = { x: leftWaistCurveMeetX, y: startY };
-  const leftWaistCurveControl1 = {
-    x: leftWaistCurveMeetX + frontDartPlacementMm / 5,
-    y: startY,
+  const backSideHipPoint = {
+    x: sideLineX + halfSideLineHipMm,
+    y: hipMarkerY,
   };
-  const leftWaistCurveControl2 = {
-    x: leftWaistPoint.x - 24,
-    y: leftWaistPoint.y + 2,
-  };
-  const leftWaistCurvePath = [
-    `M ${leftX} ${startY}`,
-    `L ${leftWaistCurveMeetX} ${startY}`,
-    cubicPath(
-      leftWaistCurveStart,
-      leftWaistCurveControl1,
-      leftWaistCurveControl2,
-      leftWaistPoint,
-    ),
-  ].join(' ');
+  const sideSeamSeatPoint = { x: sideLineX, y: seatMarkerY };
 
-  const frontDartTopY = waistlineYAtX({
-    x: frontDartX,
-    flatStartX: leftWaistCurveMeetX,
-    end: leftWaistPoint,
-    baselineY: startY,
+  // Step 2: Build the side seam shaping curves.
+  const frontSideSeam = buildSideSeam({
+    start: sideSeamSeatPoint,
+    lowerControl: {
+      x: sideLineX - lowerCurveOffsetMm,
+      y: seatMarkerY - lowerCurveLiftMm,
+    },
+    hipPoint: frontSideHipPoint,
+    upperControl: {
+      x: frontSideHipPoint.x - upperCurveOffsetMm,
+      y: frontSideWaistPoint.y + upperCurveDropMm,
+    },
+    waistPoint: frontSideWaistPoint,
+    steps: seamCurveSamplingSteps,
   });
-  const frontDartLeftTopY = waistlineYAtX({
-    x: frontDartLeftX,
-    flatStartX: leftWaistCurveMeetX,
-    end: leftWaistPoint,
-    baselineY: startY,
+
+  const backSideSeam = buildSideSeam({
+    start: sideSeamSeatPoint,
+    lowerControl: {
+      x: sideLineX + lowerCurveOffsetMm,
+      y: seatMarkerY - lowerCurveLiftMm,
+    },
+    hipPoint: backSideHipPoint,
+    upperControl: {
+      x: backSideHipPoint.x + upperCurveOffsetMm,
+      y: backSideWaistPoint.y + upperCurveDropMm,
+    },
+    waistPoint: backSideWaistPoint,
+    steps: seamCurveSamplingSteps,
   });
+
+  // Step 3: Define the front and back waist seam curves.
+  const backWaistCurve: CubicSeamCurve = {
+    start: { x: centerBackX, y: loweredBackWaistY },
+    control1: {
+      x: centerBackX - (centerBackX - backSideWaistPoint.x) * 0.32,
+      y: loweredBackWaistY + 1,
+    },
+    control2: {
+      x: centerBackX - (centerBackX - backSideWaistPoint.x) * 0.76,
+      y: backSideWaistPoint.y + 2,
+    },
+    end: backSideWaistPoint,
+    increasing: false,
+    startBoundaryY: loweredBackWaistY,
+    endBoundaryY: backSideWaistPoint.y,
+  };
+
+  const frontWaistCurve: CubicSeamCurve = {
+    start: { x: centerFrontX, y: startY },
+    control1: {
+      x: centerFrontX + (frontSideWaistPoint.x - centerFrontX) * 0.3,
+      y: startY,
+    },
+    control2: {
+      x: centerFrontX + (frontSideWaistPoint.x - centerFrontX) * 0.78,
+      y: frontSideWaistPoint.y + 2,
+    },
+    end: frontSideWaistPoint,
+    increasing: true,
+    startBoundaryY: startY,
+    endBoundaryY: frontSideWaistPoint.y,
+  };
+
+  // Front dart: one side vertical by design, but trued so the sewn waistline is smoother.
+  const frontDartBottom = { x: frontDartX, y: frontDartBottomY };
+  const frontDartLeftTop = pointOnCubicSeam(frontWaistCurve, frontDartLeftX);
+
+  const frontDartRightTop = solveFrontVerticalDartTop({
+    apex: frontDartBottom,
+    leftTop: frontDartLeftTop,
+    rightX: frontDartX,
+  });
+
+  // Back dart: symmetric legs, then trued in the closed state.
+  const backDartTopY = cubicYAtX({ curve: backWaistCurve, x: backDartCenterX });
+
+  const backDartLeftTop = {
+    x: backDartCenterX - halfBackDartWidthMm,
+    y: backDartTopY,
+  };
+  const backDartRightTop = {
+    x: backDartCenterX + halfBackDartWidthMm,
+    y: backDartTopY,
+  };
+  const backDartBottom = { x: backDartCenterX, y: backDartBottomY };
+
+  const frontLeftAnchorX = Math.max(
+    leftX,
+    frontDartLeftX - waistTrueingOffsetMm,
+  );
+  const frontRightAnchorX = Math.min(
+    frontSideWaistPoint.x,
+    frontDartX + waistTrueingOffsetMm,
+  );
+
+  const frontLeftAnchor = pointOnCubicSeam(frontWaistCurve, frontLeftAnchorX);
+  const frontRightAnchor = pointOnCubicSeam(frontWaistCurve, frontRightAnchorX);
+
+  const frontLeftAnchorTangent = cubicTangentAtX({
+    curve: frontWaistCurve,
+    x: frontLeftAnchorX,
+  });
+
+  const frontRightAnchorTangent = cubicTangentAtX({
+    curve: frontWaistCurve,
+    x: frontRightAnchorX,
+  });
+
+  const backLeftAnchorX = Math.min(
+    centerBackX,
+    backDartRightTop.x + waistTrueingOffsetMm,
+  );
+  const backRightAnchorX = Math.max(
+    backSideWaistPoint.x,
+    backDartLeftTop.x - waistTrueingOffsetMm,
+  );
+
+  const backLeftAnchor = pointOnCubicSeam(backWaistCurve, backLeftAnchorX);
+  const backRightAnchor = pointOnCubicSeam(backWaistCurve, backRightAnchorX);
+
+  const backLeftAnchorTangent = cubicTangentAtX({
+    curve: backWaistCurve,
+    x: backLeftAnchorX,
+  });
+
+  const backRightAnchorTangent = cubicTangentAtX({
+    curve: backWaistCurve,
+    x: backRightAnchorX,
+  });
+
+  const frontTruedWaist = buildTruedDartSeamSegments({
+    apex: frontDartBottom,
+    leftTop: frontDartLeftTop,
+    rightTop: frontDartRightTop,
+    leftAnchor: frontLeftAnchor,
+    rightAnchor: frontRightAnchor,
+    leftAnchorTangent: frontLeftAnchorTangent,
+    rightAnchorTangent: frontRightAnchorTangent,
+  });
+
+  const backTruedWaist = buildTruedDartSeamSegments({
+    apex: backDartBottom,
+    leftTop: backDartRightTop,
+    rightTop: backDartLeftTop,
+    leftAnchor: backLeftAnchor,
+    rightAnchor: backRightAnchor,
+    leftAnchorTangent: backLeftAnchorTangent,
+    rightAnchorTangent: backRightAnchorTangent,
+  });
+
+  const frontWaistSegmentLeftPath = frontTruedWaist.leftPath;
+  const frontWaistSegmentRightPath = frontTruedWaist.rightPath;
+  const backWaistSegmentLeftPath = backTruedWaist.leftPath;
+  const backWaistSegmentRightPath = backTruedWaist.rightPath;
+
+  const frontWaistOuterLeftPoints = sampleCubicSegmentPointsByXRange({
+    curve: frontWaistCurve,
+    startX: centerFrontX,
+    endX: frontLeftAnchorX,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const frontWaistOuterRightPoints = sampleCubicSegmentPointsByXRange({
+    curve: frontWaistCurve,
+    startX: frontRightAnchorX,
+    endX: frontSideWaistPoint.x,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const backWaistOuterLeftPoints = sampleCubicSegmentPointsByXRange({
+    curve: backWaistCurve,
+    startX: centerBackX,
+    endX: backLeftAnchorX,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const backWaistOuterRightPoints = sampleCubicSegmentPointsByXRange({
+    curve: backWaistCurve,
+    startX: backRightAnchorX,
+    endX: backSideWaistPoint.x,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const frontWaistOuterLeftPath = sampleCubicSegmentByXRange({
+    curve: frontWaistCurve,
+    startX: centerFrontX,
+    endX: frontLeftAnchorX,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const frontWaistOuterRightPath = sampleCubicSegmentByXRange({
+    curve: frontWaistCurve,
+    startX: frontRightAnchorX,
+    endX: frontSideWaistPoint.x,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const backWaistOuterLeftPath = sampleCubicSegmentByXRange({
+    curve: backWaistCurve,
+    startX: centerBackX,
+    endX: backLeftAnchorX,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const backWaistOuterRightPath = sampleCubicSegmentByXRange({
+    curve: backWaistCurve,
+    startX: backRightAnchorX,
+    endX: backSideWaistPoint.x,
+    steps: seamCurveSamplingSteps,
+  });
+
+  const frontWaistSeamPoints = combinePointSegments(
+    frontWaistOuterLeftPoints,
+    frontTruedWaist.leftPoints,
+    frontTruedWaist.rightPoints,
+    frontWaistOuterRightPoints,
+  );
+  const backWaistSeamPoints = combinePointSegments(
+    backWaistOuterLeftPoints,
+    backTruedWaist.leftPoints,
+    backTruedWaist.rightPoints,
+    backWaistOuterRightPoints,
+  );
+
+  const frontSeamAllowancePaths = buildPieceSeamAllowancePaths({
+    boundaryStart: frontWaistCurve.start,
+    boundaryEnd: { x: centerFrontX, y: endY },
+    hemInnerPoint: { x: centerFrontX, y: endY },
+    hemOuterPoint: { x: sideLineX, y: endY },
+    sideSeamPoints: frontSideSeam.points,
+    waistSeamPoints: frontWaistSeamPoints,
+    seamAllowanceMm,
+    smoothingPasses: seamAllowanceSmoothingPasses,
+    splitCenterX: sideLineX,
+    splitY: seatMarkerY,
+  });
+
+  const backSeamAllowancePaths = buildPieceSeamAllowancePaths({
+    boundaryStart: backWaistCurve.start,
+    boundaryEnd: { x: centerBackX, y: endY },
+    hemInnerPoint: { x: centerBackX, y: endY },
+    hemOuterPoint: { x: sideLineX, y: endY },
+    sideSeamPoints: backSideSeam.points,
+    waistSeamPoints: backWaistSeamPoints,
+    seamAllowanceMm,
+    smoothingPasses: seamAllowanceSmoothingPasses,
+    splitCenterX: sideLineX,
+    splitY: seatMarkerY,
+  });
+
+  const shiftedBackPieceX = pieceSpacingMm;
+  const draftWidth = width + pieceSpacingMm;
+
+  const shiftedBackWaistOuterLeftPath = translatePathDataX(
+    backWaistOuterLeftPath,
+    shiftedBackPieceX,
+  );
+  const shiftedBackWaistSegmentLeftPath = translatePathDataX(
+    backWaistSegmentLeftPath,
+    shiftedBackPieceX,
+  );
+  const shiftedBackWaistSegmentRightPath = translatePathDataX(
+    backWaistSegmentRightPath,
+    shiftedBackPieceX,
+  );
+  const shiftedBackWaistOuterRightPath = translatePathDataX(
+    backWaistOuterRightPath,
+    shiftedBackPieceX,
+  );
+  const shiftedBackSideSeamPath = translatePathDataX(
+    backSideSeam.path,
+    shiftedBackPieceX,
+  );
+  const shiftedBackSeamAllowancePaths = backSeamAllowancePaths.map((path) =>
+    translatePathDataX(path, shiftedBackPieceX),
+  );
 
   return {
     units: 'mm',
-    width,
+    width: draftWidth,
     height,
     points: [
-      { id: 'start', x: lineX, y: startY },
-      { id: 'grundlineVisibleTop', x: lineX, y: loweredBackWaistY },
-      { id: 'end', x: lineX, y: endY },
-      { id: 'bottomLeft', x: leftX, y: endY },
-      { id: 'topLeft', x: leftX, y: startY },
+      { id: 'start', x: centerBackX + shiftedBackPieceX, y: startY },
+      {
+        id: 'grundlineVisibleTop',
+        x: centerBackX + shiftedBackPieceX,
+        y: loweredBackWaistY,
+      },
+      { id: 'end', x: centerBackX + shiftedBackPieceX, y: endY },
+      { id: 'bottomLeft', x: centerFrontX, y: endY },
+      { id: 'topLeft', x: centerFrontX, y: startY },
       { id: 'waistMiddle', x: sideLineX, y: startY - raisedWaistDotMm },
-      { id: 'sideLineTop', x: sideLineX, y: seatMarkerY },
-      { id: 'sideLineBottom', x: sideLineX, y: endY },
-      { id: 'backDartTop', x: backDartX, y: startY },
-      { id: 'backDartBottom', x: backDartX, y: backDartBottomY },
-      { id: 'frontDartTop', x: frontDartX, y: frontDartTopY },
-      { id: 'frontDartBottom', x: frontDartX, y: frontDartBottomY },
-      { id: 'backDartWidthLeft', x: backDartX - halfBackDartWidthMm, y: startY },
-      { id: 'backDartWidthRight', x: backDartX + halfBackDartWidthMm, y: startY },
-      { id: 'frontDartWidthLeft', x: frontDartLeftX, y: frontDartLeftTopY },
-      { id: 'hipMarkerStart', x: lineX, y: hipMarkerY },
-      { id: 'hipMarkerEnd', x: leftX, y: hipMarkerY },
-      { id: 'seatMarkerStart', x: lineX, y: seatMarkerY },
-      { id: 'seatMarkerEnd', x: leftX, y: seatMarkerY },
-      { id: 'lengthMeasureTop', x: lengthMeasureX, y: startY },
+      { id: 'frontSideSeat', x: sideLineX, y: seatMarkerY },
+      { id: 'frontSideHem', x: sideLineX, y: endY },
+      { id: 'backSideSeat', x: sideLineX + shiftedBackPieceX, y: seatMarkerY },
+      { id: 'backSideHem', x: sideLineX + shiftedBackPieceX, y: endY },
       {
-        id: 'lengthMeasureUpperTextGap',
-        x: lengthMeasureX,
-        y: centerY - dimensionLabelGapMm,
+        id: 'backDartTop',
+        x: backDartCenterX + shiftedBackPieceX,
+        y: backDartTopY,
       },
       {
-        id: 'lengthMeasureLowerTextGap',
-        x: lengthMeasureX,
-        y: centerY + dimensionLabelGapMm,
+        id: 'backDartBottom',
+        x: backDartBottom.x + shiftedBackPieceX,
+        y: backDartBottom.y,
       },
-      { id: 'lengthMeasureBottom', x: lengthMeasureX, y: endY },
-      { id: 'widthMeasureLeft', x: leftX, y: widthMeasureY },
+      { id: 'frontDartTop', x: frontDartRightTop.x, y: frontDartRightTop.y },
+      { id: 'frontDartBottom', x: frontDartBottom.x, y: frontDartBottom.y },
       {
-        id: 'widthMeasureLeftTextGap',
-        x: widthCenterX - dimensionLabelGapMm,
-        y: widthMeasureY,
+        id: 'backDartWidthLeft',
+        x: backDartLeftTop.x + shiftedBackPieceX,
+        y: backDartLeftTop.y,
       },
       {
-        id: 'widthMeasureRightTextGap',
-        x: widthCenterX + dimensionLabelGapMm,
-        y: widthMeasureY,
+        id: 'backDartWidthRight',
+        x: backDartRightTop.x + shiftedBackPieceX,
+        y: backDartRightTop.y,
       },
-      { id: 'widthMeasureRight', x: lineX, y: widthMeasureY },
-      { id: 'backArrowTop', x: lineX, y: grainlineTopY },
-      { id: 'backArrowBottom', x: lineX, y: grainlineBottomY },
-      { id: 'frontArrowTop', x: leftX, y: grainlineTopY },
-      { id: 'frontArrowBottom', x: leftX, y: grainlineBottomY },
+      {
+        id: 'frontDartWidthLeft',
+        x: frontDartLeftTop.x,
+        y: frontDartLeftTop.y,
+      },
+      {
+        id: 'frontDartCenterGuideTop',
+        x: (frontDartX + frontDartLeftX) / 2,
+        y: (frontDartRightTop.y + frontDartLeftTop.y) / 2,
+      },
+      {
+        id: 'backArrowTop',
+        x: centerBackX + shiftedBackPieceX,
+        y: grainlineTopY,
+      },
+      {
+        id: 'backArrowBottom',
+        x: centerBackX + shiftedBackPieceX,
+        y: grainlineBottomY,
+      },
+      { id: 'frontArrowTop', x: centerFrontX, y: grainlineTopY },
+      { id: 'frontArrowBottom', x: centerFrontX, y: grainlineBottomY },
       {
         id: 'backArrowTopLeft',
-        x: lineX - arrowSizeMm,
+        x: centerBackX - arrowSizeMm + shiftedBackPieceX,
         y: grainlineTopY + arrowSizeMm,
       },
       {
         id: 'backArrowTopRight',
-        x: lineX + arrowSizeMm,
+        x: centerBackX + arrowSizeMm + shiftedBackPieceX,
         y: grainlineTopY + arrowSizeMm,
       },
       {
         id: 'backArrowBottomLeft',
-        x: lineX - arrowSizeMm,
+        x: centerBackX - arrowSizeMm + shiftedBackPieceX,
         y: grainlineBottomY - arrowSizeMm,
       },
       {
         id: 'backArrowBottomRight',
-        x: lineX + arrowSizeMm,
+        x: centerBackX + arrowSizeMm + shiftedBackPieceX,
         y: grainlineBottomY - arrowSizeMm,
       },
       {
         id: 'frontArrowTopLeft',
-        x: leftX - arrowSizeMm,
+        x: centerFrontX - arrowSizeMm,
         y: grainlineTopY + arrowSizeMm,
       },
       {
         id: 'frontArrowTopRight',
-        x: leftX + arrowSizeMm,
+        x: centerFrontX + arrowSizeMm,
         y: grainlineTopY + arrowSizeMm,
       },
       {
         id: 'frontArrowBottomLeft',
-        x: leftX - arrowSizeMm,
+        x: centerFrontX - arrowSizeMm,
         y: grainlineBottomY - arrowSizeMm,
       },
       {
         id: 'frontArrowBottomRight',
-        x: leftX + arrowSizeMm,
+        x: centerFrontX + arrowSizeMm,
         y: grainlineBottomY - arrowSizeMm,
+      },
+      {
+        id: 'printTestSquareTopLeft',
+        x: printTestSquareLeftX,
+        y: printTestSquareTopY,
+      },
+      {
+        id: 'printTestSquareTopRight',
+        x: printTestSquareRightX,
+        y: printTestSquareTopY,
+      },
+      {
+        id: 'printTestSquareBottomRight',
+        x: printTestSquareRightX,
+        y: printTestSquareBottomY,
+      },
+      {
+        id: 'printTestSquareBottomLeft',
+        x: printTestSquareLeftX,
+        y: printTestSquareBottomY,
       },
     ],
     lines: [
-      {
-        id: 'grundlineHiddenTop',
-        from: 'start',
-        to: 'grundlineVisibleTop',
-        kind: 'hidden',
-      },
       {
         id: 'skirtLengthLine',
         from: 'grundlineVisibleTop',
@@ -385,10 +907,16 @@ export function buildStraightSkirtDraft(
         kind: 'outline',
       },
       {
-        id: 'bottomWidthLine',
-        from: 'end',
-        to: 'bottomLeft',
-        kind: 'outline',
+        id: 'frontHemLine',
+        from: 'bottomLeft',
+        to: 'frontSideHem',
+        kind: 'seam',
+      },
+      {
+        id: 'backHemLine',
+        from: 'backSideHem',
+        to: 'end',
+        kind: 'seam',
       },
       {
         id: 'leftVerticalLine',
@@ -397,40 +925,16 @@ export function buildStraightSkirtDraft(
         kind: 'outline',
       },
       {
-        id: 'waistLine',
-        from: 'start',
-        to: 'topLeft',
-        kind: 'hidden',
+        id: 'frontSideSeamStraight',
+        from: 'frontSideSeat',
+        to: 'frontSideHem',
+        kind: 'seam',
       },
       {
-        id: 'sideLine',
-        from: 'sideLineTop',
-        to: 'sideLineBottom',
-        kind: 'outline',
-      },
-      {
-        id: 'sideLineExtension',
-        from: 'waistMiddle',
-        to: 'sideLineTop',
-        kind: 'construction',
-      },
-      {
-        id: 'hipHeightMarker',
-        from: 'hipMarkerStart',
-        to: 'hipMarkerEnd',
-        kind: 'outline',
-      },
-      {
-        id: 'seatHeightMarker',
-        from: 'seatMarkerStart',
-        to: 'seatMarkerEnd',
-        kind: 'outline',
-      },
-      {
-        id: 'backDartGuide',
-        from: 'backDartTop',
-        to: 'backDartBottom',
-        kind: 'construction',
+        id: 'backSideSeamStraight',
+        from: 'backSideSeat',
+        to: 'backSideHem',
+        kind: 'seam',
       },
       {
         id: 'backDartLeftLeg',
@@ -455,30 +959,6 @@ export function buildStraightSkirtDraft(
         from: 'frontDartWidthLeft',
         to: 'frontDartBottom',
         kind: 'outline',
-      },
-      {
-        id: 'lengthMeasureUpper',
-        from: 'lengthMeasureTop',
-        to: 'lengthMeasureUpperTextGap',
-        kind: 'construction',
-      },
-      {
-        id: 'lengthMeasureLower',
-        from: 'lengthMeasureLowerTextGap',
-        to: 'lengthMeasureBottom',
-        kind: 'construction',
-      },
-      {
-        id: 'widthMeasureLeftLine',
-        from: 'widthMeasureLeft',
-        to: 'widthMeasureLeftTextGap',
-        kind: 'construction',
-      },
-      {
-        id: 'widthMeasureRightLine',
-        from: 'widthMeasureRightTextGap',
-        to: 'widthMeasureRight',
-        kind: 'construction',
       },
       {
         id: 'backArrowTopLeftLine',
@@ -528,65 +1008,113 @@ export function buildStraightSkirtDraft(
         to: 'frontArrowBottomRight',
         kind: 'grainline',
       },
+      {
+        id: 'printTestSquareTop',
+        from: 'printTestSquareTopLeft',
+        to: 'printTestSquareTopRight',
+        kind: 'guide',
+      },
+      {
+        id: 'printTestSquareRight',
+        from: 'printTestSquareTopRight',
+        to: 'printTestSquareBottomRight',
+        kind: 'guide',
+      },
+      {
+        id: 'printTestSquareBottom',
+        from: 'printTestSquareBottomRight',
+        to: 'printTestSquareBottomLeft',
+        kind: 'guide',
+      },
+      {
+        id: 'printTestSquareLeft',
+        from: 'printTestSquareBottomLeft',
+        to: 'printTestSquareTopLeft',
+        kind: 'guide',
+      },
     ],
     paths: [
-      { id: 'leftWaistlineCurve', d: leftWaistCurvePath, kind: 'outline' },
-      { id: 'waistlineCurve', d: rightWaistCurvePath, kind: 'outline' },
-      { id: 'leftCurve', d: leftCurvePath, kind: 'outline' },
-      { id: 'rightCurve', d: rightCurvePath, kind: 'outline' },
+      {
+        id: 'frontWaistOuterLeft',
+        d: frontWaistOuterLeftPath,
+        kind: 'seam',
+      },
+      {
+        id: 'frontWaistSegmentLeft',
+        d: frontWaistSegmentLeftPath,
+        kind: 'seam',
+      },
+      {
+        id: 'frontWaistSegmentRight',
+        d: frontWaistSegmentRightPath,
+        kind: 'seam',
+      },
+      {
+        id: 'frontWaistOuterRight',
+        d: frontWaistOuterRightPath,
+        kind: 'seam',
+      },
+      {
+        id: 'backWaistOuterLeft',
+        d: shiftedBackWaistOuterLeftPath,
+        kind: 'seam',
+      },
+      {
+        id: 'backWaistSegmentLeft',
+        d: shiftedBackWaistSegmentLeftPath,
+        kind: 'seam',
+      },
+      {
+        id: 'backWaistSegmentRight',
+        d: shiftedBackWaistSegmentRightPath,
+        kind: 'seam',
+      },
+      {
+        id: 'backWaistOuterRight',
+        d: shiftedBackWaistOuterRightPath,
+        kind: 'seam',
+      },
+      { id: 'frontSideSeam', d: frontSideSeam.path, kind: 'seam' },
+      { id: 'backSideSeam', d: shiftedBackSideSeamPath, kind: 'seam' },
+      ...frontSeamAllowancePaths.map((path, index) => ({
+        id: `frontSeamAllowance${index + 1}`,
+        d: path,
+        kind: 'seamAllowance' as const,
+      })),
+      ...shiftedBackSeamAllowancePaths.map((path, index) => ({
+        id: `backSeamAllowance${index + 1}`,
+        d: path,
+        kind: 'seamAllowance' as const,
+      })),
     ],
     labels: [
       {
         id: 'centerBackLabel',
         text: t('centerBack'),
-        x: lineX - 12,
-        y: endY - 66,
+        x: centerBackX - 12 + shiftedBackPieceX,
+        y: endY - 116,
         rotate: 90,
-      },
-      {
-        id: 'groundLineLengthLabel',
-        text: `${formatMeasurement(skirtLengthCm)} cm`,
-        x: lengthMeasureX,
-        y: centerY,
-        rotate: 90,
-      },
-      {
-        id: 'bottomWidthLabel',
-        text: `${formatMeasurement(bottomWidthMm / 10)} cm`,
-        x: widthCenterX,
-        y: widthMeasureY + 4,
-      },
-      {
-        id: 'hipLineLabel',
-        text: t('hipLine'),
-        x: lineX + 52,
-        y: hipMarkerY,
-      },
-      {
-        id: 'seatLineLabel',
-        text: t('seatLine'),
-        x: lineX + 52,
-        y: seatMarkerY,
-      },
-      {
-        id: 'waistLineLabel',
-        text: t('waistLine'),
-        x: lineX + 52,
-        y: startY,
       },
       {
         id: 'centerFrontLabel',
         text: t('centerFront'),
-        x: leftX + 12,
-        y: endY - 66,
+        x: centerFrontX + 12,
+        y: endY - 116,
         rotate: 90,
       },
       {
-        id: 'sideLineLabel',
-        text: t('sideLineLabel'),
-        x: sideLineX + 12,
-        y: endY - 66,
-        rotate: 90,
+        id: 'seamAllowanceLabel',
+        text: seamAllowanceLabelText,
+        x: seamAllowanceLabelX,
+        y: seamAllowanceLabelY,
+        kind: 'guide',
+      },
+      {
+        id: 'printTestSquareLabel',
+        text: '4 cm',
+        x: printTestSquareCenterX,
+        y: printTestSquareCenterY + printTestSquareTextInsetMm / 2 + helperTextDropMm,
+        kind: 'guide',
       },
     ],
   };

@@ -7,6 +7,14 @@ type PatternDraftPreviewProps = {
 };
 
 function getStrokeStyle(kind: PatternDraft['lines'][number]['kind']) {
+  if (kind === 'seamAllowance') {
+    return { stroke: '#111111', strokeWidth: 2, strokeDasharray: undefined };
+  }
+
+  if (kind === 'seam') {
+    return { stroke: '#616161', strokeWidth: 1.1, strokeDasharray: undefined };
+  }
+
   if (kind === 'construction') {
     return { stroke: '#757575', strokeWidth: 1, strokeDasharray: '4 4' };
   }
@@ -15,11 +23,55 @@ function getStrokeStyle(kind: PatternDraft['lines'][number]['kind']) {
     return { stroke: '#757575', strokeWidth: 1, strokeDasharray: '6 5' };
   }
 
+  if (kind === 'guide') {
+    return { stroke: '#9e9e9e', strokeWidth: 0.9, strokeDasharray: undefined };
+  }
+
   return { stroke: '#111111', strokeWidth: 1.4, strokeDasharray: undefined };
+}
+
+function isDartLine(id: string) {
+  return id.includes('Dart');
+}
+
+function getLineStyle(line: PatternDraft['lines'][number]) {
+  const baseStyle = getStrokeStyle(line.kind);
+
+  if (isDartLine(line.id)) {
+    return { ...baseStyle, strokeWidth: 1 };
+  }
+
+  return baseStyle;
+}
+
+function getLabelFill(kind: PatternDraft['labels'][number]['kind']) {
+  if (kind === 'guide') {
+    return '#757575';
+  }
+
+  return 'rgba(0, 0, 0, 0.87)';
+}
+
+function getStrokeGeometry(kind: PatternDraft['lines'][number]['kind']) {
+  if (kind === 'grainline' || kind === 'guide' || kind === 'construction') {
+    return {
+      strokeLinecap: 'round' as const,
+      strokeLinejoin: 'round' as const,
+      strokeMiterlimit: undefined,
+    };
+  }
+
+  return {
+    strokeLinecap: 'butt' as const,
+    strokeLinejoin: 'miter' as const,
+    strokeMiterlimit: 10,
+  };
 }
 
 export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
   const points = new Map(draft.points.map((point) => [point.id, point]));
+  const backDartGuide = draft.lines.find((line) => line.id === 'backDartGuide');
+  const visibleLines = draft.lines.filter((line) => line.id !== 'backDartGuide');
 
   return (
     <Box
@@ -62,7 +114,7 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
             fill='rgba(255, 255, 255, 0.92)'
           />
 
-          {draft.lines.map((line) => {
+          {visibleLines.map((line) => {
             if (line.kind === 'hidden') return null;
 
             const from = points.get(line.from);
@@ -70,7 +122,8 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
 
             if (!from || !to) return null;
 
-            const style = getStrokeStyle(line.kind);
+            const style = getLineStyle(line);
+            const geometry = getStrokeGeometry(line.kind);
 
             return (
               <line
@@ -79,8 +132,8 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
                 y1={from.y}
                 x2={to.x}
                 y2={to.y}
-                strokeLinecap='round'
                 vectorEffect='non-scaling-stroke'
+                {...geometry}
                 {...style}
               />
             );
@@ -90,18 +143,44 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
             if (path.kind === 'hidden') return null;
 
             const style = getStrokeStyle(path.kind);
+            const geometry = getStrokeGeometry(path.kind);
 
             return (
               <path
                 key={path.id}
                 d={path.d}
                 fill='none'
-                strokeLinecap='round'
                 vectorEffect='non-scaling-stroke'
+                {...geometry}
                 {...style}
               />
             );
           })}
+
+          {backDartGuide ? (() => {
+            if (backDartGuide.kind === 'hidden') return null;
+
+            const from = points.get(backDartGuide.from);
+            const to = points.get(backDartGuide.to);
+
+            if (!from || !to) return null;
+
+            const style = getLineStyle(backDartGuide);
+            const geometry = getStrokeGeometry(backDartGuide.kind);
+
+            return (
+              <line
+                key={backDartGuide.id}
+                x1={from.x}
+                y1={from.y}
+                x2={to.x}
+                y2={to.y}
+                vectorEffect='non-scaling-stroke'
+                {...geometry}
+                {...style}
+              />
+            );
+          })() : null}
 
           {draft.labels.map((label) => (
             <text
@@ -113,7 +192,7 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
                   ? `rotate(${label.rotate} ${label.x} ${label.y})`
                   : undefined
               }
-              fill='rgba(0, 0, 0, 0.87)'
+              fill={getLabelFill(label.kind)}
               fontSize='16'
               textAnchor='middle'
               dominantBaseline='middle'
