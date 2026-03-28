@@ -15,12 +15,11 @@ const patternRegistry = {
   straightSkirt: straightSkirtPattern,
 } satisfies Record<string, PatternDefinition>;
 
-export const PATTERN_OPTIONS = Object.keys(patternRegistry) as PatternOption[];
+export const PATTERN_OPTIONS: PatternOption[] = ['straightSkirt'];
 export const PATTERN_CATEGORIES: {
   category: PatternCategory;
   patterns: PatternOption[];
 }[] = [
-  { category: 'bodices', patterns: ['bodiceWithoutDarts'] },
   { category: 'skirts', patterns: ['straightSkirt'] },
 ];
 

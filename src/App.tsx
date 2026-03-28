@@ -31,6 +31,7 @@ import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import { alpha } from '@mui/material/styles';
 import { useI18n } from '../i18n/useI18n';
+import { Footer } from './components/Footer/Footer';
 import { PATTERN_OPTIONS } from './lib/patterns';
 import { loadProfiles, subscribeProfiles } from './storage/profiles';
 import type { Profile } from './types/measurements';
@@ -98,7 +99,14 @@ export default function App() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Box
         sx={{
           position: 'fixed',
@@ -298,7 +306,7 @@ export default function App() {
         </Box>
       </Drawer>
 
-      <Container maxWidth='lg' sx={{ py: 4 }}>
+      <Container maxWidth='lg' sx={{ py: 4, flexGrow: 1 }}>
         {currentPage === 'start' && (
           <Stack spacing={3}>
             <Paper
@@ -453,6 +461,64 @@ export default function App() {
                 </Card>
               ))}
             </Box>
+
+            <Paper
+              variant='outlined'
+              sx={{
+                p: { xs: 3, md: 4 },
+                borderColor: 'divider',
+                backgroundColor: alpha('#fbf8f2', 0.94),
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 3,
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    md: 'minmax(180px, 220px) minmax(0, 1fr)',
+                  },
+                  alignItems: 'start',
+                }}
+              >
+                <Stack spacing={0.75}>
+                  <Typography variant='overline' color='secondary.main'>
+                    {t('patchNotesKicker')}
+                  </Typography>
+                  <Typography variant='h5'>{t('patchNotesTitle')}</Typography>
+                </Stack>
+
+                <Stack spacing={2}>
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={{ xs: 0.5, sm: 2 }}
+                    sx={{ color: 'text.secondary' }}
+                  >
+                    <Typography variant='body2'>
+                      {t('patchNotesVersionLabel')}
+                    </Typography>
+                    <Typography variant='body2'>
+                      {t('patchNotesDateLabel')}
+                    </Typography>
+                  </Stack>
+
+                  <Stack component='ul' spacing={1.25} sx={{ m: 0, pl: 2.5 }}>
+                    {[t('patchNotesItemOne'), t('patchNotesItemTwo'), t('patchNotesItemThree')].map(
+                      (item) => (
+                        <Typography
+                          key={item}
+                          component='li'
+                          color='text.secondary'
+                          sx={{ lineHeight: 1.8 }}
+                        >
+                          {item}
+                        </Typography>
+                      ),
+                    )}
+                  </Stack>
+                </Stack>
+              </Box>
+            </Paper>
           </Stack>
         )}
 
@@ -524,6 +590,8 @@ export default function App() {
           </Stack>
         )}
       </Container>
+
+      <Footer />
     </Box>
   );
 }

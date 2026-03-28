@@ -16,6 +16,26 @@ const en = {
   goToPatterns: 'Go to patterns',
   savedProfiles: 'Saved profiles',
   availablePatterns: 'Available patterns',
+  patchNotesKicker: 'Latest update',
+  patchNotesTitle: 'Patch notes',
+  patchNotesVersionLabel: 'Version 0.1.0',
+  patchNotesDateLabel: 'March 2026',
+  patchNotesItemOne:
+    'Introduced a dedicated footer with project ownership, contact details, and license guidance.',
+  patchNotesItemTwo:
+    'Clarified usage terms in the interface to match the personal and educational license in the README.',
+  patchNotesItemThree:
+    'Improved the landing page structure to make key project information easier to find.',
+  footerKicker: 'Project information',
+  footerTitle: 'PatternGen',
+  footerBody:
+    'Thoughtfully crafted by Emma Ramstedt as a hobby project exploring measurement-based pattern drafting.',
+  footerLicenseLabel: 'License',
+  footerLicenseBody:
+    'Personal and educational use only. Commercial use, redistribution, sale, and use in proprietary or paid products require permission.',
+  footerContactLabel: 'Contact',
+  footerGithubLink: 'GitHub',
+  footerEmailLink: 'Email',
   draftUnits: 'Draft units',
   startProfilesTitle: 'Set up measurement profiles',
   startProfilesBody:
@@ -158,6 +178,26 @@ const sv: Record<keyof typeof en, string> = {
   goToPatterns: 'Gå till mönster',
   savedProfiles: 'Sparade profiler',
   availablePatterns: 'Tillgängliga mönster',
+  patchNotesKicker: 'Senaste uppdatering',
+  patchNotesTitle: 'Patch notes',
+  patchNotesVersionLabel: 'Version 0.1.0',
+  patchNotesDateLabel: 'Mars 2026',
+  patchNotesItemOne:
+    'Lade till en tydlig footer med projektinformation, kontaktuppgifter och licensvillkor.',
+  patchNotesItemTwo:
+    'Förtydligade användningsvillkoren i gränssnittet så att de matchar den personliga och utbildningsmässiga licensen i README.',
+  patchNotesItemThree:
+    'Förbättrade startsidans struktur så att viktig projektinformation är lättare att hitta.',
+  footerKicker: 'Projektinformation',
+  footerTitle: 'PatternGen',
+  footerBody:
+    'Omsorgsfullt utvecklat av Emma Ramstedt som ett hobbyprojekt för att utforska måttbaserad mönsterkonstruktion.',
+  footerLicenseLabel: 'Licens',
+  footerLicenseBody:
+    'Endast för personligt och utbildningsmässigt bruk. Kommersiell användning, vidaredistribution, försäljning och användning i proprietära eller betalda produkter kräver tillstånd.',
+  footerContactLabel: 'Kontakt',
+  footerGithubLink: 'GitHub',
+  footerEmailLink: 'Mejl',
   draftUnits: 'Ritenheter',
   startProfilesTitle: 'Skapa måttprofiler',
   startProfilesBody:

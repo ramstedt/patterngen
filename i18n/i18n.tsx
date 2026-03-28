@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { I18nContext, type I18nContextValue } from './context';
 import { translations } from './translations';
 import type { Lang, TranslationKey } from './translations';
@@ -7,12 +7,15 @@ function getInitialLang(): Lang {
   const saved = localStorage.getItem('lang');
   if (saved === 'sv' || saved === 'en') return saved as Lang;
 
-  const browser = navigator.language.toLowerCase();
-  return browser.startsWith('sv') ? 'sv' : 'en';
+  return 'sv';
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => getInitialLang());
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const setLang = (nextLang: Lang) => {
     setLangState(nextLang);
