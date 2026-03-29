@@ -24,6 +24,13 @@ export type DraftPoint = {
   y: number;
 };
 
+export type DraftMarker = {
+  id: string;
+  pointId: string;
+  radius: number;
+  fill: string;
+};
+
 export type DraftLine = {
   id: string;
   from: string;
@@ -45,14 +52,43 @@ export type DraftPath = {
   kind?: 'outline' | 'construction' | 'hidden' | 'grainline';
 };
 
-export type PatternDraft = {
-  units: 'mm';
+export type DraftRenderable = {
   width: number;
   height: number;
   points: DraftPoint[];
+  markers?: DraftMarker[];
   lines: DraftLine[];
   paths: DraftPath[];
   labels: DraftLabel[];
+  highlightPathIds?: string[];
+  baseOpacity?: number;
+};
+
+export type PatternDraft = DraftRenderable & {
+  units: 'mm';
+};
+
+export type PatternFirstPageInstructions = {
+  title?: string;
+  items?: string[];
+  leftMm?: number;
+  topMm?: number;
+  widthMm?: number;
+  lineHeightMm?: number;
+};
+
+export type PatternPrintConfig = {
+  enabled: boolean;
+  calibrationSquareMm?: number;
+  calibrationLabel?: string;
+  pageMarginMm?: number;
+  pageOverlapMm?: number;
+  patternPaddingXMm?: number;
+  patternPaddingBottomMm?: number;
+  firstPageTopReservedMm?: number;
+  calibrationSquareTopMm?: number;
+  calibrationSquareLeftMm?: number;
+  firstPageInstructions?: PatternFirstPageInstructions;
 };
 
 export type Translate = (key: TranslationKey) => string;
@@ -62,6 +98,8 @@ export type PatternDefinition = {
   category: PatternCategory;
   supportedProfileTypes: ProfileType[];
   requiredMeasurements: (keyof Measurements)[];
+  printConfig?: PatternPrintConfig;
+  buildPrintConfig?: (profile: Profile, t: Translate) => PatternPrintConfig;
   calculate: (profile: Profile, t: Translate) => PatternCalculation[];
   buildDraft: (profile: Profile, t: Translate) => PatternDraft;
 };

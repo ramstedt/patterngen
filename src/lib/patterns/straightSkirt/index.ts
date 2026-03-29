@@ -19,6 +19,38 @@ export const straightSkirtPattern: PatternDefinition = {
   calculate(profile, t) {
     return calculateStraightSkirt(profile, t);
   },
+  buildPrintConfig(profile, t) {
+    const waistToHipDifference =
+      profile.measurements.hipCircumference - profile.measurements.waistCircumference;
+    const showSmallDartWaistbandNote = waistToHipDifference <= 6;
+
+    return {
+      enabled: true,
+      calibrationSquareMm: 50,
+      calibrationLabel: t('pdfTestSquareLabel'),
+      pageMarginMm: 8,
+      pageOverlapMm: 10,
+      patternPaddingXMm: 18,
+      patternPaddingBottomMm: 18,
+      calibrationSquareTopMm: 12,
+      calibrationSquareLeftMm: 18,
+      firstPageInstructions: {
+        title: t('pdfPrintingInstructionsTitle'),
+        items: [
+          t('pdfPrintingInstructionScale'),
+          t('pdfPrintingInstructionMeasure'),
+          t('pdfPrintingInstructionAssemble'),
+          ...(showSmallDartWaistbandNote
+            ? [t('pdfPrintingInstructionSmallDartsWaistband')]
+            : []),
+        ],
+        leftMm: 82,
+        topMm: 14,
+        widthMm: 108,
+        lineHeightMm: 5.5,
+      },
+    };
+  },
   buildDraft(profile, t) {
     const calculations = calculateStraightSkirt(profile, t);
     return buildStraightSkirtDraft(profile, t, calculations);

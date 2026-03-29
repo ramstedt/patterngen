@@ -18,14 +18,7 @@ const en = {
   availablePatterns: 'Available patterns',
   patchNotesKicker: 'Latest update',
   patchNotesTitle: 'Patch notes',
-  patchNotesVersionLabel: 'Version 0.1.0',
-  patchNotesDateLabel: 'March 2026',
-  patchNotesItemOne:
-    'Introduced a dedicated footer with project ownership, contact details, and license guidance.',
-  patchNotesItemTwo:
-    'Clarified usage terms in the interface to match the personal and educational license in the README.',
-  patchNotesItemThree:
-    'Improved the landing page structure to make key project information easier to find.',
+  olderPatchNotesSummary: 'Older patch notes',
   footerKicker: 'Project information',
   footerTitle: 'PatternGen',
   footerBody:
@@ -63,6 +56,18 @@ const en = {
   deleteProfile: 'Delete',
   saveProfile: 'Save profile',
   calculatePattern: 'Calculate pattern',
+  downloadPdf: 'Download PDF',
+  downloadA4PdfDescription:
+    'Download a tiled A4 PDF at 100% scale with alignment borders and a 5 x 5 cm test square on page 1.',
+  pdfTestSquareLabel: 'test square 5 x 5 cm',
+  pdfPrintingInstructionsTitle: 'Printing instructions',
+  pdfPrintingInstructionScale: 'Print at actual size or 100% scale.',
+  pdfPrintingInstructionMeasure:
+    'Measure the test square on page 1 before cutting.',
+  pdfPrintingInstructionAssemble:
+    'Trim along the page borders and align the marks when taping pages together.',
+  pdfPrintingInstructionSmallDartsWaistband:
+    'For small darts, you can hold the darts together at the waistband instead of sewing them closed.',
   noProfilesAvailable: 'Create a profile before calculating a pattern.',
   zeroMeasurementsWarning:
     'One or more required measurements are 0. The pattern will not look correct until those values are filled in. Some measurements are specific to the selected profile type (women/men).',
@@ -178,16 +183,9 @@ const sv: Record<keyof typeof en, string> = {
   goToPatterns: 'Gå till mönster',
   savedProfiles: 'Sparade profiler',
   availablePatterns: 'Tillgängliga mönster',
-  patchNotesKicker: 'Senaste uppdatering',
+  patchNotesKicker: 'Senaste uppdateringar',
   patchNotesTitle: 'Patch notes',
-  patchNotesVersionLabel: 'Version 0.1.0',
-  patchNotesDateLabel: 'Mars 2026',
-  patchNotesItemOne:
-    'Lade till en tydlig footer med projektinformation, kontaktuppgifter och licensvillkor.',
-  patchNotesItemTwo:
-    'Förtydligade användningsvillkoren i gränssnittet så att de matchar den personliga och utbildningsmässiga licensen i README.',
-  patchNotesItemThree:
-    'Förbättrade startsidans struktur så att viktig projektinformation är lättare att hitta.',
+  olderPatchNotesSummary: 'Äldre patch notes',
   footerKicker: 'Projektinformation',
   footerTitle: 'PatternGen',
   footerBody:
@@ -225,6 +223,18 @@ const sv: Record<keyof typeof en, string> = {
   deleteProfile: 'Ta bort',
   saveProfile: 'Spara profil',
   calculatePattern: 'Beräkna mönster',
+  downloadPdf: 'Ladda ner PDF',
+  downloadA4PdfDescription:
+    'Ladda ner en uppdelad A4-PDF i 100 % skala med passmärken och en testkvadrat på 5 x 5 cm på första sidan.',
+  pdfTestSquareLabel: 'testkvadrat 5 x 5 cm',
+  pdfPrintingInstructionsTitle: 'Utskriftsinstruktioner',
+  pdfPrintingInstructionScale: 'Skriv ut i faktisk storlek eller 100 % skala.',
+  pdfPrintingInstructionMeasure:
+    'Mät testkvadraten på sida 1 innan du klipper ut.',
+  pdfPrintingInstructionAssemble:
+    'Trimma längs sidkanterna och passa ihop markeringarna när du tejpar samman sidorna.',
+  pdfPrintingInstructionSmallDartsWaistband:
+    'Vid små insnitt kan man hålla ihop insnitten vid linningen istället för att sy ihop dem.',
   noProfilesAvailable: 'Skapa en profil innan du beräknar ett mönster.',
   zeroMeasurementsWarning:
     'Ett eller flera nödvändiga mått är 0. Mönstret kommer inte att se korrekt ut förrän de värdena är ifyllda. Vissa mått är specifika för vald profiltyp (dam/herr).',
@@ -323,6 +333,64 @@ const sv: Record<keyof typeof en, string> = {
 };
 
 export const translations = { en, sv } as const;
-
 export type Lang = keyof typeof translations;
+
+export type PatchNoteEntry = {
+  version: string;
+  dateLabel: string;
+  items: string[];
+};
+
+export const patchNotes = {
+  en: {
+    latest: {
+      version: 'Version 0.2.0',
+      dateLabel: 'March 29, 2026',
+      items: [
+        'Updated the straight skirt draft with the current waistline, dart, and side seam geometry used in the app.',
+        'Added pattern adjustments for small waists.',
+        'Removed the temporary closed preview so the pattern preview now shows only the open draft.',
+        'Refined the front waist curve, side seam smoothing logic, and project documentation to match the current implementation.',
+      ],
+    },
+    previous: [
+      {
+        version: 'Version 0.1.0',
+        dateLabel: 'March 2026',
+        items: [
+          'Introduced a dedicated footer with project ownership, contact details, and license guidance.',
+          'Clarified usage terms in the interface to match the personal and educational license in the README.',
+          'Improved the landing page structure to make key project information easier to find.',
+        ],
+      },
+    ],
+  },
+  sv: {
+    latest: {
+      version: 'Version 0.2.0',
+      dateLabel: '29 mars 2026',
+      items: [
+        'Uppdaterade grundkjolens draft med den nuvarande midjelinjen, insnittslogiken och sidsömsgeometrin som används i appen.',
+        'Lade till mönsterjusteringar för smala midjor.',
+        'Förfinade frontens midjekurva, logiken för utjämning av sidsömmen och projektets dokumentation så att de matchar den nuvarande implementationen.',
+        'Lade till möjlighet att ladda ner mönstret som PDF',
+      ],
+    },
+    previous: [
+      {
+        version: 'Version 0.1.0',
+        dateLabel: 'Mars 2026',
+        items: [
+          'Lade till en tydlig footer med projektinformation, kontaktuppgifter och licensvillkor.',
+          'Förtydligade användningsvillkoren i gränssnittet så att de matchar den personliga och utbildningsmässiga licensen i README.',
+          'Förbättrade startsidans struktur så att viktig projektinformation är lättare att hitta.',
+        ],
+      },
+    ],
+  },
+} as const satisfies Record<
+  Lang,
+  { latest: PatchNoteEntry; previous: PatchNoteEntry[] }
+>;
+
 export type TranslationKey = keyof typeof en;

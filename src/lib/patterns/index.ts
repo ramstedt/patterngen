@@ -7,6 +7,7 @@ import type {
   PatternDefinition,
   PatternDraft,
   PatternOption,
+  PatternPrintConfig,
   Translate,
 } from './types';
 
@@ -29,6 +30,7 @@ export type {
   PatternDefinition,
   PatternDraft,
   PatternOption,
+  PatternPrintConfig,
   PatternSectionKey,
 } from './types';
 
@@ -50,4 +52,18 @@ export function buildPatternDraft(
 
 export function getPatternDefinition(pattern: PatternOption): PatternDefinition {
   return patternRegistry[pattern];
+}
+
+export function getPatternPrintConfig(
+  pattern: PatternOption,
+  profile?: Profile,
+  t?: Translate,
+): PatternPrintConfig | undefined {
+  const definition = patternRegistry[pattern];
+
+  if (definition.buildPrintConfig && profile && t) {
+    return definition.buildPrintConfig(profile, t);
+  }
+
+  return definition.printConfig;
 }

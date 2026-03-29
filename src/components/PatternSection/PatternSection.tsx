@@ -20,11 +20,13 @@ import {
   buildPatternDraft,
   calculatePattern,
   getPatternDefinition,
+  getPatternPrintConfig,
   type PatternOption,
 } from '../../lib/patterns';
 import { formatMeasurement } from '../../lib/measurements';
 import { loadProfiles, subscribeProfiles } from '../../storage/profiles';
 import type { Profile } from '../../types/measurements';
+import { downloadPatternPdf } from '../../lib/printing/patternPdf';
 
 const SECTION_ORDER = [
   'basicMeasurements',
@@ -123,6 +125,13 @@ export function PatternSection({
     if (!submittedProfile || !submittedPattern) return null;
     return buildPatternDraft(submittedPattern, submittedProfile, t);
   }, [submittedPattern, submittedProfile, t]);
+  const submittedPatternPrintConfig = useMemo(
+    () =>
+      submittedPattern && submittedProfile
+        ? getPatternPrintConfig(submittedPattern, submittedProfile, t)
+        : undefined,
+    [submittedPattern, submittedProfile, t],
+  );
 
   const showLargeDifferenceDartHelp = useMemo(
     () =>
@@ -175,6 +184,24 @@ export function PatternSection({
 
     setSubmittedProfileId(selectedProfileId);
     setSubmittedPattern(selectedPattern);
+  }
+
+  function onDownloadPdf() {
+    if (
+      !draft ||
+      !submittedProfile ||
+      !submittedPattern ||
+      !submittedPatternPrintConfig?.enabled
+    ) {
+      return;
+    }
+
+    downloadPatternPdf({
+      draft,
+      profileName: submittedProfile.name,
+      patternLabel: t(submittedPattern),
+      printConfig: submittedPatternPrintConfig,
+    });
   }
 
   return (
@@ -301,6 +328,17 @@ export function PatternSection({
             )}
 
             {draft && <PatternDraftPreview draft={draft} />}
+
+            {draft && submittedPatternPrintConfig?.enabled && (
+              <Stack spacing={1} alignItems='flex-start'>
+                <Button variant='outlined' onClick={onDownloadPdf}>
+                  {t('downloadPdf')}
+                </Button>
+                <Typography variant='body2' color='text.secondary'>
+                  {t('downloadA4PdfDescription')}
+                </Typography>
+              </Stack>
+            )}
 
             {calculationsBySection.map(([section, sectionCalculations]) => (
               <Box key={section}>

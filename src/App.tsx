@@ -30,6 +30,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import { alpha } from '@mui/material/styles';
+import { patchNotes } from '../i18n/translations';
 import { useI18n } from '../i18n/useI18n';
 import { Footer } from './components/Footer/Footer';
 import { PATTERN_OPTIONS } from './lib/patterns';
@@ -60,6 +61,7 @@ function PageLoader() {
 
 export default function App() {
   const { lang, setLang, t } = useI18n();
+  const localizedPatchNotes = patchNotes[lang];
   const [currentPage, setCurrentPage] = useState<AppPage>('start');
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -495,27 +497,64 @@ export default function App() {
                     sx={{ color: 'text.secondary' }}
                   >
                     <Typography variant='body2'>
-                      {t('patchNotesVersionLabel')}
+                      {localizedPatchNotes.latest.version}
                     </Typography>
                     <Typography variant='body2'>
-                      {t('patchNotesDateLabel')}
+                      {localizedPatchNotes.latest.dateLabel}
                     </Typography>
                   </Stack>
 
                   <Stack component='ul' spacing={1.25} sx={{ m: 0, pl: 2.5 }}>
-                    {[t('patchNotesItemOne'), t('patchNotesItemTwo'), t('patchNotesItemThree')].map(
-                      (item) => (
-                        <Typography
-                          key={item}
-                          component='li'
-                          color='text.secondary'
-                          sx={{ lineHeight: 1.8 }}
-                        >
-                          {item}
-                        </Typography>
-                      ),
-                    )}
+                    {localizedPatchNotes.latest.items.map((item) => (
+                      <Typography
+                        key={item}
+                        component='li'
+                        color='text.secondary'
+                        sx={{ lineHeight: 1.8 }}
+                      >
+                        {item}
+                      </Typography>
+                    ))}
                   </Stack>
+
+                  <Box
+                    component='details'
+                    sx={{
+                      color: 'text.secondary',
+                      '& > summary': {
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                      },
+                    }}
+                  >
+                    <Box component='summary'>{t('olderPatchNotesSummary')}</Box>
+                    <Stack spacing={2} sx={{ mt: 2 }}>
+                      {localizedPatchNotes.previous.map((entry) => (
+                        <Stack key={`${entry.version}-${entry.dateLabel}`} spacing={2}>
+                          <Stack
+                            direction={{ xs: 'column', sm: 'row' }}
+                            spacing={{ xs: 0.5, sm: 2 }}
+                          >
+                            <Typography variant='body2'>{entry.version}</Typography>
+                            <Typography variant='body2'>{entry.dateLabel}</Typography>
+                          </Stack>
+
+                          <Stack component='ul' spacing={1.25} sx={{ m: 0, pl: 2.5 }}>
+                            {entry.items.map((item) => (
+                              <Typography
+                                key={item}
+                                component='li'
+                                color='text.secondary'
+                                sx={{ lineHeight: 1.8 }}
+                              >
+                                {item}
+                              </Typography>
+                            ))}
+                          </Stack>
+                        </Stack>
+                      ))}
+                    </Stack>
+                  </Box>
                 </Stack>
               </Box>
             </Paper>
