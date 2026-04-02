@@ -60,7 +60,7 @@
       "C68": 133,
       "C70": 138
     },
-    "highHipCircumference": {
+    "hipCircumference": {
       "C40": 74,
       "C42": 77.9,
       "C44": 81.8,
@@ -78,7 +78,7 @@
       "C68": 128.6,
       "C70": 132.5
     },
-    "hipCircumference": {
+    "seatCircumference": {
       "C40": 86,
       "C42": 90,
       "C44": 94,

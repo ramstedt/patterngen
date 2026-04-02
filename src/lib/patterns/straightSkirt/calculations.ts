@@ -52,8 +52,8 @@ export function calculateStraightSkirt(
   t: Translate,
 ): PatternCalculation[] {
   const waist = roundToHalf(profile.measurements.waistCircumference);
-  const highHip = roundToHalf(profile.measurements.highHipCircumference);
-  const hip = roundToHalf(profile.measurements.hipCircumference);
+  const highHip = roundToHalf(profile.measurements.hipCircumference);
+  const hip = roundToHalf(profile.measurements.seatCircumference);
   const hipHeight = roundToHalf(profile.measurements.hipHeight);
   const hipDepth = roundToHalf(profile.measurements.hipDepth);
   const kneeHeight = roundToHalf(profile.measurements.kneeHeight);
@@ -64,9 +64,9 @@ export function calculateStraightSkirt(
   const hipHalf = roundToHalf((hip + 2) / 2);
   const dartValues = getStraightSkirtDartValues(waistToHipDifference);
   const backDartPlacement = roundToHalf(
-    waistHalf / 10 + dartValues.back / 2,
+    waist / 10 + dartValues.back / 2,
   );
-  const frontDartPlacement = roundToHalf(waistHalf / 10 + 1);
+  const frontDartPlacement = roundToHalf(waist / 10 + 1);
   const sideLineWaist = roundToHalf(
     hipHalf -
       waistHalf -
@@ -83,8 +83,8 @@ export function calculateStraightSkirt(
       id: 'frontDartWidth',
       label: t('frontDartWidth'),
       value: dartValues.front,
-      description: '',
-      section: 'dartWidth',
+      explanation: t('frontDartWidthExplanation'),
+      section: 'dartWidth' as const,
     },
     ...(dartValues.frontSecondary > 0
       ? [
@@ -92,7 +92,7 @@ export function calculateStraightSkirt(
             id: 'frontDartWidthSecondary',
             label: t('frontDartWidthSecondary'),
             value: dartValues.frontSecondary,
-            description: '',
+            explanation: t('frontDartWidthSecondaryExplanation'),
             section: 'dartWidth' as const,
           },
         ]
@@ -101,8 +101,8 @@ export function calculateStraightSkirt(
       id: 'backDartWidth',
       label: t('backDartWidth'),
       value: dartValues.back,
-      description: '',
-      section: 'dartWidth',
+      explanation: t('backDartWidthExplanation'),
+      section: 'dartWidth' as const,
     },
     ...(dartValues.backSecondary > 0
       ? [
@@ -110,7 +110,7 @@ export function calculateStraightSkirt(
             id: 'backDartWidthSecondary',
             label: t('backDartWidthSecondary'),
             value: dartValues.backSecondary,
-            description: '',
+            explanation: t('backDartWidthSecondaryExplanation'),
             section: 'dartWidth' as const,
           },
         ]
@@ -119,37 +119,40 @@ export function calculateStraightSkirt(
       id: 'backHipLineDartWidthHalf',
       label: t('backHipLineDartWidthHalf'),
       value: dartValues.hipLineBackHalf,
-      description: '',
-      section: 'dartWidth',
+      explanation: t('backHipLineDartWidthHalfExplanation'),
+      section: 'dartWidth' as const,
     },
   ];
 
   return [
     {
       id: 'waistCircumference',
-      label: t('waistCircumference'),
+      label: t('halfWaistWithEase'),
       value: waistHalf,
       description: `(${formatMeasurement(waist)} + 2) / 2 = ${formatMeasurement(
         waistHalf,
       )}`,
-      section: 'basicMeasurements',
-    },
-    {
-      id: 'highHipCircumference',
-      label: t('highHipCircumference'),
-      value: highHipHalf,
-      description: `(${formatMeasurement(highHip)} + 2) / 2 = ${formatMeasurement(
-        highHipHalf,
-      )}`,
+      explanation: t('waistCircumferenceExplanation'),
       section: 'basicMeasurements',
     },
     {
       id: 'hipCircumference',
-      label: t('hipCircumference'),
+      label: t('halfHighHipWithEase'),
+      value: highHipHalf,
+      description: `(${formatMeasurement(highHip)} + 2) / 2 = ${formatMeasurement(
+        highHipHalf,
+      )}`,
+      explanation: t('hipCircumferenceExplanation'),
+      section: 'basicMeasurements',
+    },
+    {
+      id: 'seatCircumference',
+      label: t('halfSeatWithEase'),
       value: hipHalf,
       description: `(${formatMeasurement(hip)} + 2) / 2 = ${formatMeasurement(
         hipHalf,
       )}`,
+      explanation: t('seatCircumferenceExplanation'),
       section: 'basicMeasurements',
     },
     {
@@ -157,6 +160,7 @@ export function calculateStraightSkirt(
       label: t('hipHeight'),
       value: hipHeight,
       description: `${formatMeasurement(hipHeight)}`,
+      explanation: t('hipHeightExplanation'),
       section: 'basicMeasurements',
     },
     {
@@ -164,6 +168,7 @@ export function calculateStraightSkirt(
       label: t('hipDepth'),
       value: hipDepth,
       description: `${formatMeasurement(hipDepth)}`,
+      explanation: t('hipDepthExplanation'),
       section: 'basicMeasurements',
     },
     {
@@ -171,24 +176,27 @@ export function calculateStraightSkirt(
       label: t('skirtLength'),
       value: kneeHeight,
       description: `${formatMeasurement(kneeHeight)}`,
+      explanation: t('skirtLengthExplanation'),
       section: 'basicMeasurements',
     },
     {
       id: 'backDartPlacement',
       label: t('backDartPlacement'),
       value: backDartPlacement,
-      description: `(${formatMeasurement(waistHalf)} / 10) + (${formatMeasurement(
+      description: `(${formatMeasurement(waist)} / 10) + (${formatMeasurement(
         dartValues.back,
       )} / 2) = ${formatMeasurement(backDartPlacement)}`,
+      explanation: t('backDartPlacementExplanation'),
       section: 'dartPlacement',
     },
     {
       id: 'frontDartPlacement',
       label: t('frontDartPlacement'),
       value: frontDartPlacement,
-      description: `(${formatMeasurement(waistHalf)} / 10) + 1 = ${formatMeasurement(
+      description: `(${formatMeasurement(waist)} / 10) + 1 = ${formatMeasurement(
         frontDartPlacement,
       )}`,
+      explanation: t('frontDartPlacementExplanation'),
       section: 'dartPlacement',
     },
     ...dartWidthCalculations,
@@ -201,6 +209,7 @@ export function calculateStraightSkirt(
       )} - ${formatMeasurement(dartValues.front)} - ${formatMeasurement(
         dartValues.back,
       )} = ${formatMeasurement(sideLineWaist)}`,
+      explanation: t('sideLineWaistExplanation'),
       section: 'sideLine',
     },
     {
@@ -212,6 +221,7 @@ export function calculateStraightSkirt(
       )} - ${formatMeasurement(dartValues.hipLineBackHalf)} = ${formatMeasurement(
         sideLineHip,
       )}`,
+      explanation: t('sideLineHipExplanation'),
       section: 'sideLine',
     },
   ];

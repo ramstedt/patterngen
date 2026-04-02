@@ -7,10 +7,10 @@ export type Measurements = {
   neckCircumference: number;
   bustCircumference: number;
   waistCircumference: number;
-  hipCircumference: number;
+  seatCircumference: number;
   hipDepth: number;
   hipHeight: number;
-  highHipCircumference: number;
+  hipCircumference: number;
   shoulderWidth: number;
   armLength: number;
   upperArmCircumference: number;

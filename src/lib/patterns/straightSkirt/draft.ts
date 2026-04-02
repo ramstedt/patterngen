@@ -564,10 +564,10 @@ export function buildStraightSkirtDraft(
   const hipHeightCm = values.get('hipHeight') ?? profile.measurements.hipHeight;
   const hipDepthCm = values.get('hipDepth') ?? profile.measurements.hipDepth;
   const highHipWidthCm =
-    values.get('highHipCircumference') ??
-    profile.measurements.highHipCircumference;
+    values.get('hipCircumference') ??
+    profile.measurements.hipCircumference;
   const seatWidthCm =
-    values.get('hipCircumference') ?? profile.measurements.hipCircumference;
+    values.get('seatCircumference') ?? profile.measurements.seatCircumference;
   const sideLineWaistCm = values.get('sideLineWaist') ?? 0;
   const sideLineHipCm = values.get('sideLineHip') ?? 0;
   const backDartPlacementCm = values.get('backDartPlacement') ?? 0;
