@@ -10,8 +10,8 @@ export const straightSkirtPattern: PatternDefinition = {
   supportedProfileTypes: ['women'],
   requiredMeasurements: [
     'waistCircumference',
-    'highHipCircumference',
     'hipCircumference',
+    'seatCircumference',
     'hipHeight',
     'hipDepth',
     'kneeHeight',
@@ -21,7 +21,7 @@ export const straightSkirtPattern: PatternDefinition = {
   },
   buildPrintConfig(profile, t) {
     const waistToHipDifference =
-      profile.measurements.hipCircumference - profile.measurements.waistCircumference;
+      profile.measurements.seatCircumference - profile.measurements.waistCircumference;
     const showSmallDartWaistbandNote = waistToHipDifference <= 6;
 
     return {

@@ -97,7 +97,7 @@ const en = {
   openStandardSizesHelp: 'Expand to load measurements from a standard size.',
   standardSizesExplanation:
     'Use standard sizes only as a starting point. For accurate patterns, replace them with personal measurements. The values are based on European sizing systems (EN 13402 / ISO 8559) and represent averages, not custom measurements.',
-  fillInMeaseurements: 'Enter the measurements and save the profile.',
+  fillInMeasurements: 'Enter the measurements and save the profile.',
   measurementRoundingHelp:
     'Use whole or half centimeters. Other values are rounded automatically. Some measurements are specific to the selected profile type (women/men).',
   rememberToSave: 'Remember to save your changes.',
@@ -132,6 +132,28 @@ const en = {
   sideLineWaist: 'Waist',
   sideLineHip: 'Hip',
 
+  // calculation labels (pattern-specific, distinct from raw measurement names)
+  halfWaistWithEase: 'Half waist with ease',
+  halfHighHipWithEase: 'Half hip with ease',
+  halfSeatWithEase: 'Half seat with ease',
+
+  // calculation explanations
+  waistCircumferenceExplanation: 'Half the waist measurement plus 1 cm ease.',
+  hipCircumferenceExplanation: 'Half the hip measurement plus 1 cm ease.',
+  seatCircumferenceExplanation: 'Half the seat measurement plus 1 cm ease.',
+  hipHeightExplanation: 'Height from waist to the fullest part of the hip.',
+  hipDepthExplanation: 'Vertical distance from the hip to the seat.',
+  skirtLengthExplanation: 'Skirt length measured to the knee.',
+  backDartPlacementExplanation: 'Distance from center back to the back dart.',
+  frontDartPlacementExplanation: 'Distance from the side seam to the front dart.',
+  frontDartWidthExplanation: 'Amount taken in at the front dart.',
+  frontDartWidthSecondaryExplanation: 'Amount taken in at the second front dart.',
+  backDartWidthExplanation: 'Amount taken in at the back dart.',
+  backDartWidthSecondaryExplanation: 'Amount taken in at the second back dart.',
+  backHipLineDartWidthHalfExplanation: 'Small shaping dart at the hip line on the back, per half.',
+  sideLineWaistExplanation: 'How much the side seam tapers in at the waist.',
+  sideLineHipExplanation: 'How much the side seam tapers in at the high hip.',
+
   // measurements (from the measurement chart)
   backWaistLength: 'Back waist length',
   totalLength: 'Total length',
@@ -139,10 +161,10 @@ const en = {
   neckCircumference: 'Neck circumference',
   bustCircumference: 'Bust circumference',
   waistCircumference: 'Waist circumference',
-  hipCircumference: 'Hip circumference',
+  seatCircumference: 'Seat circumference',
   hipDepth: 'Hip depth',
   hipHeight: 'Hip height',
-  highHipCircumference: 'High hip circumference',
+  hipCircumference: 'Hip circumference',
   shoulderWidth: 'Shoulder width',
   armLength: 'Arm length',
   upperArmCircumference: 'Upper arm circumference',
@@ -264,7 +286,7 @@ const sv: Record<keyof typeof en, string> = {
   openStandardSizesHelp: 'Öppna för att fylla i mått från en standardstorlek.',
   standardSizesExplanation:
     'Använd standardstorlekar endast som utgångspunkt. För korrekta mönster behöver du ersätta dem med personliga mått. Värdena bygger på europeiska storlekssystem (EN 13402 / ISO 8559) och är medelvärden, inte individuella mått.',
-  fillInMeaseurements: 'Fyll i måtten och spara profilen.',
+  fillInMeasurements: 'Fyll i måtten och spara profilen.',
   measurementRoundingHelp:
     'Använd hela eller halva centimeter. Andra värden avrundas automatiskt. Vissa mått är specifika för vald profiltyp (dam/herr).',
   rememberToSave: 'Glöm inte att spara dina ändringar',
@@ -296,8 +318,30 @@ const sv: Record<keyof typeof en, string> = {
   backDartWidth: 'Bak',
   backDartWidthSecondary: 'Bak 2',
   backHipLineDartWidthHalf: 'Bak vid höft',
-  sideLineWaist: 'midja',
-  sideLineHip: 'höft',
+  sideLineWaist: 'Midja',
+  sideLineHip: 'Höft',
+
+  // calculation labels (pattern-specific, distinct from raw measurement names)
+  halfWaistWithEase: 'Halv midjevidd med tillägg',
+  halfHighHipWithEase: 'Halv höftvidd med tillägg',
+  halfSeatWithEase: 'Halv stussvidd med tillägg',
+
+  // calculation explanations
+  waistCircumferenceExplanation: 'Halva mideljevidden plus 1 cm viddsrum.',
+  hipCircumferenceExplanation: 'Halva höftvidden plus 1 cm viddsrum.',
+  seatCircumferenceExplanation: 'Halva stussvidden plus 1 cm viddsrum.',
+  hipHeightExplanation: 'Höjd från midja till höftens bredaste punkt.',
+  hipDepthExplanation: 'Lodrätt avstånd från höft till stuss.',
+  skirtLengthExplanation: 'Kjollängd mätt till knäet.',
+  backDartPlacementExplanation: 'Avstånd från mittbak till bakinsnittet.',
+  frontDartPlacementExplanation: 'Avstånd från sidosömmen till framinsnittet.',
+  frontDartWidthExplanation: 'Insnittsbredd för framinsnittet.',
+  frontDartWidthSecondaryExplanation: 'Insnittsbredd för det extra framinsnittet.',
+  backDartWidthExplanation: 'Insnittsbredd för bakinsnittet.',
+  backDartWidthSecondaryExplanation: 'Insnittsbredd för det extra bakinsnittet.',
+  backHipLineDartWidthHalfExplanation: 'Styr bredden på insnittet vid höftlinjen bak, per halva.',
+  sideLineWaistExplanation: 'Hur mycket sidosömmen smalnar in vid midjan.',
+  sideLineHipExplanation: 'Hur mycket sidosömmen smalnar in vid höften.',
 
   // measurements (from the measurement chart)
   backWaistLength: 'Livlängd bak',
@@ -306,10 +350,10 @@ const sv: Record<keyof typeof en, string> = {
   neckCircumference: 'Halsvidd',
   bustCircumference: 'Bystvidd',
   waistCircumference: 'Midjevidd',
-  hipCircumference: 'Stussvidd',
+  seatCircumference: 'Stussvidd',
   hipDepth: 'Stusshöjd',
   hipHeight: 'Höfthöjd',
-  highHipCircumference: 'Höftvidd',
+  hipCircumference: 'Höftvidd',
   shoulderWidth: 'Axelbredd',
   armLength: 'Armlängd',
   upperArmCircumference: 'Överarmsvidd',

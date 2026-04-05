@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useI18n } from '../../../i18n/useI18n';
+import type { TranslationKey } from '../../../i18n/translations';
 import type {
   Measurements,
   Profile,
@@ -49,10 +50,10 @@ const measurementSchema = z.object({
   neckCircumference: z.number().nonnegative().or(z.nan()),
   bustCircumference: z.number().nonnegative().or(z.nan()),
   waistCircumference: z.number().nonnegative().or(z.nan()),
-  hipCircumference: z.number().nonnegative().or(z.nan()),
+  seatCircumference: z.number().nonnegative().or(z.nan()),
   hipDepth: z.number().nonnegative().or(z.nan()),
   hipHeight: z.number().nonnegative().or(z.nan()),
-  highHipCircumference: z.number().nonnegative().or(z.nan()),
+  hipCircumference: z.number().nonnegative().or(z.nan()),
   shoulderWidth: z.number().nonnegative().or(z.nan()),
   armLength: z.number().nonnegative().or(z.nan()),
   upperArmCircumference: z.number().nonnegative().or(z.nan()),
@@ -185,7 +186,7 @@ function renderMeasurementField(
           inputProps={{ step: '0.01', inputMode: 'decimal' }}
           disabled={!canEdit}
           sx={{ width: { xs: '100%', sm: 132 } }}
-          {...register(key as never, { valueAsNumber: true })}
+          {...register(key as keyof FormValues, { valueAsNumber: true })}
           onBlur={(event) => {
             const raw = (event.target as HTMLInputElement).valueAsNumber;
             if (!isNaN(raw)) {
@@ -237,7 +238,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
           profileType: initialActiveProfile.profileType,
           ...initialActiveProfile.measurements,
         }
-      : { name: '', ...createBlankMeasurements() },
+      : { name: '', profileType: '' as ProfileType, ...createBlankMeasurements() },
     mode: 'onSubmit',
   });
 
@@ -256,7 +257,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   function setProfileType(nextProfileType: ProfileTypeFormValue) {
     form.setValue(
       'profileType',
-      (nextProfileType || undefined) as never,
+      (nextProfileType || undefined) as ProfileType,
       {
         shouldDirty: true,
         shouldValidate: true,
@@ -271,7 +272,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
           : [...WOMEN_ONLY_FIELDS, ...MEN_ONLY_FIELDS];
 
     for (const key of keysToClear) {
-      form.setValue(key as never, Number.NaN as never, {
+      form.setValue(key as keyof FormValues, Number.NaN as number, {
         shouldDirty: true,
       });
     }
@@ -293,7 +294,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
       return;
     }
 
-    form.reset({ name: '', ...createBlankMeasurements() });
+    form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
   }
 
   function refresh() {
@@ -307,7 +308,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   function startNew() {
     setMode('new');
     setActiveId(null);
-    form.reset({ name: '', ...createBlankMeasurements() });
+    form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
   }
 
   function startEdit() {
@@ -331,7 +332,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     for (const { key } of FIELDS) {
       const raw =
         (preset as Partial<Record<keyof Measurements, number>>)[key] ?? 0;
-      form.setValue(key as never, roundToHalf(raw) as never, {
+      form.setValue(key as keyof FormValues, roundToHalf(raw) as number, {
         shouldDirty: true,
       });
     }
@@ -399,7 +400,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
         });
       }
     } else {
-      form.reset({ name: '', ...createBlankMeasurements() });
+      form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
     }
   }
 
@@ -664,10 +665,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                           .map(({ key }) =>
                             renderMeasurementField(
                               key,
-                              t(key as never),
+                              t(key as TranslationKey),
                               canEdit,
                               (next) =>
-                                form.setValue(key as never, next as never, {
+                                form.setValue(key as keyof FormValues, next as number, {
                                   shouldDirty: true,
                                 }),
                               form.register,
@@ -713,7 +714,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
                 <Typography variant='body2' color='text.secondary'>
                   {mode === 'new'
-                    ? t('fillInMeaseurements')
+                    ? t('fillInMeasurements')
                     : isDirty
                       ? t('rememberToSave')
                       : t('nothingToSave')}
@@ -770,7 +771,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                             verticalAlign: 'top',
                           }}
                         >
-                          {t(key as never)}
+                          {t(key as TranslationKey)}
                         </TableCell>
                         <TableCell
                           align='right'

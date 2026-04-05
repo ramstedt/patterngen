@@ -364,11 +364,20 @@ export function PatternSection({
                             >
                               {calculation.label}
                             </Typography>
-                            {calculation.description && (
+                            {calculation.explanation && (
                               <Typography
                                 variant='body2'
                                 color='text.secondary'
                                 sx={{ fontSize: '0.875rem' }}
+                              >
+                                {calculation.explanation}
+                              </Typography>
+                            )}
+                            {calculation.description && (
+                              <Typography
+                                variant='body2'
+                                color='text.secondary'
+                                sx={{ fontSize: '0.8rem', fontFamily: 'monospace' }}
                               >
                                 {calculation.description}
                               </Typography>

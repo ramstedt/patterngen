@@ -50,8 +50,8 @@ export function measurementsFromStandardSize(
     ...WOMEN_FALLBACK_MEASUREMENTS,
     bustCircumference: getChartValue(r.bustCircumference, size),
     waistCircumference: getChartValue(r.waistCircumference, size),
-    highHipCircumference: getChartValue(r.highHipCircumference, size),
     hipCircumference: getChartValue(r.hipCircumference, size),
+    seatCircumference: getChartValue(r.seatCircumference, size),
     backWaistLength: getChartValue(r.backWaistLength, size),
     backWidth: getChartValue(r.backWidth, size),
     shoulderWidth: getChartValue(r.shoulderWidth, size),
@@ -77,8 +77,8 @@ export function measurementsFromStandardSize(
  * Men chart exports.
  *
  * IMPORTANT: This expects `standardSizesMen.json` to use the SAME internal row keys
- * as our app (e.g. `bustCircumference`, `waistCircumference`, `highHipCircumference`,
- * `hipCircumference`, `backWaistLength`, `backWidth`, `chestWidth`, `frontWaistLength`,
+ * as our app (e.g. `bustCircumference`, `waistCircumference`, `hipCircumference`,
+ * `seatCircumference`, `backWaistLength`, `backWidth`, `chestWidth`, `frontWaistLength`,
  * `neckCircumference`, `shoulderWidth`, `armLength`, `upperArmCircumference`,
  * `elbowCircumference`, `wristCircumference`, `trouserLength`, `rise`, `inseamLength`,
  * `kneeHeight`, `crotchDepth`).
@@ -94,8 +94,8 @@ export function measurementsFromMenStandardSize(
     ...MEN_FALLBACK_MEASUREMENTS,
     bustCircumference: getChartValue(r.chestCircumference, size),
     waistCircumference: getChartValue(r.waistCircumference, size),
-    highHipCircumference: getChartValue(r.highHipCircumference, size),
     hipCircumference: getChartValue(r.hipCircumference, size),
+    seatCircumference: getChartValue(r.seatCircumference, size),
     backWaistLength: getChartValue(r.backWaistLength, size),
     backWidth: getChartValue(r.backWidth, size),
     chestWidth: getChartValue(r.chestWidth, size),

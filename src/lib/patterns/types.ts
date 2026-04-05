@@ -14,7 +14,8 @@ export type PatternCalculation = {
   id: string;
   label: string;
   value: number;
-  description: string;
+  description?: string;
+  explanation?: string;
   section?: PatternSectionKey;
 };
 

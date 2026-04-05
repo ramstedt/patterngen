@@ -13,10 +13,10 @@ export const MEASUREMENT_FIELDS: MeasurementField[] = [
   { key: 'neckCircumference', group: 'upper' },
   { key: 'bustCircumference', group: 'upper' },
   { key: 'waistCircumference', group: 'upper' },
-  { key: 'hipCircumference', group: 'upper' },
+  { key: 'seatCircumference', group: 'upper' },
   { key: 'hipDepth', group: 'upper' },
   { key: 'hipHeight', group: 'upper' },
-  { key: 'highHipCircumference', group: 'upper' },
+  { key: 'hipCircumference', group: 'upper' },
   { key: 'shoulderWidth', group: 'upper' },
   { key: 'armLength', group: 'upper' },
   { key: 'upperArmCircumference', group: 'upper' },
@@ -42,6 +42,9 @@ export const MEASUREMENT_FIELDS: MeasurementField[] = [
 type LegacyMeasurements = Partial<Measurements> & {
   shoulderHeight?: number;
   shoulderHeightBackFront?: number;
+  // pre-rename: hipCircumference was the seat, highHipCircumference was the upper hip
+  highHipCircumference?: number;
+  hipCircumference?: number;
 };
 
 export function roundToHalf(value: number) {
@@ -57,6 +60,14 @@ export function normalizeMeasurements(
   measurements: LegacyMeasurements,
 ): Measurements {
   const shoulderHeight = measurements.shoulderHeight ?? 0;
+  // Legacy migration: old profiles stored seat as `hipCircumference` and upper hip as `highHipCircumference`
+  const isLegacy = 'highHipCircumference' in measurements;
+  const hipCircumference = isLegacy
+    ? (measurements.highHipCircumference ?? 0)
+    : (measurements.hipCircumference ?? 0);
+  const seatCircumference = isLegacy
+    ? (measurements.hipCircumference ?? 0)
+    : (measurements.seatCircumference ?? 0);
 
   return {
     backWaistLength: measurements.backWaistLength ?? 0,
@@ -65,10 +76,10 @@ export function normalizeMeasurements(
     neckCircumference: measurements.neckCircumference ?? 0,
     bustCircumference: measurements.bustCircumference ?? 0,
     waistCircumference: measurements.waistCircumference ?? 0,
-    hipCircumference: measurements.hipCircumference ?? 0,
+    seatCircumference,
     hipDepth: measurements.hipDepth ?? 0,
     hipHeight: measurements.hipHeight ?? 0,
-    highHipCircumference: measurements.highHipCircumference ?? 0,
+    hipCircumference,
     shoulderWidth: measurements.shoulderWidth ?? 0,
     armLength: measurements.armLength ?? 0,
     upperArmCircumference: measurements.upperArmCircumference ?? 0,
