@@ -6,6 +6,8 @@ export type PatternCategory = 'skirts' | 'bodices';
 
 export type PatternSectionKey =
   | 'basicMeasurements'
+  | 'controlMeasurements'
+  | 'fixedMeasurements'
   | 'dartPlacement'
   | 'dartWidth'
   | 'sideLine';
@@ -65,8 +67,15 @@ export type DraftRenderable = {
   baseOpacity?: number;
 };
 
+export type DraftNote = {
+  id: string;
+  text: string;
+  severity?: 'info' | 'warning';
+};
+
 export type PatternDraft = DraftRenderable & {
   units: 'mm';
+  notes?: DraftNote[];
 };
 
 export type PatternFirstPageInstructions = {
@@ -93,6 +102,9 @@ export type PatternPrintConfig = {
 };
 
 export type Translate = (key: TranslationKey) => string;
+export type PatternSettings = {
+  movementEase?: number;
+};
 
 export type PatternDefinition = {
   id: PatternOption;
@@ -101,6 +113,14 @@ export type PatternDefinition = {
   requiredMeasurements: (keyof Measurements)[];
   printConfig?: PatternPrintConfig;
   buildPrintConfig?: (profile: Profile, t: Translate) => PatternPrintConfig;
-  calculate: (profile: Profile, t: Translate) => PatternCalculation[];
-  buildDraft: (profile: Profile, t: Translate) => PatternDraft;
+  calculate: (
+    profile: Profile,
+    t: Translate,
+    settings?: PatternSettings,
+  ) => PatternCalculation[];
+  buildDraft: (
+    profile: Profile,
+    t: Translate,
+    settings?: PatternSettings,
+  ) => PatternDraft;
 };

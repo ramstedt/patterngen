@@ -8,6 +8,7 @@ import type {
   PatternDraft,
   PatternOption,
   PatternPrintConfig,
+  PatternSettings,
   Translate,
 } from './types';
 
@@ -16,11 +17,15 @@ const patternRegistry = {
   straightSkirt: straightSkirtPattern,
 } satisfies Record<string, PatternDefinition>;
 
-export const PATTERN_OPTIONS: PatternOption[] = ['straightSkirt'];
+export const PATTERN_OPTIONS: PatternOption[] = [
+  'straightSkirt',
+  'bodiceWithoutDarts',
+];
 export const PATTERN_CATEGORIES: {
   category: PatternCategory;
   patterns: PatternOption[];
 }[] = [
+  { category: 'bodices', patterns: ['bodiceWithoutDarts'] },
   { category: 'skirts', patterns: ['straightSkirt'] },
 ];
 
@@ -31,6 +36,7 @@ export type {
   PatternDraft,
   PatternOption,
   PatternPrintConfig,
+  PatternSettings,
   PatternSectionKey,
 } from './types';
 
@@ -38,16 +44,18 @@ export function calculatePattern(
   pattern: PatternOption,
   profile: Profile,
   t: Translate,
+  settings?: PatternSettings,
 ): PatternCalculation[] {
-  return patternRegistry[pattern].calculate(profile, t);
+  return patternRegistry[pattern].calculate(profile, t, settings);
 }
 
 export function buildPatternDraft(
   pattern: PatternOption,
   profile: Profile,
   t: Translate,
+  settings?: PatternSettings,
 ): PatternDraft {
-  return patternRegistry[pattern].buildDraft(profile, t);
+  return patternRegistry[pattern].buildDraft(profile, t, settings);
 }
 
 export function getPatternDefinition(pattern: PatternOption): PatternDefinition {

@@ -1,3 +1,4 @@
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import type { PatternDraft } from '../../lib/patterns';
@@ -76,6 +77,15 @@ function getVisibleDraftBounds(
     const labelBounds = estimateLabelBounds(label);
     expandBounds(bounds, labelBounds.minX, labelBounds.minY);
     expandBounds(bounds, labelBounds.maxX, labelBounds.maxY);
+  }
+
+  for (const marker of draft.markers ?? []) {
+    const point = points.get(marker.pointId);
+
+    if (!point) continue;
+
+    expandBounds(bounds, point.x - marker.radius, point.y - marker.radius);
+    expandBounds(bounds, point.x + marker.radius, point.y + marker.radius);
   }
 
   if (!Number.isFinite(bounds.minX)) {
@@ -210,6 +220,23 @@ function renderDraftSvg(draft: PatternDraft, viewBox: string, frameWidth: number
             {label.text}
           </text>
         ))}
+
+        {(draft.markers ?? []).map((marker) => {
+          const point = points.get(marker.pointId);
+
+          if (!point) return null;
+
+          return (
+            <circle
+              key={marker.id}
+              cx={point.x}
+              cy={point.y}
+              r={marker.radius}
+              fill={marker.fill}
+              vectorEffect='non-scaling-stroke'
+            />
+          );
+        })}
       </g>
     </svg>
   );
@@ -245,6 +272,15 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
           previewFrame.height,
         )}
       </Box>
+      {draft.notes?.length ? (
+        <Box sx={{ mt: 2 }}>
+          {draft.notes.map((note) => (
+            <Alert key={note.id} severity={note.severity ?? 'info'} sx={{ mt: 1 }}>
+              {note.text}
+            </Alert>
+          ))}
+        </Box>
+      ) : null}
     </Box>
   );
 }

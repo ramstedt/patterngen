@@ -26,7 +26,7 @@ export const straightSkirtPattern: PatternDefinition = {
 
     return {
       enabled: true,
-      calibrationSquareMm: 50,
+      calibrationSquareMm: 40,
       calibrationLabel: t('pdfTestSquareLabel'),
       pageMarginMm: 8,
       pageOverlapMm: 10,
@@ -40,6 +40,7 @@ export const straightSkirtPattern: PatternDefinition = {
           t('pdfPrintingInstructionScale'),
           t('pdfPrintingInstructionMeasure'),
           t('pdfPrintingInstructionAssemble'),
+          t('pdfPrintingInstructionNoSeamAllowance'),
           ...(showSmallDartWaistbandNote
             ? [t('pdfPrintingInstructionSmallDartsWaistband')]
             : []),

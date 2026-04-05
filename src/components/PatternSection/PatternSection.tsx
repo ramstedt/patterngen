@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import ListSubheader from '@mui/material/ListSubheader';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -12,6 +16,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import type { TranslationKey } from '../../../i18n/translations';
 import { useI18n } from '../../../i18n/useI18n';
 import { PatternDraftPreview } from '../PatternPreview/PatternDraftPreview';
@@ -21,8 +26,11 @@ import {
   calculatePattern,
   getPatternDefinition,
   getPatternPrintConfig,
+  type PatternCategory,
+  type PatternSettings,
   type PatternOption,
 } from '../../lib/patterns';
+import easeNoDarts from '../../data/easeNoDarts.json';
 import { formatMeasurement } from '../../lib/measurements';
 import { loadProfiles, subscribeProfiles } from '../../storage/profiles';
 import type { Profile } from '../../types/measurements';
@@ -30,10 +38,13 @@ import { downloadPatternPdf } from '../../lib/printing/patternPdf';
 
 const SECTION_ORDER = [
   'basicMeasurements',
+  'controlMeasurements',
+  'fixedMeasurements',
   'dartWidth',
   'sideLine',
   'dartPlacement',
 ] as const;
+const STEP_LABEL_MIN_HEIGHT = 32;
 
 export function PatternSection({
   showHeader = true,
@@ -43,13 +54,23 @@ export function PatternSection({
   const { t } = useI18n();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<PatternCategory | ''>(
+    '',
+  );
   const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>(
+    '',
+  );
+  const [selectedMovementEase, setSelectedMovementEase] = useState<number | ''>(
     '',
   );
   const [submittedProfileId, setSubmittedProfileId] = useState('');
   const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>(
     '',
   );
+  const [submittedMovementEase, setSubmittedMovementEase] = useState<
+    number | ''
+  >('');
+  const [isMovementEaseHelpOpen, setIsMovementEaseHelpOpen] = useState(false);
 
   useEffect(() => {
     const syncProfiles = () => {
@@ -69,6 +90,7 @@ export function PatternSection({
       ) {
         setSubmittedProfileId('');
         setSubmittedPattern('');
+        setSubmittedMovementEase('');
       }
     };
 
@@ -88,11 +110,29 @@ export function PatternSection({
     () => profiles.find((profile) => profile.id === selectedProfileId) ?? null,
     [profiles, selectedProfileId],
   );
+  const availablePatternsForCategory = useMemo(
+    () =>
+      PATTERN_CATEGORIES.find(({ category }) => category === selectedCategory)
+        ?.patterns ?? [],
+    [selectedCategory],
+  );
+  const requiresMovementEase = selectedPattern === 'bodiceWithoutDarts';
+  const movementEaseOptions = useMemo(
+    () => easeNoDarts.entries.map((entry) => entry.ease),
+    [],
+  );
+  const submittedSettings = useMemo<PatternSettings | undefined>(
+    () =>
+      submittedPattern === 'bodiceWithoutDarts' && submittedMovementEase
+        ? { movementEase: submittedMovementEase }
+        : undefined,
+    [submittedMovementEase, submittedPattern],
+  );
 
   const calculations = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return [];
-    return calculatePattern(submittedPattern, submittedProfile, t);
-  }, [submittedPattern, submittedProfile, t]);
+    return calculatePattern(submittedPattern, submittedProfile, t, submittedSettings);
+  }, [submittedPattern, submittedProfile, submittedSettings, t]);
 
   const calculationsBySection = useMemo(() => {
     const sections = new Map<string, typeof calculations>();
@@ -123,8 +163,8 @@ export function PatternSection({
 
   const draft = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return null;
-    return buildPatternDraft(submittedPattern, submittedProfile, t);
-  }, [submittedPattern, submittedProfile, t]);
+    return buildPatternDraft(submittedPattern, submittedProfile, t, submittedSettings);
+  }, [submittedPattern, submittedProfile, submittedSettings, t]);
   const submittedPatternPrintConfig = useMemo(
     () =>
       submittedPattern && submittedProfile
@@ -177,13 +217,27 @@ export function PatternSection({
       ),
     [selectedPatternDefinition, selectedProfile],
   );
+  const isReadyToGenerate =
+    Boolean(selectedCategory) &&
+    Boolean(selectedPattern) &&
+    Boolean(selectedProfileId) &&
+    (!requiresMovementEase || Boolean(selectedMovementEase));
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedProfileId || !selectedPattern) return;
+    if (
+      !selectedProfileId ||
+      !selectedPattern ||
+      (selectedPattern === 'bodiceWithoutDarts' && !selectedMovementEase)
+    ) {
+      return;
+    }
 
     setSubmittedProfileId(selectedProfileId);
     setSubmittedPattern(selectedPattern);
+    setSubmittedMovementEase(
+      selectedPattern === 'bodiceWithoutDarts' ? selectedMovementEase : '',
+    );
   }
 
   function onDownloadPdf() {
@@ -227,62 +281,182 @@ export function PatternSection({
           sx={{
             display: 'grid',
             gap: 2,
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr auto' },
-            alignItems: 'end',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            alignItems: 'start',
           }}
         >
-          <TextField
-            select
-            label={t('selectProfile')}
-            value={selectedProfileId}
-            onChange={(event) => setSelectedProfileId(event.target.value)}
-            size='small'
-          >
-            <MenuItem value=''>{t('selectProfile')}</MenuItem>
-            {profiles.map((profile) => (
-              <MenuItem key={profile.id} value={profile.id}>
-                {profile.name}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            select
-            label={t('selectPattern')}
-            value={selectedPattern}
-            onChange={(event) =>
-              setSelectedPattern(event.target.value as PatternOption | '')
-            }
-            size='small'
-          >
-            <MenuItem value=''>{t('selectPattern')}</MenuItem>
-            {PATTERN_CATEGORIES.map(({ category, patterns }) => [
-              <ListSubheader key={category}>{t(category as TranslationKey)}</ListSubheader>,
-              ...patterns.map((pattern) => (
-                <MenuItem key={pattern} value={pattern}>
-                  {t(pattern)}
-                </MenuItem>
-              )),
-            ])}
-          </TextField>
-
-          <Stack spacing={1} sx={{ width: { xs: '100%', md: 'auto' } }}>
-            <Button
-              type='submit'
-              variant='contained'
-              disabled={
-                !profiles.length || !selectedProfileId || !selectedPattern
-              }
-              sx={{ width: { xs: '100%', md: 'auto' } }}
+          <Stack spacing={1}>
+            <Box
+              sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
             >
-              {t('calculatePattern')}
-            </Button>
-            {!profiles.length && (
               <Typography variant='body2' color='text.secondary'>
-                {t('noProfilesAvailable')}
+                1. {t('selectPatternCategory')}
               </Typography>
-            )}
+            </Box>
+            <TextField
+              select
+              label={t('patternCategory')}
+              value={selectedCategory}
+              onChange={(event) => {
+                const nextCategory = event.target.value as PatternCategory | '';
+                setSelectedCategory(nextCategory);
+                setSelectedPattern('');
+                setSelectedMovementEase('');
+                setSelectedProfileId('');
+              }}
+              size='small'
+            >
+              <MenuItem value=''>{t('selectPatternCategory')}</MenuItem>
+              {PATTERN_CATEGORIES.map(({ category }) => (
+                <MenuItem key={category} value={category}>
+                  {t(category as TranslationKey)}
+                </MenuItem>
+              ))}
+            </TextField>
           </Stack>
+
+          {selectedCategory && (
+            <Stack spacing={1}>
+              <Box
+                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+              >
+                <Typography variant='body2' color='text.secondary'>
+                  2. {t('selectPattern')}
+                </Typography>
+              </Box>
+              <TextField
+                select
+                label={t('selectPattern')}
+                value={selectedPattern}
+                onChange={(event) => {
+                  const nextPattern = event.target.value as PatternOption | '';
+                  setSelectedPattern(nextPattern);
+                  setSelectedProfileId('');
+
+                  if (nextPattern !== 'bodiceWithoutDarts') {
+                    setSelectedMovementEase('');
+                  }
+                }}
+                size='small'
+              >
+                <MenuItem value=''>{t('selectPattern')}</MenuItem>
+                {availablePatternsForCategory.map((pattern) => (
+                  <MenuItem key={pattern} value={pattern}>
+                    {t(pattern)}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          )}
+
+          {selectedPattern && requiresMovementEase && (
+            <Stack spacing={1}>
+              <Box
+                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+              >
+                <Stack direction='row' spacing={0.5} alignItems='center'>
+                  <Typography variant='body2' color='text.secondary'>
+                    3. {t('movementEase')}
+                  </Typography>
+                  <IconButton
+                    size='small'
+                    aria-label={t('movementEaseHelp')}
+                    onClick={() => setIsMovementEaseHelpOpen(true)}
+                  >
+                    <HelpOutlineIcon fontSize='inherit' />
+                  </IconButton>
+                </Stack>
+              </Box>
+              <TextField
+                select
+                label={t('movementEase')}
+                value={selectedMovementEase}
+                onChange={(event) =>
+                  setSelectedMovementEase(
+                    event.target.value ? Number(event.target.value) : '',
+                  )
+                }
+                size='small'
+              >
+                <MenuItem value=''>{t('selectMovementEase')}</MenuItem>
+                {movementEaseOptions.map((ease) => (
+                  <MenuItem key={ease} value={ease}>
+                    {formatMeasurement(ease)} cm
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          )}
+
+          {selectedPattern && (!requiresMovementEase || selectedMovementEase) && (
+            <Stack spacing={1}>
+              <Box
+                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+              >
+                <Typography variant='body2' color='text.secondary'>
+                  {requiresMovementEase ? '4.' : '3.'} {t('selectProfile')}
+                </Typography>
+              </Box>
+              <TextField
+                select
+                label={t('selectProfile')}
+                value={selectedProfileId}
+                onChange={(event) => setSelectedProfileId(event.target.value)}
+                size='small'
+              >
+                <MenuItem value=''>{t('selectProfile')}</MenuItem>
+                {profiles.map((profile) => (
+                  <MenuItem key={profile.id} value={profile.id}>
+                    {profile.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          )}
+
+          {!profiles.length && (
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+            >
+              {t('noProfilesAvailable')}
+            </Typography>
+          )}
+          {requiresMovementEase && !selectedMovementEase && selectedPattern && (
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+            >
+              {t('movementEaseRequired')}
+            </Typography>
+          )}
+          {isReadyToGenerate && (
+            <Stack
+              spacing={1}
+              sx={{
+                width: { xs: '100%', md: 'auto' },
+                gridColumn: { xs: '1', md: '1 / -1' },
+                justifySelf: 'start',
+              }}
+            >
+              <Box
+                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+              >
+                <Typography variant='body2' color='text.secondary'>
+                  {requiresMovementEase ? '5.' : '4.'} {t('calculatePattern')}
+                </Typography>
+              </Box>
+              <Button
+                type='submit'
+                variant='contained'
+                sx={{ width: { xs: '100%', md: 'auto' } }}
+              >
+                {t('calculatePattern')}
+              </Button>
+            </Stack>
+          )}
         </Box>
         {hasPatternProfileTypeMismatch && (
           <Alert severity='warning' sx={{ mt: 2 }}>
@@ -290,6 +464,35 @@ export function PatternSection({
           </Alert>
         )}
       </Paper>
+      <Dialog
+        open={isMovementEaseHelpOpen}
+        onClose={() => setIsMovementEaseHelpOpen(false)}
+        maxWidth='xs'
+        fullWidth
+      >
+        <DialogTitle>{t('movementEase')}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1}>
+            <Typography variant='body2'>
+              {t('movementEaseIntro')}
+            </Typography>
+            <Typography variant='body2'>
+              {t('movementEaseHelperShirt')}
+            </Typography>
+            <Typography variant='body2'>
+              {t('movementEaseHelperSummerJacket')}
+            </Typography>
+            <Typography variant='body2'>
+              {t('movementEaseHelperWinterJacket')}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsMovementEaseHelpOpen(false)}>
+            {t('close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
       {submittedProfile && submittedPattern && (
         <Paper
           variant='outlined'
@@ -349,6 +552,16 @@ export function PatternSection({
                 {section === 'dartWidth' && showLargeDifferenceDartHelp && (
                   <Alert severity='info' sx={{ mb: 1.5 }}>
                     {t('dartWidthLargeDifferenceHelp')}
+                  </Alert>
+                )}
+                {section === 'controlMeasurements' && (
+                  <Alert severity='info' sx={{ mb: 1.5 }}>
+                    {t('controlMeasurementsHelp')}
+                  </Alert>
+                )}
+                {section === 'fixedMeasurements' && (
+                  <Alert severity='info' sx={{ mb: 1.5 }}>
+                    {t('fixedMeasurementsHelp')}
                   </Alert>
                 )}
 

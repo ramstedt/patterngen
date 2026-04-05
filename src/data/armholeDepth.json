@@ -8,11 +8,30 @@
   "women": [
     { "bustRange": "68-72", "armholeDepth": 19 },
     { "bustRange": "73-77", "armholeDepth": 19.5 },
-    { "bustRange": "78-82", "armholeDepth": 20 }
+    { "bustRange": "78-82", "armholeDepth": 20 },
+    { "bustRange": "83-87", "armholeDepth": 20.5 },
+    { "bustRange": "88-92", "armholeDepth": 21 },
+    { "bustRange": "93-97", "armholeDepth": 21.5 },
+    { "bustRange": "98-102", "armholeDepth": 22 },
+    { "bustRange": "103-109", "armholeDepth": 22.5 },
+    { "bustRange": "110-116", "armholeDepth": 23 },
+    { "bustRange": "117-124", "armholeDepth": 23.5 },
+    { "bustRange": "125-132", "armholeDepth": 24 },
+    { "bustRange": "133-139", "armholeDepth": 24.5 },
+    { "bustRange": "140-146", "armholeDepth": 25 }
   ],
 
   "men": [
     { "chestRange": "71-77", "armholeDepth": 20.5 },
-    { "chestRange": "78-83", "armholeDepth": 21 }
+    { "chestRange": "78-83", "armholeDepth": 21 },
+    { "chestRange": "84-90", "armholeDepth": 21.5 },
+    { "chestRange": "91-96", "armholeDepth": 22 },
+    { "chestRange": "97-103", "armholeDepth": 22.5 },
+    { "chestRange": "104-110", "armholeDepth": 23 },
+    { "chestRange": "111-116", "armholeDepth": 23.5 },
+    { "chestRange": "117-123", "armholeDepth": 24 },
+    { "chestRange": "124-130", "armholeDepth": 24.5 },
+    { "chestRange": "131-136", "armholeDepth": 25 },
+    { "chestRange": "137-143", "armholeDepth": 25.5 }
   ]
 }

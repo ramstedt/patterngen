@@ -58,14 +58,17 @@ const en = {
   calculatePattern: 'Calculate pattern',
   downloadPdf: 'Download PDF',
   downloadA4PdfDescription:
-    'Download a tiled A4 PDF at 100% scale with alignment borders and a 5 x 5 cm test square on page 1.',
-  pdfTestSquareLabel: 'test square 5 x 5 cm',
+    'Download a tiled A4 PDF at 100% scale with alignment borders and a 4 x 4 cm test square on page 1.',
+  pdfTestSquareLabel: 'test square 4 x 4 cm',
+  pdfTestSquareLabel4x4: 'test square 4 x 4 cm',
   pdfPrintingInstructionsTitle: 'Printing instructions',
   pdfPrintingInstructionScale: 'Print at actual size or 100% scale.',
   pdfPrintingInstructionMeasure:
     'Measure the test square on page 1 before cutting.',
   pdfPrintingInstructionAssemble:
-    'Trim along the page borders and align the marks when taping pages together.',
+    'Align the marks when taping the pages together.',
+  pdfPrintingInstructionNoSeamAllowance:
+    'No seam allowance is included in the draft.',
   pdfPrintingInstructionSmallDartsWaistband:
     'For small darts, you can hold the darts together at the waistband instead of sewing them closed.',
   noProfilesAvailable: 'Create a profile before calculating a pattern.',
@@ -80,6 +83,7 @@ const en = {
     'Select a saved profile and a pattern to calculate the draft.',
   patternCalculationPending: 'Calculated for {profileName}.',
   cancel: 'Cancel',
+  close: 'Close',
   saved: 'Saved',
   notSaved: 'Not saved',
   unsavedChanges: 'Not saved',
@@ -103,6 +107,17 @@ const en = {
   rememberToSave: 'Remember to save your changes.',
   nothingToSave: 'No changes to save.',
   applyStandardSize: 'Apply standard size to form',
+  patternCategory: 'Pattern category',
+  selectPatternCategory: 'Select a pattern category',
+  movementEase: 'Movement ease',
+  movementEaseHelp: 'Movement ease help',
+  movementEaseIntro:
+    'Movement ease is the extra width added to the body measurements so the garment has room to move and match the intended garment type.',
+  selectMovementEase: 'Select movement ease',
+  movementEaseRequired: 'Select a movement ease before calculating this bodice.',
+  movementEaseHelperShirt: '8-16 cm suits a shirt.',
+  movementEaseHelperSummerJacket: '18-26 cm suits a summer jacket.',
+  movementEaseHelperWinterJacket: '28-36 cm suits a winter jacket.',
   bodices: 'Bodices',
   skirts: 'Skirts',
   straightSkirt: 'Straight skirt',
@@ -110,6 +125,8 @@ const en = {
   patternInPreparation: 'Pattern in preparation',
   skirtLength: 'Skirt length',
   basicMeasurements: 'Basic measurements',
+  controlMeasurements: 'Control measurements',
+  fixedMeasurements: 'Fixed measurements',
   dartPlacement: 'Dart placement',
   dartWidth: 'Dart width',
   dartWidthLargeDifferenceHelp:
@@ -131,11 +148,24 @@ const en = {
   backHipLineDartWidthHalf: 'Back dart width at hip line per half',
   sideLineWaist: 'Waist',
   sideLineHip: 'Hip',
+  armholeDepth: 'Armhole depth',
+  armholeWidth: 'Armhole width',
+  frontArmholeWidth: 'Front armhole width',
+  backArmholeWidth: 'Back armhole width',
+  neckWidth: 'Neck width',
+  neckDepth: 'Neck depth',
+  backNecklineCheck: 'Back neckline check',
+  frontNecklineCheck: 'Front neckline check',
+  backInnerShoulderRise: 'Back inner shoulder rise',
+  frontInnerShoulderRise: 'Front inner shoulder rise',
+  backOuterShoulderDrop: 'Back outer shoulder drop',
+  frontOuterShoulderDrop: 'Front outer shoulder drop',
 
   // calculation labels (pattern-specific, distinct from raw measurement names)
   halfWaistWithEase: 'Half waist with ease',
   halfHighHipWithEase: 'Half hip with ease',
   halfSeatWithEase: 'Half seat with ease',
+  halfBustWithEase: 'Half bust with ease',
 
   // calculation explanations
   waistCircumferenceExplanation: 'Half the waist measurement plus 1 cm ease.',
@@ -153,6 +183,44 @@ const en = {
   backHipLineDartWidthHalfExplanation: 'Small shaping dart at the hip line on the back, per half.',
   sideLineWaistExplanation: 'How much the side seam tapers in at the waist.',
   sideLineHipExplanation: 'How much the side seam tapers in at the high hip.',
+  controlMeasurementsHelp: 'Used to check that the neckline has been shaped into a good curve.',
+  fixedMeasurementsHelp: 'The following values are the same for every movement-ease option.',
+  backWaistLengthBodiceExplanation:
+    'Use the back waist length directly from the measurement chart.',
+  armholeDepthBodiceExplanation:
+    'Armhole depth from the armhole-depth table for the measured bust, plus movement ease.',
+  halfBustWithEaseExplanation:
+    'Measured bust circumference plus movement ease, then divided by two.',
+  shoulderWidthBodiceExplanation:
+    'Shoulder width from the measurement chart plus movement ease.',
+  neckWidthBodiceExplanation:
+    'Neck measurement from the measurement chart plus movement ease.',
+  neckWidthExplanation:
+    'Neck width based on neck measurement with ease divided by five, minus 1 cm.',
+  neckDepthExplanation:
+    'Neck depth based on neck measurement with ease divided by five, plus 0.5 cm.',
+  backNecklineCheckExplanation:
+    'Control value for the back neckline curve.',
+  frontNecklineCheckExplanation:
+    'Control value for the front neckline curve after subtracting the back neckline check.',
+  backInnerShoulderRiseExplanation:
+    'Fixed value for raising the back inner shoulder point.',
+  frontInnerShoulderRiseExplanation:
+    'Fixed value for raising the front inner shoulder point.',
+  backOuterShoulderDropExplanation:
+    'Fixed value for lowering the back outer shoulder point.',
+  frontOuterShoulderDropExplanation:
+    'Fixed value for lowering the front outer shoulder point.',
+  armholeWidthExplanation:
+    'Armhole width based on half bust with ease and the matching armhole-width value from the movement ease table.',
+  frontArmholeWidthExplanation:
+    'Front share of the armhole width based on the selected movement ease range.',
+  backArmholeWidthExplanation:
+    'Back share of the armhole width after subtracting the front share.',
+  bodiceShoulderExtensionAdjustment:
+    'The shoulder had to be extended by {value} cm beyond the calculated shoulder width so point 16 reaches at least 1 cm past point 15. Shorten the sleeve by the same amount.',
+  bodiceLowCapSleeveRecommendation:
+    'A low sleeve cap is recommended for these measurements.',
 
   // measurements (from the measurement chart)
   backWaistLength: 'Back waist length',
@@ -247,14 +315,17 @@ const sv: Record<keyof typeof en, string> = {
   calculatePattern: 'Beräkna mönster',
   downloadPdf: 'Ladda ner PDF',
   downloadA4PdfDescription:
-    'Ladda ner en uppdelad A4-PDF i 100 % skala med passmärken och en testkvadrat på 5 x 5 cm på första sidan.',
-  pdfTestSquareLabel: 'testkvadrat 5 x 5 cm',
+    'Ladda ner en uppdelad A4-PDF i 100 % skala med passmärken och en testkvadrat på 4 x 4 cm på första sidan.',
+  pdfTestSquareLabel: 'testkvadrat 4 x 4 cm',
+  pdfTestSquareLabel4x4: 'testkvadrat 4 x 4 cm',
   pdfPrintingInstructionsTitle: 'Utskriftsinstruktioner',
   pdfPrintingInstructionScale: 'Skriv ut i faktisk storlek eller 100 % skala.',
   pdfPrintingInstructionMeasure:
     'Mät testkvadraten på sida 1 innan du klipper ut.',
   pdfPrintingInstructionAssemble:
-    'Trimma längs sidkanterna och passa ihop markeringarna när du tejpar samman sidorna.',
+    'Passa ihop markeringarna när du tejpar samman sidorna.',
+  pdfPrintingInstructionNoSeamAllowance:
+    'Ingen sömsmån ingår i ritningen.',
   pdfPrintingInstructionSmallDartsWaistband:
     'Vid små insnitt kan man hålla ihop insnitten vid linningen istället för att sy ihop dem.',
   noProfilesAvailable: 'Skapa en profil innan du beräknar ett mönster.',
@@ -269,6 +340,7 @@ const sv: Record<keyof typeof en, string> = {
     'Välj en sparad profil och ett mönster för att beräkna ritningen.',
   patternCalculationPending: 'Beräknat för {profileName}.',
   cancel: 'Avbryt',
+  close: 'Stäng',
   saved: 'Sparat',
   notSaved: 'Inte sparat',
   unsavedChanges: 'Inte sparat',
@@ -292,6 +364,17 @@ const sv: Record<keyof typeof en, string> = {
   rememberToSave: 'Glöm inte att spara dina ändringar',
   nothingToSave: 'Det finns inga ändringar att spara.',
   applyStandardSize: 'Fyll i formuläret med måtten från standardstorleken.',
+  patternCategory: 'Mönsterkategori',
+  selectPatternCategory: 'Välj mönsterkategori',
+  movementEase: 'Rörelsetillägg',
+  movementEaseHelp: 'Hjälp för rörelsetillägg',
+  movementEaseIntro:
+    'Rörelsetillägg är den extra vidd som läggs till kroppsmåtten så att plagget får rörelseutrymme och passar den tänkta plaggtypen.',
+  selectMovementEase: 'Välj rörelsetillägg',
+  movementEaseRequired: 'Välj ett rörelsetillägg innan du beräknar det här livet.',
+  movementEaseHelperShirt: '8-16 cm passar en skjorta.',
+  movementEaseHelperSummerJacket: '18-26 cm passar en sommarjacka.',
+  movementEaseHelperWinterJacket: '28-36 cm passar en vinterjacka.',
   bodices: 'Liv',
   skirts: 'Kjolar',
   straightSkirt: 'Grundkjol',
@@ -299,6 +382,8 @@ const sv: Record<keyof typeof en, string> = {
   patternInPreparation: 'Mönster under arbete',
   skirtLength: 'Kjollängd',
   basicMeasurements: 'Grundmått',
+  controlMeasurements: 'Kontrollmått',
+  fixedMeasurements: 'Fasta mått',
   dartPlacement: 'Placering av insnitt',
   dartWidth: 'Insnittsbredd',
   dartWidthLargeDifferenceHelp:
@@ -320,11 +405,24 @@ const sv: Record<keyof typeof en, string> = {
   backHipLineDartWidthHalf: 'Bak vid höft',
   sideLineWaist: 'Midja',
   sideLineHip: 'Höft',
+  armholeDepth: 'Ärmhålsdjup',
+  armholeWidth: 'Ärmhålsbredd',
+  frontArmholeWidth: 'Ärmhålsbredd fram',
+  backArmholeWidth: 'Ärmhålsbredd bak',
+  neckWidth: 'Halsbredd',
+  neckDepth: 'Halsdjup',
+  backNecklineCheck: 'Halsringning bak',
+  frontNecklineCheck: 'Halsringning fram',
+  backInnerShoulderRise: 'Höjning inre axelspets bak',
+  frontInnerShoulderRise: 'Höjning inre axelspets fram',
+  backOuterShoulderDrop: 'Sänkning yttre axelspets bak',
+  frontOuterShoulderDrop: 'Sänkning yttre axelspets fram',
 
   // calculation labels (pattern-specific, distinct from raw measurement names)
   halfWaistWithEase: 'Halv midjevidd med tillägg',
   halfHighHipWithEase: 'Halv höftvidd med tillägg',
   halfSeatWithEase: 'Halv stussvidd med tillägg',
+  halfBustWithEase: 'Halv bystvidd med tillägg',
 
   // calculation explanations
   waistCircumferenceExplanation: 'Halva mideljevidden plus 1 cm viddsrum.',
@@ -342,6 +440,44 @@ const sv: Record<keyof typeof en, string> = {
   backHipLineDartWidthHalfExplanation: 'Styr bredden på insnittet vid höftlinjen bak, per halva.',
   sideLineWaistExplanation: 'Hur mycket sidosömmen smalnar in vid midjan.',
   sideLineHipExplanation: 'Hur mycket sidosömmen smalnar in vid höften.',
+  controlMeasurementsHelp: 'Används för att kontrollera att man format en bra kurva.',
+  fixedMeasurementsHelp: 'Följande mått är samma för alla rörelsetillägg.',
+  backWaistLengthBodiceExplanation:
+    'Använd livlängd bak direkt från måttschemat.',
+  armholeDepthBodiceExplanation:
+    'Ärmhålsdjup från tabellen för ärmhålsdjup utifrån uppmätt bystvidd, plus rörelsetillägg.',
+  halfBustWithEaseExplanation:
+    'Uppmätt bystvidd plus rörelsetillägg, därefter delat i två.',
+  shoulderWidthBodiceExplanation:
+    'Axelbredd från måttschemat plus rörelsetillägg.',
+  neckWidthBodiceExplanation:
+    'Halsvidd från måttschemat plus rörelsetillägg.',
+  neckWidthExplanation:
+    'Halsbredd baserad på halsvidd med tillägg delat med fem, minus 1 cm.',
+  neckDepthExplanation:
+    'Halsdjup baserat på halsvidd med tillägg delat med fem, plus 0.5 cm.',
+  backNecklineCheckExplanation:
+    'Kontrollmått för bakre halskurva.',
+  frontNecklineCheckExplanation:
+    'Kontrollmått för främre halskurva efter avdrag för halsringning bak.',
+  backInnerShoulderRiseExplanation:
+    'Fast värde för höjning av inre axelspets bak.',
+  frontInnerShoulderRiseExplanation:
+    'Fast värde för höjning av inre axelspets fram.',
+  backOuterShoulderDropExplanation:
+    'Fast värde för sänkning av yttre axelspets bak.',
+  frontOuterShoulderDropExplanation:
+    'Fast värde för sänkning av yttre axelspets fram.',
+  armholeWidthExplanation:
+    'Ärmhålsbredd baserad på halv bystvidd med tillägg och motsvarande värde i tabellen för rörelsetillägg.',
+  frontArmholeWidthExplanation:
+    'Framstyckets andel av ärmhålsbredden enligt valt intervall för rörelsetillägg.',
+  backArmholeWidthExplanation:
+    'Bakstyckets andel av ärmhålsbredden efter att framstyckets andel dragits av.',
+  bodiceShoulderExtensionAdjustment:
+    'Axeln behövde förlängas med {value} cm utöver den uträknade axelbredden för att punkt 16 ska hamna minst 1 cm förbi punkt 15. Korta ärmen med samma mått.',
+  bodiceLowCapSleeveRecommendation:
+    'En ärm med låg kulle rekommenderas för dessa mått.',
 
   // measurements (from the measurement chart)
   backWaistLength: 'Livlängd bak',
@@ -388,16 +524,26 @@ export type PatchNoteEntry = {
 export const patchNotes = {
   en: {
     latest: {
-      version: 'Version 0.2.0',
-      dateLabel: 'March 29, 2026',
+      version: 'Version 0.3.0',
+      dateLabel: 'April 5, 2026',
       items: [
-        'Updated the straight skirt draft with the current waistline, dart, and side seam geometry used in the app.',
-        'Added pattern adjustments for small waists.',
-        'Removed the temporary closed preview so the pattern preview now shows only the open draft.',
-        'Refined the front waist curve, side seam smoothing logic, and project documentation to match the current implementation.',
+        'Added a working bodice without darts workflow with visible calculations and drafted bodice geometry.',
+        'Added movement ease selection, bodice-specific helper tables, and front/back neckline and armhole drafting logic.',
+        'Enabled tiled A4 PDF export for the bodice and standardized the print calibration square to 4 x 4 cm across drafts.',
+        'Updated the PDF printing instructions to clarify that no seam allowance is included.',
       ],
     },
     previous: [
+      {
+        version: 'Version 0.2.0',
+        dateLabel: 'March 29, 2026',
+        items: [
+          'Updated the straight skirt draft with the current waistline, dart, and side seam geometry used in the app.',
+          'Added pattern adjustments for small waists.',
+          'Removed the temporary closed preview so the pattern preview now shows only the open draft.',
+          'Refined the front waist curve, side seam smoothing logic, and project documentation to match the current implementation.',
+        ],
+      },
       {
         version: 'Version 0.1.0',
         dateLabel: 'March 2026',
@@ -411,16 +557,26 @@ export const patchNotes = {
   },
   sv: {
     latest: {
-      version: 'Version 0.2.0',
-      dateLabel: '29 mars 2026',
+      version: 'Version 0.3.0',
+      dateLabel: '5 april 2026',
       items: [
-        'Uppdaterade grundkjolens draft med den nuvarande midjelinjen, insnittslogiken och sidsömsgeometrin som används i appen.',
-        'Lade till mönsterjusteringar för smala midjor.',
-        'Förfinade frontens midjekurva, logiken för utjämning av sidsömmen och projektets dokumentation så att de matchar den nuvarande implementationen.',
-        'Lade till möjlighet att ladda ner mönstret som PDF',
+        'Lade till ett fungerande arbetsflöde för liv utan insnitt med synliga beräkningar och ritad livgeometri.',
+        'Lade till val av rörelsevidd, hjälptabeller för livets konstruktion samt geometri för halsringning och ärmhål fram och bak.',
+        'Aktiverade uppdelad A4-PDF för livet och standardiserade testkvadraten till 4 x 4 cm för alla draftar.',
+        'Uppdaterade utskriftsinstruktionerna i PDF så att det framgår att ingen sömsmån ingår.',
       ],
     },
     previous: [
+      {
+        version: 'Version 0.2.0',
+        dateLabel: '29 mars 2026',
+        items: [
+          'Uppdaterade grundkjolens draft med den nuvarande midjelinjen, insnittslogiken och sidsömsgeometrin som används i appen.',
+          'Lade till mönsterjusteringar för smala midjor.',
+          'Förfinade frontens midjekurva, logiken för utjämning av sidsömmen och projektets dokumentation så att de matchar den nuvarande implementationen.',
+          'Lade till möjlighet att ladda ner mönstret som PDF',
+        ],
+      },
       {
         version: 'Version 0.1.0',
         dateLabel: 'Mars 2026',
