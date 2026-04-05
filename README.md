@@ -1,101 +1,114 @@
 # PatternGen
 
-**PatternGen** is an experimental web-based tool for bespoke clothing pattern making.  
-It explores how body measurements and tailoring mathematics can be translated into code.
+**PatternGen** is a web-based tool for generating sewing patterns from body measurements.
+The current focus is a drafted straight skirt block (`grundkjol`) built from explicit geometry rather than visual approximation.
 
-This project is **early-stage and a work in progress**, built as part of a course I am taking in bespoke pattern construction.
+## Current Status
 
----
+The project now includes a working straight skirt workflow:
 
-## ✨ Features
+- saved measurement profiles
+- bilingual UI in English and Swedish
+- calculated drafting values grouped by drafting section
+- SVG draft preview in the browser
+- printable PDF export
+- print calibration square and first-page printing instructions
+- profile-driven straight skirt dart rules, including extra darts for large waist-to-hip differences
 
-> ⚠️ Current features represent the initial foundation. Pattern generation is not yet implemented.
+Implemented pattern support:
 
-- 📏 Comprehensive measurement schema based on tailoring practice
-- 👤 Multiple measurement profiles (for different people or clients)
-- 💾 Persistent storage using localStorage
-- 🌍 Bilingual UI (English / Swedish)
-- 📱 Mobile-first responsive UI
-- 🧵 Strongly typed measurement model in TypeScript
+- `straightSkirt`: active
+- `bodiceWithoutDarts`: placeholder only
 
----
+## Features
 
-## 🧠 Tech Stack
+- Multiple saved measurement profiles with local persistence
+- Standard measurement model covering skirt, bodice, sleeve, and trouser-related body data
+- Straight skirt calculations with visible drafting values
+- SVG pattern preview with draft lines, labels, and pattern outline
+- PDF printing pipeline with calibration square and assembly instructions
+- Swedish/English translations across the UI
+- Responsive React interface for desktop and mobile
 
-- **React** + **TypeScript**
-- **Vite**
-- **react-hook-form** + **Zod** (typed forms & validation)
-- **LocalStorage** for persistence
-- **CSS** keeping it simple with good old .css files!
+## Straight Skirt Draft
 
----
+The current straight skirt implementation includes:
 
-## 🧵 Measurements
+- waist, high hip, hip, hip height, hip depth, and skirt length based drafting
+- front and back dart placement from calculated drafting values
+- profile-based dart-width rules for small, medium, and large waist-to-hip differences
+- secondary front/back darts only when the waist-to-hip difference is large
+- shaped front and back waistlines
+- shaped side seam passing through fixed drafting anchor points
+- browser preview and printable PDF output
 
-The measurement model follows traditional pattern drafting terminology, including:
+The draft is built from explicit points, sampled curves, and dart geometry in:
 
-- Bust, waist, and hip circumferences
-- Back and front waist lengths
-- Bust point and bust height
-- Shoulder width and arm measurements
-- Trouser rise, inseam, and crotch depth
+- [src/lib/patterns/straightSkirt/calculations.ts](/Users/eramstedt/Documents/GitHub/patterngen/src/lib/patterns/straightSkirt/calculations.ts)
+- [src/lib/patterns/straightSkirt/draft.ts](/Users/eramstedt/Documents/GitHub/patterngen/src/lib/patterns/straightSkirt/draft.ts)
 
-All units are stored in **centimeters (cm)**.
+## Tech Stack
 
----
+- React
+- TypeScript
+- Vite
+- react-hook-form
+- Zod
+- localStorage for profile persistence
 
-## 🚀 Getting Started
+## Getting Started
 
-### Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### Start the dev server
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
+Build for production:
+
+```bash
+npm run build
+```
+
 Open:
 
-```
+```text
 http://localhost:5173
 ```
 
----
+## Development Notes
 
-## 🧪 Development Notes
+- Measurement values are stored in centimeters.
+- Profiles are stored locally in the browser.
+- Pattern generation currently targets the straight skirt workflow.
+- Drafting logic is geometry-first: points, distances, intersections, shaping, and curve construction are preferred over visual tweaks.
 
-- Profiles are stored locally in the browser and persist between sessions.
-- Measurement profiles must have **unique names**.
-- The UI defaults to the browser language (Swedish or English) and can be changed manually.
+## Roadmap
 
----
+- Expand from the straight skirt block to additional working pattern types
+- Replace placeholder bodice draft with a real drafted implementation
+- Continue extracting reusable geometry helpers shared across garment types
+- Extend printing/export options after the drafting layer is stable
 
-## 🎯 Planned Roadmap
-
-- SVG pattern drafting and visual preview
-- Export to PDF / DXF for pattern printing
-- Parametric bodice, skirt, and trouser block generators
-- Measurement validation rules based on tailoring theory
-
----
-
-## 📜 License
+## License
 
 This project is released for **personal and educational use only**.
 
 You are free to:
 
-- Use and modify the code for personal projects and learning
-- Run and experiment with the software locally
+- use and modify the code for personal projects and learning
+- run and experiment with the software locally
 
 You may **not**:
 
-- Use this project commercially
-- Redistribute or sell the software or derivatives
-- Use it in proprietary or paid products without permission
+- use this project commercially
+- redistribute or sell the software or derivatives
+- use it in proprietary or paid products without permission
 
 If you would like to use this project commercially, please contact me.
