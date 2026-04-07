@@ -272,6 +272,30 @@ export function PatternSection({
     });
   }
 
+  if (!profiles.length) {
+    return (
+      <Stack spacing={3}>
+        {showHeader && (
+          <Stack spacing={1}>
+            <Typography variant='h5'>{t('patterns')}</Typography>
+            <Typography color='text.secondary'>
+              {t('patternSectionDescription')}
+            </Typography>
+          </Stack>
+        )}
+        <Paper
+          sx={{
+            p: { xs: 0, sm: 2.5 },
+            bgcolor: { xs: 'transparent', sm: 'background.paper' },
+            boxShadow: 'none',
+          }}
+        >
+          <Alert severity='info'>{t('noProfilesAvailable')}</Alert>
+        </Paper>
+      </Stack>
+    );
+  }
+
   return (
     <Stack spacing={3}>
       {showHeader && (
@@ -445,15 +469,6 @@ export function PatternSection({
               </Stack>
             )}
 
-          {!profiles.length && (
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
-            >
-              {t('noProfilesAvailable')}
-            </Typography>
-          )}
           {requiresMovementEase && !selectedMovementEase && selectedPattern && (
             <Typography
               variant='body2'
