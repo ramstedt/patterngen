@@ -30,14 +30,14 @@ const en = {
   footerGithubLink: 'GitHub',
   footerEmailLink: 'Email',
   draftUnits: 'Draft units',
-  startProfilesTitle: 'Set up measurement profiles',
-  startProfilesBody:
-    'Add, edit, and save personal measurements to be used for bespoke pattern calculations.',
-  startPatternsTitle: 'Choose a pattern',
+  startProfilesTitle: 'Create a profile',
+  startProfilesBody: 'Create a profile and enter your body measurements.',
+  startPatternsTitle: 'Generate your pattern',
   startPatternsBody:
-    'Select a saved profile and a pattern. You will receive a preview of what the pattern will look like.',
-  startDraftTitle: 'Download your pattern',
-  startDraftBody: 'Download and print your bespoke pattern!',
+    'Select a saved profile and one of our patterns. You will receive a preview of what the pattern will look like.',
+  startDraftTitle: 'Download your bespoke pattern',
+  startDraftBody:
+    'Once downloaded, print the pattern on regular A4 pages. Tape them together and cut them out. You now have a bespoke base pattern, ready to go!',
   profilePageTitle: 'Profiles',
   profilePageDescription:
     'Create, update, and reuse measurement profiles for pattern calculations.',
@@ -293,8 +293,7 @@ const sv: Record<keyof typeof en, string> = {
   footerEmailLink: 'Mejl',
   draftUnits: 'Ritenheter',
   startProfilesTitle: 'Skapa måttprofiler',
-  startProfilesBody:
-    'Lägg till, redigera och spara dina egna, vänners eller kunders personliga mått.',
+  startProfilesBody: 'Skapa en profil opch lägg till dina mått.',
   startPatternsTitle: 'Välj ett mönster',
   startPatternsBody:
     'Välj en sparad profil och ett mönster. Du får en genererad förhandsvisning av ditt mönster.',

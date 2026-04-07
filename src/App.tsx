@@ -566,16 +566,22 @@ export default function App() {
                       step: '01',
                       title: t('startProfilesTitle'),
                       body: t('startProfilesBody'),
+                      imageSrc: '/guide/step1.png',
+                      imageAlt: t('startProfilesTitle'),
                     },
                     {
                       step: '02',
                       title: t('startPatternsTitle'),
                       body: t('startPatternsBody'),
+                      imageSrc: '/guide/step2.png',
+                      imageAlt: t('startPatternsTitle'),
                     },
                     {
                       step: '03',
                       title: t('startDraftTitle'),
                       body: t('startDraftBody'),
+                      imageSrc: '/guide/step3.png',
+                      imageAlt: t('startDraftTitle'),
                     },
                   ].map((feature) => (
                     <Card
@@ -605,6 +611,21 @@ export default function App() {
                         >
                           {feature.step}
                         </Typography>
+                        {feature.imageSrc ? (
+                          <Box
+                            component='img'
+                            src={feature.imageSrc}
+                            alt={feature.imageAlt}
+                            sx={{
+                              display: 'none',
+                              width: '100%',
+                              maxWidth: 220,
+                              height: 'auto',
+                              mx: 'auto',
+                              mb: 1.25,
+                            }}
+                          />
+                        ) : null}
                         <Typography
                           variant='h6'
                           gutterBottom
