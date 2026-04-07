@@ -10,9 +10,9 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1f3641',
-      dark: '#15262f',
-      light: '#3b5561',
+      main: '#2B4F6A',
+      dark: '#213D52',
+      light: '#4C708B',
       contrastText: '#f7f1e7',
     },
     secondary: {
@@ -105,14 +105,14 @@ const theme = createTheme({
         },
         containedPrimary: {
           '&:hover': {
-            backgroundColor: '#15262f',
+            backgroundColor: '#213D52',
           },
         },
         outlinedPrimary: {
           borderColor: '#D9D9D9',
           '&:hover': {
             borderColor: '#CFCFCF',
-            backgroundColor: 'rgba(31,54,65,0.06)',
+            backgroundColor: 'rgba(43,79,106,0.06)',
           },
         },
       },

@@ -270,7 +270,7 @@ const sv: Record<keyof typeof en, string> = {
   startPageNav: 'Start',
   profilePageNav: 'Profiler',
   patternPageNav: 'Mönster',
-  startPageKicker: 'Arbetsflöde',
+  startPageKicker: 'Enklare mönsterkonstruktion',
   startPageTitle: 'Generera mönster baserat på dina mått.',
   startPageDescription:
     'Använd sparade måttprofiler som grund för mönsterberäkningar och ritningsförhandsvisningar.',

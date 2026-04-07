@@ -421,41 +421,41 @@ export default function App() {
           <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
             {t('language')}
           </Typography>
-          <FormControl fullWidth size='small'>
-            <Select
-              value={lang}
-              aria-label={`${t('language')}: ${getLanguageLabel(lang)}`}
-              onChange={(event) => setLang(event.target.value as 'en' | 'sv')}
-              renderValue={(value) => (
-                <LanguageOptionContent lang={value as 'en' | 'sv'} />
-              )}
-              sx={languagePickerSx}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    mt: 1,
-                    border: '1px solid #D9D9D9',
-                    boxShadow: '0 10px 24px rgba(28,28,28,0.08)',
-                  },
-                },
-              }}
-            >
-              <MenuItem
-                value='en'
-                aria-label='English'
-                sx={{ justifyContent: 'center' }}
-              >
-                <LanguageOptionContent lang='en' />
-              </MenuItem>
-              <MenuItem
-                value='sv'
-                aria-label='Svenska'
-                sx={{ justifyContent: 'center' }}
-              >
-                <LanguageOptionContent lang='sv' />
-              </MenuItem>
-            </Select>
-          </FormControl>
+          <Stack direction='row' spacing={1}>
+            {(['en', 'sv'] as const).map((language) => {
+              const isActive = lang === language;
+
+              return (
+                <Box
+                  key={language}
+                  component='button'
+                  type='button'
+                  aria-label={getLanguageLabel(language)}
+                  aria-pressed={isActive}
+                  onClick={() => setLang(language)}
+                  sx={{
+                    appearance: 'none',
+                    border: isActive ? '1px solid #D9D9D9' : '1px solid transparent',
+                    bgcolor: 'transparent',
+                    px: 1,
+                    py: 0.75,
+                    minWidth: 52,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: 'none',
+                    transition: 'border-color 120ms ease, background-color 120ms ease',
+                    '&:hover': {
+                      bgcolor: alpha('#FFFFFF', 0.45),
+                    },
+                  }}
+                >
+                  <LanguageOptionContent lang={language} />
+                </Box>
+              );
+            })}
+          </Stack>
         </Box>
       </Drawer>
 
