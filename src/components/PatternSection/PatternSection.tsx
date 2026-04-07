@@ -54,9 +54,9 @@ export function PatternSection({
   const { t } = useI18n();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedProfileId, setSelectedProfileId] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<PatternCategory | ''>(
-    '',
-  );
+  const [selectedCategory, setSelectedCategory] = useState<
+    PatternCategory | ''
+  >('');
   const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>(
     '',
   );
@@ -131,7 +131,12 @@ export function PatternSection({
 
   const calculations = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return [];
-    return calculatePattern(submittedPattern, submittedProfile, t, submittedSettings);
+    return calculatePattern(
+      submittedPattern,
+      submittedProfile,
+      t,
+      submittedSettings,
+    );
   }, [submittedPattern, submittedProfile, submittedSettings, t]);
 
   const calculationsBySection = useMemo(() => {
@@ -163,7 +168,12 @@ export function PatternSection({
 
   const draft = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return null;
-    return buildPatternDraft(submittedPattern, submittedProfile, t, submittedSettings);
+    return buildPatternDraft(
+      submittedPattern,
+      submittedProfile,
+      t,
+      submittedSettings,
+    );
   }, [submittedPattern, submittedProfile, submittedSettings, t]);
   const submittedPatternPrintConfig = useMemo(
     () =>
@@ -194,11 +204,15 @@ export function PatternSection({
     [submittedPatternDefinition, submittedProfile],
   );
   const hasMissingRequiredMeasurements = useMemo(
-    () => requiredMeasurementStatus.some((measurement) => measurement.value === 0),
+    () =>
+      requiredMeasurementStatus.some((measurement) => measurement.value === 0),
     [requiredMeasurementStatus],
   );
   const missingRequiredMeasurements = useMemo(
-    () => requiredMeasurementStatus.filter((measurement) => measurement.value === 0),
+    () =>
+      requiredMeasurementStatus.filter(
+        (measurement) => measurement.value === 0,
+      ),
     [requiredMeasurementStatus],
   );
 
@@ -210,10 +224,10 @@ export function PatternSection({
     () =>
       Boolean(
         selectedProfile &&
-          selectedPatternDefinition &&
-          !selectedPatternDefinition.supportedProfileTypes.includes(
-            selectedProfile.profileType,
-          ),
+        selectedPatternDefinition &&
+        !selectedPatternDefinition.supportedProfileTypes.includes(
+          selectedProfile.profileType,
+        ),
       ),
     [selectedPatternDefinition, selectedProfile],
   );
@@ -287,7 +301,11 @@ export function PatternSection({
         >
           <Stack spacing={1}>
             <Box
-              sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+              sx={{
+                minHeight: STEP_LABEL_MIN_HEIGHT,
+                display: 'flex',
+                alignItems: 'center',
+              }}
             >
               <Typography variant='body2' color='text.secondary'>
                 1. {t('selectPatternCategory')}
@@ -318,7 +336,11 @@ export function PatternSection({
           {selectedCategory && (
             <Stack spacing={1}>
               <Box
-                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+                sx={{
+                  minHeight: STEP_LABEL_MIN_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
                 <Typography variant='body2' color='text.secondary'>
                   2. {t('selectPattern')}
@@ -352,7 +374,11 @@ export function PatternSection({
           {selectedPattern && requiresMovementEase && (
             <Stack spacing={1}>
               <Box
-                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+                sx={{
+                  minHeight: STEP_LABEL_MIN_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
                 <Stack direction='row' spacing={0.5} alignItems='center'>
                   <Typography variant='body2' color='text.secondary'>
@@ -388,31 +414,36 @@ export function PatternSection({
             </Stack>
           )}
 
-          {selectedPattern && (!requiresMovementEase || selectedMovementEase) && (
-            <Stack spacing={1}>
-              <Box
-                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
-              >
-                <Typography variant='body2' color='text.secondary'>
-                  {requiresMovementEase ? '4.' : '3.'} {t('selectProfile')}
-                </Typography>
-              </Box>
-              <TextField
-                select
-                label={t('selectProfile')}
-                value={selectedProfileId}
-                onChange={(event) => setSelectedProfileId(event.target.value)}
-                size='small'
-              >
-                <MenuItem value=''>{t('selectProfile')}</MenuItem>
-                {profiles.map((profile) => (
-                  <MenuItem key={profile.id} value={profile.id}>
-                    {profile.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Stack>
-          )}
+          {selectedPattern &&
+            (!requiresMovementEase || selectedMovementEase) && (
+              <Stack spacing={1}>
+                <Box
+                  sx={{
+                    minHeight: STEP_LABEL_MIN_HEIGHT,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='body2' color='text.secondary'>
+                    {requiresMovementEase ? '4.' : '3.'} {t('selectProfile')}
+                  </Typography>
+                </Box>
+                <TextField
+                  select
+                  label={t('selectProfile')}
+                  value={selectedProfileId}
+                  onChange={(event) => setSelectedProfileId(event.target.value)}
+                  size='small'
+                >
+                  <MenuItem value=''>{t('selectProfile')}</MenuItem>
+                  {profiles.map((profile) => (
+                    <MenuItem key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Stack>
+            )}
 
           {!profiles.length && (
             <Typography
@@ -442,7 +473,11 @@ export function PatternSection({
               }}
             >
               <Box
-                sx={{ minHeight: STEP_LABEL_MIN_HEIGHT, display: 'flex', alignItems: 'center' }}
+                sx={{
+                  minHeight: STEP_LABEL_MIN_HEIGHT,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
                 <Typography variant='body2' color='text.secondary'>
                   {requiresMovementEase ? '5.' : '4.'} {t('calculatePattern')}
@@ -473,9 +508,7 @@ export function PatternSection({
         <DialogTitle>{t('movementEase')}</DialogTitle>
         <DialogContent>
           <Stack spacing={1}>
-            <Typography variant='body2'>
-              {t('movementEaseIntro')}
-            </Typography>
+            <Typography variant='body2'>{t('movementEaseIntro')}</Typography>
             <Typography variant='body2'>
               {t('movementEaseHelperShirt')}
             </Typography>
@@ -499,7 +532,7 @@ export function PatternSection({
           sx={{
             p: { xs: 0, sm: 2.5 },
             border: { xs: 0, sm: 1 },
-            borderColor: 'divider',
+            borderColor: '#D9D9D9',
             bgcolor: { xs: 'transparent', sm: 'background.paper' },
             boxShadow: 'none',
           }}
@@ -523,7 +556,8 @@ export function PatternSection({
                   </Typography>
                   {missingRequiredMeasurements.map((measurement) => (
                     <Typography key={measurement.key} variant='body2'>
-                      {t(measurement.key as TranslationKey)}: {formatMeasurement(measurement.value)} cm
+                      {t(measurement.key as TranslationKey)}:{' '}
+                      {formatMeasurement(measurement.value)} cm
                     </Typography>
                   ))}
                 </Stack>
@@ -534,7 +568,7 @@ export function PatternSection({
 
             {draft && submittedPatternPrintConfig?.enabled && (
               <Stack spacing={1} alignItems='flex-start'>
-                <Button variant='outlined' onClick={onDownloadPdf}>
+                <Button variant='contained' onClick={onDownloadPdf}>
                   {t('downloadPdf')}
                 </Button>
                 <Typography variant='body2' color='text.secondary'>
@@ -546,7 +580,11 @@ export function PatternSection({
             {calculationsBySection.map(([section, sectionCalculations]) => (
               <Box key={section}>
                 <Typography variant='h6' sx={{ mb: 1.5 }}>
-                  {t(section as TranslationKey)}
+                  {t(
+                    (section === 'basicMeasurements'
+                      ? 'calculationBreakdown'
+                      : section) as TranslationKey,
+                  )}
                 </Typography>
 
                 {section === 'dartWidth' && showLargeDifferenceDartHelp && (
@@ -590,7 +628,10 @@ export function PatternSection({
                               <Typography
                                 variant='body2'
                                 color='text.secondary'
-                                sx={{ fontSize: '0.8rem', fontFamily: 'monospace' }}
+                                sx={{
+                                  fontSize: '0.8rem',
+                                  fontFamily: 'monospace',
+                                }}
                               >
                                 {calculation.description}
                               </Typography>

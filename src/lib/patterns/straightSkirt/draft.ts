@@ -1014,64 +1014,7 @@ export function buildStraightSkirtDraft(
         y: grainlineBottomY - arrowSizeMm,
       },
     ],
-    markers: [
-      {
-        id: 'rightWaistReferenceMarker',
-        pointId: 'rightWaistReference',
-        radius: 2.8,
-        fill: '#d32f2f',
-      },
-      {
-        id: 'backDartLeftMarker',
-        pointId: 'backDartWidthLeft',
-        radius: 2.8,
-        fill: '#d32f2f',
-      },
-      ...(hasSecondaryDarts
-        ? [
-            {
-              id: 'halfDistanceWaistLineMarker',
-              pointId: 'halfDistanceWaistLinePoint',
-              radius: 2.8,
-              fill: '#d32f2f',
-            },
-            {
-              id: 'halfDistanceLeftWaistMarker',
-              pointId: 'halfDistanceLeftWaistPoint',
-              radius: 2.8,
-              fill: '#d32f2f',
-            },
-            {
-              id: 'halfDistanceRightWaistMarker',
-              pointId: 'halfDistanceRightWaistPoint',
-              radius: 2.8,
-              fill: '#d32f2f',
-            },
-          ]
-        : []),
-      {
-        id: 'frontDartRightMarker',
-        pointId: 'frontDartTop',
-        radius: 2.8,
-        fill: '#d32f2f',
-      },
-      ...(hasSecondaryDarts
-        ? [
-            {
-              id: 'extraFrontDartRightMarker',
-              pointId: 'extraFrontDartRightPoint',
-              radius: 2.8,
-              fill: '#d32f2f',
-            },
-            {
-              id: 'secondExtraFrontDartRightMarker',
-              pointId: 'secondExtraFrontDartRightPoint',
-              radius: 2.8,
-              fill: '#d32f2f',
-            },
-          ]
-        : []),
-    ],
+    markers: [],
     lines: [
       {
         id: 'grundlineHiddenTop',

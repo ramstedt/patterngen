@@ -1,6 +1,6 @@
-# PatternGen
+# Sewmetry
 
-**PatternGen** is a web-based tool for generating sewing patterns from body measurements.
+**Sewmetry** is a web-based tool for generating sewing patterns from body measurements.
 The current focus is measurement-driven drafting built from explicit geometry rather than visual approximation.
 
 ## Current Status

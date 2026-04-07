@@ -81,7 +81,7 @@ type ProfileTypeFormValue = ProfileType | '';
 
 const FIELDS = MEASUREMENT_FIELDS;
 const WOMEN_ONLY_FIELDS: (keyof Measurements)[] = ['bustPoint', 'bustHeight'];
-const MEN_ONLY_FIELDS: (keyof Measurements)[] = ['chestWidth', 'crotchDepth'];
+const MEN_ONLY_FIELDS: (keyof Measurements)[] = ['chestWidth'];
 const MEN_HIDDEN_FIELDS: (keyof Measurements)[] = ['hipDepth', 'hipHeight'];
 const WOMEN_SIZES: StandardSize[] = [
   'C30',
@@ -446,7 +446,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
       <Stack spacing={3}>
         {!canEdit && hasProfiles && (
-          <Paper variant='outlined' sx={{ p: 2, borderColor: 'divider' }}>
+          <Paper
+            variant='outlined'
+            sx={{ p: 2, borderColor: '#D9D9D9', bgcolor: 'background.paper' }}
+          >
             <Stack spacing={2}>
               <TextField
                 select
@@ -483,7 +486,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
             component='form'
             variant='outlined'
             onSubmit={form.handleSubmit(onSave)}
-            sx={{ p: { xs: 2, sm: 2.5 } }}
+            sx={{ p: { xs: 2, sm: 2.5 }, borderColor: '#D9D9D9', bgcolor: 'background.paper' }}
           >
             <Stack spacing={2.5}>
               {(mode === 'new' || (mode === 'edit' && isDirty)) && (
@@ -504,8 +507,8 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                 <Stack
                   spacing={1.25}
                   alignItems='stretch'
-                  justifyContent='space-between'
-                  sx={{ minHeight: { xs: 'auto', lg: 165 } }}
+                  justifyContent='flex-start'
+                  sx={{ minHeight: mode === 'new' ? 'auto' : { xs: 'auto', lg: 165 } }}
                 >
                   <Stack spacing={0.5}>
                     <Typography variant='subtitle1'>{t('profileName')}</Typography>
@@ -531,8 +534,8 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                 <Stack
                   spacing={1.25}
                   alignItems='stretch'
-                  justifyContent='space-between'
-                  sx={{ minHeight: { xs: 'auto', lg: 165 } }}
+                  justifyContent='flex-start'
+                  sx={{ minHeight: mode === 'new' ? 'auto' : { xs: 'auto', lg: 165 } }}
                 >
                   <Stack spacing={0.5}>
                     <Typography variant='subtitle1'>{t('profileType')}</Typography>
@@ -559,8 +562,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                     elevation={0}
                     square
                     sx={{
+                      width: { xs: '100%', sm: 'auto' },
+                      maxWidth: 280,
                       border: 1,
-                      borderColor: 'divider',
+                      borderColor: '#D9D9D9',
+                      bgcolor: 'background.paper',
                       minHeight: 84,
                       '&::before': { display: 'none' },
                     }}
@@ -636,11 +642,35 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                     </AccordionDetails>
                   </Accordion>
                 )}
+
+                {showMeasurementInputs && (
+                  <Box
+                    sx={{
+                      display: { xs: 'none', md: 'flex' },
+                      alignItems: 'flex-start',
+                      justifyContent: 'flex-start',
+                      maxWidth: 360,
+                    }}
+                  >
+                    <Typography
+                      variant='body2'
+                      color='text.secondary'
+                      sx={{ lineHeight: 1.7 }}
+                    >
+                      {t('measurementRoundingHelp')}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
 
               {showMeasurementInputs && (
                 <>
-                  <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
+                  <Box
+                    sx={{
+                      display: { xs: 'flex', md: 'none' },
+                      justifyContent: { xs: 'flex-start', sm: 'flex-end' },
+                    }}
+                  >
                     <Typography
                       variant='body2'
                       color='text.secondary'
@@ -682,7 +712,20 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
               <Divider />
 
-              <Stack spacing={1.5}>
+              <Stack
+                spacing={1.5}
+                sx={{
+                  position: { xs: 'sticky', sm: 'static' },
+                  bottom: { xs: 0, sm: 'auto' },
+                  zIndex: { xs: 2, sm: 'auto' },
+                  bgcolor: 'background.paper',
+                  borderTop: { xs: '1px solid #D9D9D9', sm: 'none' },
+                  px: { xs: 2, sm: 0 },
+                  py: { xs: 1.5, sm: 0 },
+                  mx: { xs: -2, sm: 0 },
+                  mb: { xs: -2, sm: 0 },
+                }}
+              >
                 <Stack
                   direction={{ xs: 'column', sm: 'row' }}
                   spacing={1}
@@ -723,7 +766,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
             </Stack>
           </Paper>
         ) : !hasProfiles ? (
-          <Paper variant='outlined' sx={{ p: { xs: 2.5, sm: 3 }, borderColor: 'divider' }}>
+          <Paper
+            variant='outlined'
+            sx={{ p: { xs: 2.5, sm: 3 }, borderColor: '#D9D9D9', bgcolor: 'background.paper' }}
+          >
             <Stack spacing={1} alignItems='flex-start'>
               <Typography variant='h6'>{t('noProfilesTitle')}</Typography>
               <Typography color='text.secondary'>
@@ -735,7 +781,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
             </Stack>
           </Paper>
         ) : (
-          <Paper variant='outlined' sx={{ p: 2.5, borderColor: 'divider' }}>
+          <Paper
+            variant='outlined'
+            sx={{ p: 2.5, borderColor: '#D9D9D9', bgcolor: 'background.paper' }}
+          >
             {!active ? (
               <Typography color='text.secondary'>
                 {t('noProfileSelected')}

@@ -1,11 +1,4 @@
-import {
-  Suspense,
-  lazy,
-  useEffect,
-  useMemo,
-  useState,
-  type SyntheticEvent,
-} from 'react';
+import { Suspense, lazy, useMemo, useState, type SyntheticEvent } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -32,10 +25,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { alpha } from '@mui/material/styles';
 import { patchNotes } from '../i18n/translations';
 import { useI18n } from '../i18n/useI18n';
+import { SewmetryLogo } from './components/Brand/SewmetryLogo';
 import { Footer } from './components/Footer/Footer';
-import { PATTERN_OPTIONS } from './lib/patterns';
-import { loadProfiles, subscribeProfiles } from './storage/profiles';
-import type { Profile } from './types/measurements';
 
 const ProfileManagerPage = lazy(() =>
   import('./components/ProfileManager/ProfileManager').then((module) => ({
@@ -63,25 +54,7 @@ export default function App() {
   const { lang, setLang, t } = useI18n();
   const localizedPatchNotes = patchNotes[lang];
   const [currentPage, setCurrentPage] = useState<AppPage>('start');
-  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const syncProfiles = () => {
-      setProfiles(loadProfiles());
-    };
-
-    syncProfiles();
-    return subscribeProfiles(syncProfiles);
-  }, []);
-
-  const stats = useMemo(
-    () => [
-      { value: profiles.length, label: t('savedProfiles') },
-      { value: PATTERN_OPTIONS.length, label: t('availablePatterns') },
-    ],
-    [profiles.length, t],
-  );
 
   const pageLinks = useMemo(
     () => [
@@ -128,7 +101,7 @@ export default function App() {
         position='sticky'
         color='transparent'
         sx={{
-          bgcolor: alpha('#f7f1e7', 0.9),
+          bgcolor: alpha('#FCFCFC', 0.9),
           backdropFilter: 'blur(10px)',
           borderBottom: 1,
           borderColor: 'divider',
@@ -167,34 +140,49 @@ export default function App() {
             >
               <Box
                 sx={{
-                  width: { xs: 34, md: 42 },
-                  height: { xs: 34, md: 42 },
-                  border: 2,
-                  borderColor: 'primary.main',
-                  display: 'grid',
-                  placeItems: 'center',
-                  typography: { xs: 'body2', md: 'subtitle1' },
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  bgcolor: alpha('#ffffff', 0.72),
+                  width: { xs: 40, md: 52 },
+                  height: { xs: 40, md: 52 },
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
                 }}
               >
-                PG
+                <SewmetryLogo
+                  role='img'
+                  aria-label={t('appName')}
+                  backFill='#727787'
+                  bodyFill='#bdc5e0'
+                  accentFill='#a6a4a4'
+                  lineColor='#120309'
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
               </Box>
               <Box>
                 <Typography
-                  variant='overline'
-                  color='secondary.main'
-                  sx={{ display: { xs: 'none', sm: 'block' }, lineHeight: 1.2 }}
-                >
-                  {t('appTagline')}
-                </Typography>
-                <Typography
                   variant='h6'
                   component='div'
-                  sx={{ fontSize: { xs: '1rem', md: '1.25rem' }, lineHeight: 1.2 }}
+                  sx={{
+                    fontSize: { xs: '1rem', md: '1.25rem' },
+                    lineHeight: 1.2,
+                  }}
                 >
                   {t('appName')}
+                </Typography>
+                <Typography
+                  variant='overline'
+                  color='secondary.main'
+                  sx={{
+                    display: 'block',
+                    lineHeight: 1.2,
+                    fontSize: { xs: '0.58rem', sm: '0.72rem' },
+                    letterSpacing: { xs: '0.12em', sm: '0.18em' },
+                  }}
+                >
+                  {t('appTagline')}
                 </Typography>
               </Box>
             </Stack>
@@ -244,7 +232,9 @@ export default function App() {
                 <FormControl size='small' sx={{ minWidth: 110 }}>
                   <Select
                     value={lang}
-                    onChange={(event) => setLang(event.target.value as 'en' | 'sv')}
+                    onChange={(event) =>
+                      setLang(event.target.value as 'en' | 'sv')
+                    }
                     renderValue={(value) =>
                       `${t('language')}: ${value === 'en' ? 'English' : 'Svenska'}`
                     }
@@ -286,11 +276,7 @@ export default function App() {
         <Divider />
 
         <Box sx={{ p: 2 }}>
-          <Typography
-            variant='body2'
-            color='text.secondary'
-            sx={{ mb: 1 }}
-          >
+          <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
             {t('language')}
           </Typography>
           <FormControl fullWidth size='small'>
@@ -308,7 +294,10 @@ export default function App() {
         </Box>
       </Drawer>
 
-      <Container maxWidth='lg' sx={{ py: 4, flexGrow: 1 }}>
+      <Container
+        maxWidth='lg'
+        sx={{ py: 4, px: { xs: 0, sm: 3 }, flexGrow: 1 }}
+      >
         {currentPage === 'start' && (
           <Stack spacing={3}>
             <Paper
@@ -316,7 +305,7 @@ export default function App() {
               sx={{
                 p: { xs: 3, md: 5 },
                 borderColor: 'divider',
-                backgroundColor: alpha('#fbf8f2', 0.94),
+                backgroundColor: alpha('#FCFCFC', 0.94),
               }}
             >
               <Box
@@ -334,7 +323,21 @@ export default function App() {
                     <Typography variant='overline' color='secondary.main'>
                       {t('startPageKicker')}
                     </Typography>
-                    <Typography variant='h1' sx={{ mt: 1, maxWidth: '10ch' }}>
+                    <Typography
+                      variant='h1'
+                      sx={{
+                        mt: 1,
+                        maxWidth: { xs: '12ch', sm: '10ch' },
+                        fontSize: {
+                          xs: 'clamp(1.85rem, 8.2vw, 2.5rem)',
+                          sm: 'clamp(3rem, 7vw, 5.4rem)',
+                        },
+                        lineHeight: { xs: 1.02, sm: 0.98 },
+                        textWrap: 'balance',
+                        wordBreak: 'normal',
+                        overflowWrap: 'normal',
+                      }}
+                    >
                       {t('startPageTitle')}
                     </Typography>
                     <Typography
@@ -365,12 +368,33 @@ export default function App() {
                   sx={{
                     display: 'grid',
                     gap: 1.5,
-                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)', md: '1fr' },
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      sm: 'repeat(3, 1fr)',
+                      md: '1fr',
+                    },
+                    alignContent: 'start',
                   }}
                 >
-                  {stats.map((stat) => (
+                  {[
+                    {
+                      step: '01',
+                      title: t('startProfilesTitle'),
+                      body: t('startProfilesBody'),
+                    },
+                    {
+                      step: '02',
+                      title: t('startPatternsTitle'),
+                      body: t('startPatternsBody'),
+                    },
+                    {
+                      step: '03',
+                      title: t('startDraftTitle'),
+                      body: t('startDraftBody'),
+                    },
+                  ].map((feature) => (
                     <Card
-                      key={stat.label}
+                      key={feature.title}
                       variant='outlined'
                       sx={{
                         bgcolor: alpha('#ffffff', 0.72),
@@ -379,24 +403,41 @@ export default function App() {
                     >
                       <CardContent
                         sx={{
-                          p: 2.5,
-                          textAlign: 'center',
+                          p: { xs: 2, sm: 2.5 },
+                          textAlign: { xs: 'center', md: 'left' },
                           display: 'flex',
                           flexDirection: 'column',
-                          alignItems: 'center',
+                          alignItems: { xs: 'center', md: 'flex-start' },
                           justifyContent: 'center',
-                          minHeight: 140,
+                          minHeight: { xs: 'auto', sm: 180, md: 140 },
                           height: '100%',
                         }}
                       >
                         <Typography
-                          variant='h4'
-                          sx={{ color: 'primary.main', mb: 0.5 }}
+                          variant='overline'
+                          color='secondary.main'
+                          sx={{ display: 'block', mb: 0.75 }}
                         >
-                          {stat.value}
+                          {feature.step}
                         </Typography>
-                        <Typography color='text.secondary'>
-                          {stat.label}
+                        <Typography
+                          variant='h6'
+                          gutterBottom
+                          sx={{
+                            fontSize: { xs: '0.92rem', sm: '1.15rem' },
+                            lineHeight: 1.15,
+                            textWrap: 'balance',
+                            overflowWrap: 'anywhere',
+                            hyphens: 'auto',
+                          }}
+                        >
+                          {feature.title}
+                        </Typography>
+                        <Typography
+                          color='text.secondary'
+                          sx={{ lineHeight: 1.8 }}
+                        >
+                          {feature.body}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -405,71 +446,12 @@ export default function App() {
               </Box>
             </Paper>
 
-            <Box
-              sx={{
-                display: 'grid',
-                gap: 2,
-                gridTemplateColumns: {
-                  xs: '1fr',
-                  md: 'repeat(3, minmax(0, 1fr))',
-                },
-              }}
-            >
-              {[
-                {
-                  step: '01',
-                  title: t('startProfilesTitle'),
-                  body: t('startProfilesBody'),
-                },
-                {
-                  step: '02',
-                  title: t('startPatternsTitle'),
-                  body: t('startPatternsBody'),
-                },
-                {
-                  step: '03',
-                  title: t('startDraftTitle'),
-                  body: t('startDraftBody'),
-                },
-              ].map((feature) => (
-                <Card
-                  key={feature.title}
-                  variant='outlined'
-                  sx={{ bgcolor: alpha('#fbf8f2', 0.88) }}
-                >
-                  <CardContent
-                    sx={{
-                      p: 2.5,
-                      textAlign: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Typography
-                      variant='overline'
-                      color='secondary.main'
-                      sx={{ display: 'block', mb: 0.75 }}
-                    >
-                      {feature.step}
-                    </Typography>
-                    <Typography variant='h6' gutterBottom>
-                      {feature.title}
-                    </Typography>
-                    <Typography color='text.secondary' sx={{ lineHeight: 1.8 }}>
-                      {feature.body}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-
             <Paper
               variant='outlined'
               sx={{
                 p: { xs: 3, md: 4 },
                 borderColor: 'divider',
-                backgroundColor: alpha('#fbf8f2', 0.94),
+                backgroundColor: alpha('#FCFCFC', 0.94),
               }}
             >
               <Box
@@ -530,16 +512,27 @@ export default function App() {
                     <Box component='summary'>{t('olderPatchNotesSummary')}</Box>
                     <Stack spacing={2} sx={{ mt: 2 }}>
                       {localizedPatchNotes.previous.map((entry) => (
-                        <Stack key={`${entry.version}-${entry.dateLabel}`} spacing={2}>
+                        <Stack
+                          key={`${entry.version}-${entry.dateLabel}`}
+                          spacing={2}
+                        >
                           <Stack
                             direction={{ xs: 'column', sm: 'row' }}
                             spacing={{ xs: 0.5, sm: 2 }}
                           >
-                            <Typography variant='body2'>{entry.version}</Typography>
-                            <Typography variant='body2'>{entry.dateLabel}</Typography>
+                            <Typography variant='body2'>
+                              {entry.version}
+                            </Typography>
+                            <Typography variant='body2'>
+                              {entry.dateLabel}
+                            </Typography>
                           </Stack>
 
-                          <Stack component='ul' spacing={1.25} sx={{ m: 0, pl: 2.5 }}>
+                          <Stack
+                            component='ul'
+                            spacing={1.25}
+                            sx={{ m: 0, pl: 2.5 }}
+                          >
                             {entry.items.map((item) => (
                               <Typography
                                 key={item}
@@ -568,32 +561,42 @@ export default function App() {
                 variant='outlined'
                 sx={{
                   p: { xs: 0, md: 3 },
-                  bgcolor: { xs: 'transparent', md: 'background.paper' },
-                  border: { xs: 0, md: 1 },
-                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                  border: 1,
+                  borderColor: '#D9D9D9',
                   boxShadow: 'none',
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                  <Box sx={{ width: '100%', maxWidth: 768 }}>
-                  <Stack spacing={2.5}>
-                    <Box>
-                      <Typography variant='overline' color='secondary.main'>
-                        {t('profilePageNav')}
-                      </Typography>
-                      <Typography variant='h6' sx={{ mt: 0.75 }}>
-                        {t('startProfilesTitle')}
-                      </Typography>
-                      <Typography color='text.secondary' sx={{ mt: 1, lineHeight: 1.8 }}>
-                        {t('startProfilesBody')}
-                      </Typography>
-                    </Box>
-
-                    <Suspense fallback={<PageLoader />}>
-                      <ProfileManagerPage showHeader={false} />
-                    </Suspense>
-                  </Stack>
+                <Box
+                  sx={{
+                    px: { xs: 2, sm: 0 },
+                    display: 'grid',
+                    gap: { xs: 2.5, md: 4 },
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      md: 'minmax(220px, 320px) minmax(0, 1fr)',
+                    },
+                    alignItems: 'start',
+                  }}
+                >
+                  <Box>
+                    <Typography variant='overline' color='secondary.main'>
+                      {t('profilePageNav')}
+                    </Typography>
+                    <Typography variant='h6' sx={{ mt: 0.75 }}>
+                      {t('startProfilesTitle')}
+                    </Typography>
+                    <Typography
+                      color='text.secondary'
+                      sx={{ mt: 1, lineHeight: 1.8 }}
+                    >
+                      {t('startProfilesBody')}
+                    </Typography>
                   </Box>
+
+                  <Suspense fallback={<PageLoader />}>
+                    <ProfileManagerPage showHeader={false} />
+                  </Suspense>
                 </Box>
               </Paper>
             ) : (
@@ -601,13 +604,13 @@ export default function App() {
                 variant='outlined'
                 sx={{
                   p: { xs: 0, md: 3 },
-                  bgcolor: { xs: 'transparent', md: 'background.paper' },
-                  border: { xs: 0, md: 1 },
-                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                  border: 1,
+                  borderColor: '#D9D9D9',
                   boxShadow: 'none',
                 }}
               >
-                <Stack spacing={2.5}>
+                <Stack spacing={2.5} sx={{ px: { xs: 2, sm: 0 } }}>
                   <Box>
                     <Typography variant='overline' color='secondary.main'>
                       {t('patternPageNav')}
@@ -615,7 +618,10 @@ export default function App() {
                     <Typography variant='h6' sx={{ mt: 0.75 }}>
                       {t('startPatternsTitle')}
                     </Typography>
-                    <Typography color='text.secondary' sx={{ mt: 1, lineHeight: 1.8 }}>
+                    <Typography
+                      color='text.secondary'
+                      sx={{ mt: 1, lineHeight: 1.8 }}
+                    >
                       {t('startPatternsBody')}
                     </Typography>
                   </Box>

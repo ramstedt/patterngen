@@ -1,5 +1,5 @@
 const en = {
-  appName: 'PatternGen',
+  appName: 'Sewmetry',
   measurements: 'Measurements',
   generate: 'Generate pattern',
   language: 'Language',
@@ -8,7 +8,7 @@ const en = {
   startPageNav: 'Start',
   profilePageNav: 'Profiles',
   patternPageNav: 'Patterns',
-  startPageKicker: 'Workflow',
+  startPageKicker: 'Pattern making made simple',
   startPageTitle: 'Generate patterns based on your measurements.',
   startPageDescription:
     'Use saved measurement profiles as the basis for pattern calculations and draft previews.',
@@ -20,7 +20,7 @@ const en = {
   patchNotesTitle: 'Patch notes',
   olderPatchNotesSummary: 'Older patch notes',
   footerKicker: 'Project information',
-  footerTitle: 'PatternGen',
+  footerTitle: 'Sewmetry',
   footerBody:
     'Thoughtfully crafted by Emma Ramstedt as a hobby project exploring measurement-based pattern drafting.',
   footerLicenseLabel: 'License',
@@ -57,12 +57,11 @@ const en = {
   saveProfile: 'Save profile',
   calculatePattern: 'Calculate pattern',
   downloadPdf: 'Download PDF',
-  downloadA4PdfDescription:
-    'Download a tiled A4 PDF at 100% scale with alignment borders and a 4 x 4 cm test square on page 1.',
+  downloadA4PdfDescription: 'Download a tiled A4 PDF at 1:1 scale.',
   pdfTestSquareLabel: 'test square 4 x 4 cm',
   pdfTestSquareLabel4x4: 'test square 4 x 4 cm',
   pdfPrintingInstructionsTitle: 'Printing instructions',
-  pdfPrintingInstructionScale: 'Print at actual size or 100% scale.',
+  pdfPrintingInstructionScale: 'Print at actual size or 1:1 scale.',
   pdfPrintingInstructionMeasure:
     'Measure the test square on page 1 before cutting.',
   pdfPrintingInstructionAssemble:
@@ -114,7 +113,8 @@ const en = {
   movementEaseIntro:
     'Movement ease is the extra width added to the body measurements so the garment has room to move and match the intended garment type.',
   selectMovementEase: 'Select movement ease',
-  movementEaseRequired: 'Select a movement ease before calculating this bodice.',
+  movementEaseRequired:
+    'Select a movement ease before calculating this bodice.',
   movementEaseHelperShirt: '8-16 cm suits a shirt.',
   movementEaseHelperSummerJacket: '18-26 cm suits a summer jacket.',
   movementEaseHelperWinterJacket: '28-36 cm suits a winter jacket.',
@@ -125,6 +125,7 @@ const en = {
   patternInPreparation: 'Pattern in preparation',
   skirtLength: 'Skirt length',
   basicMeasurements: 'Basic measurements',
+  calculationBreakdown: 'Calculation breakdown',
   controlMeasurements: 'Control measurements',
   fixedMeasurements: 'Fixed measurements',
   dartPlacement: 'Dart placement',
@@ -175,18 +176,23 @@ const en = {
   hipDepthExplanation: 'Vertical distance from the hip to the seat.',
   skirtLengthExplanation: 'Skirt length measured to the knee.',
   backDartPlacementExplanation: 'Distance from center back to the back dart.',
-  frontDartPlacementExplanation: 'Distance from the side seam to the front dart.',
+  frontDartPlacementExplanation:
+    'Distance from the side seam to the front dart.',
   frontDartWidthExplanation: 'Amount taken in at the front dart.',
-  frontDartWidthSecondaryExplanation: 'Amount taken in at the second front dart.',
+  frontDartWidthSecondaryExplanation:
+    'Amount taken in at the second front dart.',
   backDartWidthExplanation: 'Amount taken in at the back dart.',
   backDartWidthSecondaryExplanation: 'Amount taken in at the second back dart.',
-  backHipLineDartWidthHalfExplanation: 'Small shaping dart at the hip line on the back, per half.',
+  backHipLineDartWidthHalfExplanation:
+    'Small shaping dart at the hip line on the back, per half.',
   sideLineWaistExplanation: 'How much the side seam tapers in at the waist.',
   sideLineHipExplanation: 'How much the side seam tapers in at the high hip.',
-  controlMeasurementsHelp: 'Used to check that the neckline has been shaped into a good curve.',
-  fixedMeasurementsHelp: 'The following values are the same for every movement-ease option.',
+  controlMeasurementsHelp:
+    'Used to check that the neckline has been shaped into a good curve.',
+  fixedMeasurementsHelp:
+    'The following values are the same for every movement-ease option.',
   backWaistLengthBodiceExplanation:
-    'Use the back waist length directly from the measurement chart.',
+    'The back waist length is taken from the profile.',
   armholeDepthBodiceExplanation:
     'Armhole depth from the armhole-depth table for the measured bust, plus movement ease.',
   halfBustWithEaseExplanation:
@@ -199,8 +205,7 @@ const en = {
     'Neck width based on neck measurement with ease divided by five, minus 1 cm.',
   neckDepthExplanation:
     'Neck depth based on neck measurement with ease divided by five, plus 0.5 cm.',
-  backNecklineCheckExplanation:
-    'Control value for the back neckline curve.',
+  backNecklineCheckExplanation: 'Control value for the back neckline curve.',
   frontNecklineCheckExplanation:
     'Control value for the front neckline curve after subtracting the back neckline check.',
   backInnerShoulderRiseExplanation:
@@ -218,7 +223,7 @@ const en = {
   backArmholeWidthExplanation:
     'Back share of the armhole width after subtracting the front share.',
   bodiceShoulderExtensionAdjustment:
-    'The shoulder had to be extended by {value} cm beyond the calculated shoulder width so point 16 reaches at least 1 cm past point 15. Shorten the sleeve by the same amount.',
+    'The shoulder had to be extended by {value} cm beyond the calculated shoulder width. Shorten the sleeve by the same amount.',
   bodiceLowCapSleeveRecommendation:
     'A low sleeve cap is recommended for these measurements.',
 
@@ -256,7 +261,7 @@ const en = {
 } as const;
 
 const sv: Record<keyof typeof en, string> = {
-  appName: 'PatternGen',
+  appName: 'Sewmetry',
   measurements: 'Mått',
   generate: 'Generera mönster',
   language: 'Språk',
@@ -277,7 +282,7 @@ const sv: Record<keyof typeof en, string> = {
   patchNotesTitle: 'Patch notes',
   olderPatchNotesSummary: 'Äldre patch notes',
   footerKicker: 'Projektinformation',
-  footerTitle: 'PatternGen',
+  footerTitle: 'Sewmetry',
   footerBody:
     'Omsorgsfullt utvecklat av Emma Ramstedt som ett hobbyprojekt för att utforska måttbaserad mönsterkonstruktion.',
   footerLicenseLabel: 'Licens',
@@ -314,18 +319,16 @@ const sv: Record<keyof typeof en, string> = {
   saveProfile: 'Spara profil',
   calculatePattern: 'Beräkna mönster',
   downloadPdf: 'Ladda ner PDF',
-  downloadA4PdfDescription:
-    'Ladda ner en uppdelad A4-PDF i 100 % skala med passmärken och en testkvadrat på 4 x 4 cm på första sidan.',
+  downloadA4PdfDescription: 'Ladda ner en uppdelad A4-PDF i 1:1 skala.',
   pdfTestSquareLabel: 'testkvadrat 4 x 4 cm',
   pdfTestSquareLabel4x4: 'testkvadrat 4 x 4 cm',
   pdfPrintingInstructionsTitle: 'Utskriftsinstruktioner',
-  pdfPrintingInstructionScale: 'Skriv ut i faktisk storlek eller 100 % skala.',
+  pdfPrintingInstructionScale: 'Skriv ut i faktisk storlek eller 1:1 skala.',
   pdfPrintingInstructionMeasure:
     'Mät testkvadraten på sida 1 innan du klipper ut.',
   pdfPrintingInstructionAssemble:
     'Passa ihop markeringarna när du tejpar samman sidorna.',
-  pdfPrintingInstructionNoSeamAllowance:
-    'Ingen sömsmån ingår i ritningen.',
+  pdfPrintingInstructionNoSeamAllowance: 'Ingen sömsmån ingår i ritningen.',
   pdfPrintingInstructionSmallDartsWaistband:
     'Vid små insnitt kan man hålla ihop insnitten vid linningen istället för att sy ihop dem.',
   noProfilesAvailable: 'Skapa en profil innan du beräknar ett mönster.',
@@ -371,7 +374,8 @@ const sv: Record<keyof typeof en, string> = {
   movementEaseIntro:
     'Rörelsetillägg är den extra vidd som läggs till kroppsmåtten så att plagget får rörelseutrymme och passar den tänkta plaggtypen.',
   selectMovementEase: 'Välj rörelsetillägg',
-  movementEaseRequired: 'Välj ett rörelsetillägg innan du beräknar det här livet.',
+  movementEaseRequired:
+    'Välj ett rörelsetillägg innan du beräknar det här livet.',
   movementEaseHelperShirt: '8-16 cm passar en skjorta.',
   movementEaseHelperSummerJacket: '18-26 cm passar en sommarjacka.',
   movementEaseHelperWinterJacket: '28-36 cm passar en vinterjacka.',
@@ -382,6 +386,7 @@ const sv: Record<keyof typeof en, string> = {
   patternInPreparation: 'Mönster under arbete',
   skirtLength: 'Kjollängd',
   basicMeasurements: 'Grundmått',
+  calculationBreakdown: 'Uträkningsförklaringar',
   controlMeasurements: 'Kontrollmått',
   fixedMeasurements: 'Fasta mått',
   dartPlacement: 'Placering av insnitt',
@@ -434,30 +439,32 @@ const sv: Record<keyof typeof en, string> = {
   backDartPlacementExplanation: 'Avstånd från mittbak till bakinsnittet.',
   frontDartPlacementExplanation: 'Avstånd från sidosömmen till framinsnittet.',
   frontDartWidthExplanation: 'Insnittsbredd för framinsnittet.',
-  frontDartWidthSecondaryExplanation: 'Insnittsbredd för det extra framinsnittet.',
+  frontDartWidthSecondaryExplanation:
+    'Insnittsbredd för det extra framinsnittet.',
   backDartWidthExplanation: 'Insnittsbredd för bakinsnittet.',
-  backDartWidthSecondaryExplanation: 'Insnittsbredd för det extra bakinsnittet.',
-  backHipLineDartWidthHalfExplanation: 'Styr bredden på insnittet vid höftlinjen bak, per halva.',
+  backDartWidthSecondaryExplanation:
+    'Insnittsbredd för det extra bakinsnittet.',
+  backHipLineDartWidthHalfExplanation:
+    'Styr bredden på insnittet vid höftlinjen bak, per halva.',
   sideLineWaistExplanation: 'Hur mycket sidosömmen smalnar in vid midjan.',
   sideLineHipExplanation: 'Hur mycket sidosömmen smalnar in vid höften.',
-  controlMeasurementsHelp: 'Används för att kontrollera att man format en bra kurva.',
+  controlMeasurementsHelp:
+    'Används för att kontrollera att man format en bra kurva.',
   fixedMeasurementsHelp: 'Följande mått är samma för alla rörelsetillägg.',
   backWaistLengthBodiceExplanation:
-    'Använd livlängd bak direkt från måttschemat.',
+    'Livlängd bak är taget från profilens mått.',
   armholeDepthBodiceExplanation:
     'Ärmhålsdjup från tabellen för ärmhålsdjup utifrån uppmätt bystvidd, plus rörelsetillägg.',
   halfBustWithEaseExplanation:
     'Uppmätt bystvidd plus rörelsetillägg, därefter delat i två.',
   shoulderWidthBodiceExplanation:
     'Axelbredd från måttschemat plus rörelsetillägg.',
-  neckWidthBodiceExplanation:
-    'Halsvidd från måttschemat plus rörelsetillägg.',
+  neckWidthBodiceExplanation: 'Halsvidd från måttschemat plus rörelsetillägg.',
   neckWidthExplanation:
     'Halsbredd baserad på halsvidd med tillägg delat med fem, minus 1 cm.',
   neckDepthExplanation:
     'Halsdjup baserat på halsvidd med tillägg delat med fem, plus 0.5 cm.',
-  backNecklineCheckExplanation:
-    'Kontrollmått för bakre halskurva.',
+  backNecklineCheckExplanation: 'Kontrollmått för bakre halskurva.',
   frontNecklineCheckExplanation:
     'Kontrollmått för främre halskurva efter avdrag för halsringning bak.',
   backInnerShoulderRiseExplanation:
@@ -475,7 +482,7 @@ const sv: Record<keyof typeof en, string> = {
   backArmholeWidthExplanation:
     'Bakstyckets andel av ärmhålsbredden efter att framstyckets andel dragits av.',
   bodiceShoulderExtensionAdjustment:
-    'Axeln behövde förlängas med {value} cm utöver den uträknade axelbredden för att punkt 16 ska hamna minst 1 cm förbi punkt 15. Korta ärmen med samma mått.',
+    'Axeln behövde förlängas med {value} cm utöver den uträknade axelbredden. Korta ärmen med samma mått.',
   bodiceLowCapSleeveRecommendation:
     'En ärm med låg kulle rekommenderas för dessa mått.',
 

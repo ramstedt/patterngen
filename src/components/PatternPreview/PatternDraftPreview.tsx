@@ -1,6 +1,5 @@
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import type { PatternDraft } from '../../lib/patterns';
 
 type PatternDraftPreviewProps = {
@@ -136,7 +135,7 @@ function createPreviewFrame(draft: PatternDraft) {
   };
 }
 
-function renderDraftSvg(draft: PatternDraft, viewBox: string, frameWidth: number, frameHeight: number) {
+function renderDraftSvg(draft: PatternDraft, viewBox: string) {
   const points = new Map(draft.points.map((point) => [point.id, point]));
   return (
     <svg
@@ -152,14 +151,6 @@ function renderDraftSvg(draft: PatternDraft, viewBox: string, frameWidth: number
         margin: '0 auto',
       }}
     >
-      <rect
-        x={Number(viewBox.split(' ')[0])}
-        y={Number(viewBox.split(' ')[1])}
-        width={frameWidth}
-        height={frameHeight}
-        fill='rgba(255, 255, 255, 0.92)'
-      />
-
       <g opacity={draft.baseOpacity ?? 1}>
         {draft.lines.map((line) => {
           if (line.kind === 'hidden') return null;
@@ -212,7 +203,7 @@ function renderDraftSvg(draft: PatternDraft, viewBox: string, frameWidth: number
                 ? `rotate(${label.rotate} ${label.x} ${label.y})`
                 : undefined
             }
-            fill='rgba(0, 0, 0, 0.87)'
+            fill='#1C1C1C'
             fontSize={getLabelFontSize(label.id)}
             textAnchor='middle'
             dominantBaseline='middle'
@@ -249,27 +240,17 @@ export function PatternDraftPreview({ draft }: PatternDraftPreviewProps) {
     <Box
       sx={{
         mt: { xs: 2, sm: 3 },
-        pt: { xs: 0, sm: 3 },
-        borderTop: { xs: 0, sm: 1 },
-        borderColor: 'divider',
       }}
     >
-      <Typography variant='h6'>Draft</Typography>
       <Box
         sx={{
-          mt: 2,
-          border: { xs: 0, sm: 1 },
-          borderColor: 'divider',
           overflowX: { xs: 'hidden', sm: 'auto' },
-          p: { xs: 0, sm: 2 },
-          bgcolor: 'background.paper',
+          p: 0,
         }}
       >
         {renderDraftSvg(
           draft,
           previewFrame.viewBox,
-          previewFrame.width,
-          previewFrame.height,
         )}
       </Box>
       {draft.notes?.length ? (

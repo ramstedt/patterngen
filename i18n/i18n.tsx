@@ -7,7 +7,15 @@ function getInitialLang(): Lang {
   const saved = localStorage.getItem('lang');
   if (saved === 'sv' || saved === 'en') return saved as Lang;
 
-  return 'sv';
+  const systemLanguages = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+
+  const prefersSwedish = systemLanguages.some((language) =>
+    language.toLowerCase().startsWith('sv'),
+  );
+
+  return prefersSwedish ? 'sv' : 'en';
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

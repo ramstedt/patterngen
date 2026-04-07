@@ -16,8 +16,8 @@ export function Footer() {
       sx={{
         mt: 6,
         borderTop: 1,
-        borderColor: alpha('#8a4e33', 0.18),
-        backgroundColor: alpha('#f7f1e7', 0.72),
+        borderColor: '#D9D9D9',
+        backgroundColor: alpha('#FCFCFC', 0.72),
       }}
     >
       <Container maxWidth='lg' sx={{ py: { xs: 3, md: 3.5 } }}>
@@ -37,7 +37,10 @@ export function Footer() {
               <Typography variant='overline' color='secondary.main'>
                 {t('footerKicker')}
               </Typography>
-              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+              <Typography
+                variant='body2'
+                sx={{ fontWeight: 600, color: 'text.primary' }}
+              >
                 {t('footerTitle')}
               </Typography>
               <Typography
@@ -64,7 +67,11 @@ export function Footer() {
                 >
                   {t('footerLicenseLabel')}
                 </Typography>
-                <Typography variant='body2' color='text.secondary' sx={{ lineHeight: 1.8 }}>
+                <Typography
+                  variant='body2'
+                  color='text.secondary'
+                  sx={{ lineHeight: 1.8 }}
+                >
                   {t('footerLicenseBody')}
                 </Typography>
               </Box>
@@ -97,7 +104,7 @@ export function Footer() {
                     {t('footerGithubLink')}
                   </Link>
                   <Link
-                    href='mailto:emma.ramstedt@gmail.com'
+                    href='mailto:contact@sewmetry.io'
                     underline='hover'
                     color='primary.main'
                   >
@@ -111,7 +118,7 @@ export function Footer() {
           <Divider />
 
           <Typography variant='caption' color='text.secondary'>
-            {t('footerTitle')} • emma.ramstedt@gmail.com
+            {t('footerTitle')} • contact@sewmetry.io
           </Typography>
         </Stack>
       </Container>

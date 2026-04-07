@@ -21,47 +21,47 @@ const theme = createTheme({
       light: '#b37356',
     },
     background: {
-      default: '#f3ede3',
-      paper: '#fbf8f2',
+      default: '#DDE7F8',
+      paper: '#FCFCFC',
     },
     text: {
-      primary: '#1e1914',
+      primary: '#1C1C1C',
       secondary: '#564d45',
     },
-    divider: '#e2d8ca',
+    divider: '#D9D9D9',
   },
   shape: {
     borderRadius: 0,
   },
   typography: {
-    fontFamily: '"Avenir Next", "Segoe UI", Arial, sans-serif',
+    fontFamily: '"Source Sans 3", "Segoe UI", Arial, sans-serif',
     h1: {
-      fontFamily: 'Georgia, "Times New Roman", serif',
-      fontWeight: 700,
-      lineHeight: 0.96,
-      letterSpacing: '-0.04em',
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+      fontWeight: 400,
+      lineHeight: 0.98,
+      letterSpacing: '-0.03em',
       fontSize: 'clamp(3rem, 7vw, 5.4rem)',
     },
     h2: {
-      fontFamily: 'Georgia, "Times New Roman", serif',
-      fontWeight: 700,
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+      fontWeight: 400,
       lineHeight: 1,
-      letterSpacing: '-0.03em',
+      letterSpacing: '-0.02em',
       fontSize: 'clamp(2rem, 4vw, 3rem)',
     },
     h4: {
-      fontFamily: 'Georgia, "Times New Roman", serif',
-      fontWeight: 700,
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+      fontWeight: 400,
       lineHeight: 1.05,
     },
     h5: {
-      fontFamily: 'Georgia, "Times New Roman", serif',
-      fontWeight: 700,
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+      fontWeight: 400,
       lineHeight: 1.1,
     },
     h6: {
-      fontFamily: 'Georgia, "Times New Roman", serif',
-      fontWeight: 700,
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+      fontWeight: 400,
     },
     overline: {
       fontSize: '0.72rem',
@@ -71,6 +71,7 @@ const theme = createTheme({
     },
     button: {
       textTransform: 'none',
+      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
       fontWeight: 600,
       letterSpacing: '0.02em',
     },
@@ -79,9 +80,9 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#f3ede3',
+          backgroundColor: '#DDE7F8',
           backgroundImage:
-            'linear-gradient(180deg, rgba(255,255,255,0.58), rgba(243,237,227,0.92))',
+            'linear-gradient(180deg, rgba(255,255,255,0.58), rgba(221,231,248,0.92))',
         },
       },
     },
@@ -108,9 +109,9 @@ const theme = createTheme({
           },
         },
         outlinedPrimary: {
-          borderColor: '#e2d8ca',
+          borderColor: '#D9D9D9',
           '&:hover': {
-            borderColor: '#d4c8b8',
+            borderColor: '#CFCFCF',
             backgroundColor: 'rgba(31,54,65,0.06)',
           },
         },
@@ -122,14 +123,14 @@ const theme = createTheme({
           borderRadius: 0,
         },
         outlined: {
-          borderColor: '#e2d8ca',
+          borderColor: '#D9D9D9',
         },
       },
     },
     MuiAccordion: {
       styleOverrides: {
         root: {
-          borderColor: '#e2d8ca',
+          borderColor: '#D9D9D9',
         },
       },
     },
@@ -137,7 +138,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          borderColor: '#e2d8ca',
+          borderColor: '#D9D9D9',
         },
       },
     },
@@ -146,13 +147,13 @@ const theme = createTheme({
         root: {
           borderRadius: 0,
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e2d8ca',
+            borderColor: '#D9D9D9',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#d4c8b8',
+            borderColor: '#CFCFCF',
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#8a4e33',
+            borderColor: '#CFCFCF',
             borderWidth: 1,
           },
         },
@@ -169,7 +170,7 @@ const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: '1px solid #e2d8ca',
+          borderBottom: '1px solid #D9D9D9',
         },
       },
     },
