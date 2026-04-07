@@ -100,6 +100,12 @@ export function Footer() {
                     rel='noreferrer'
                     underline='hover'
                     color='primary.main'
+                    sx={{
+                      '&:focus-visible': {
+                        outline: '2px solid #2B4F6A',
+                        outlineOffset: 2,
+                      },
+                    }}
                   >
                     {t('footerGithubLink')}
                   </Link>
@@ -107,6 +113,12 @@ export function Footer() {
                     href='mailto:contact@sewmetry.io'
                     underline='hover'
                     color='primary.main'
+                    sx={{
+                      '&:focus-visible': {
+                        outline: '2px solid #2B4F6A',
+                        outlineOffset: 2,
+                      },
+                    }}
                   >
                     {t('footerEmailLink')}
                   </Link>

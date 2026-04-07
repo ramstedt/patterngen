@@ -152,9 +152,16 @@ const theme = createTheme({
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: '#CFCFCF',
           },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#CFCFCF',
+          '&:focus-within .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#2B4F6A',
             borderWidth: 1,
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#2B4F6A',
+            borderWidth: 1,
+          },
+          '&.Mui-focused': {
+            boxShadow: '0 0 0 2px rgba(43,79,106,0.14)',
           },
         },
       },

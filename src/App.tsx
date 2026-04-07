@@ -1,11 +1,4 @@
-import {
-  Suspense,
-  lazy,
-  useEffect,
-  useMemo,
-  useState,
-  type SyntheticEvent,
-} from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -25,8 +18,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -155,7 +146,12 @@ const languagePickerSx = {
   },
   '&.Mui-focused': {
     bgcolor: '#FFFFFF',
-    borderColor: '#CFCFCF',
+    borderColor: '#2B4F6A',
+    boxShadow: '0 0 0 2px rgba(43,79,106,0.14)',
+  },
+  '&:focus-visible': {
+    outline: '2px solid #2B4F6A',
+    outlineOffset: 2,
   },
 };
 
@@ -182,10 +178,6 @@ export default function App() {
     ],
     [t],
   );
-
-  function handlePageChange(_event: SyntheticEvent, value: AppPage) {
-    setCurrentPage(value);
-  }
 
   function handleMobilePageSelect(page: AppPage) {
     setCurrentPage(page);
@@ -255,6 +247,10 @@ export default function App() {
                 m: 0,
                 cursor: 'pointer',
                 textAlign: 'left',
+                '&:focus-visible': {
+                  outline: '2px solid #2B4F6A',
+                  outlineOffset: 2,
+                },
               }}
             >
               <Box
@@ -315,35 +311,59 @@ export default function App() {
               <IconButton
                 aria-label={t('primaryNavigation')}
                 onClick={() => setMobileMenuOpen(true)}
-                sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                sx={{
+                  display: { xs: 'inline-flex', md: 'none' },
+                  '&:focus-visible': {
+                    outline: '2px solid #2B4F6A',
+                    outlineOffset: 2,
+                  },
+                }}
               >
                 <MenuIcon />
               </IconButton>
 
-              <Tabs
-                value={currentPage === 'start' ? false : currentPage}
-                onChange={handlePageChange}
+              <Stack
+                direction='row'
+                spacing={0.5}
                 aria-label={t('primaryNavigation')}
-                variant='scrollable'
-                allowScrollButtonsMobile
-                textColor='primary'
-                indicatorColor='secondary'
                 sx={{
                   display: { xs: 'none', md: 'flex' },
-                  minHeight: 48,
                   minWidth: 0,
-                  '& .MuiTab-root': {
-                    minHeight: 48,
-                    minWidth: 90,
-                    px: 2,
-                    fontSize: '0.875rem',
-                  },
+                  alignItems: 'center',
                 }}
               >
                 {pageLinks.map((link) => (
-                  <Tab key={link.id} value={link.id} label={link.label} />
+                  <Button
+                    key={link.id}
+                    variant='text'
+                    color='primary'
+                    focusRipple
+                    onClick={() => setCurrentPage(link.id)}
+                    aria-current={currentPage === link.id ? 'page' : undefined}
+                    sx={{
+                      minHeight: 48,
+                      minWidth: 90,
+                      px: 2,
+                      fontSize: '0.875rem',
+                      fontFamily: '"Questrial", "Source Sans 3", sans-serif',
+                      fontWeight: 600,
+                      letterSpacing: '0.02em',
+                      color:
+                        currentPage === link.id ? 'primary.main' : 'text.primary',
+                      borderBottom:
+                        currentPage === link.id
+                          ? '2px solid #8a4e33'
+                          : '2px solid transparent',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
+                  >
+                    {link.label}
+                  </Button>
                 ))}
-              </Tabs>
+              </Stack>
 
               <Stack
                 sx={{ display: { xs: 'none', md: 'block' }, flexShrink: 0 }}
@@ -671,6 +691,17 @@ export default function App() {
                       '& > summary': {
                         cursor: 'pointer',
                         userSelect: 'none',
+                        display: 'inline-block',
+                        color: 'primary.main',
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '0.18em',
+                        '&:hover': {
+                          color: 'primary.dark',
+                        },
+                        '&:focus-visible': {
+                          outline: '2px solid #2B4F6A',
+                          outlineOffset: 2,
+                        },
                       },
                     }}
                   >
@@ -735,6 +766,7 @@ export default function App() {
                 <Box
                   sx={{
                     px: { xs: 2, sm: 0 },
+                    pb: { xs: 2, md: 0 },
                     display: 'grid',
                     gap: { xs: 2.5, md: 4 },
                     gridTemplateColumns: {
@@ -775,7 +807,10 @@ export default function App() {
                   boxShadow: 'none',
                 }}
               >
-                <Stack spacing={2.5} sx={{ px: { xs: 2, sm: 0 } }}>
+                <Stack
+                  spacing={2.5}
+                  sx={{ px: { xs: 2, sm: 0 }, pb: { xs: 2, md: 0 } }}
+                >
                   <Box>
                     <Typography variant='overline' color='secondary.main'>
                       {t('patternPageNav')}

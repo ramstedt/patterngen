@@ -566,7 +566,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                       maxWidth: 280,
                       border: 1,
                       borderColor: '#D9D9D9',
-                      bgcolor: 'background.paper',
+                      bgcolor: '#F3F5F8',
                       minHeight: 84,
                       '&::before': { display: 'none' },
                     }}
@@ -622,10 +622,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                           ))}
                         </TextField>
 
-                        <Box>
+                        <Box sx={{ width: '100%' }}>
                           <Button
                             type='button'
                             variant='contained'
+                            fullWidth
                             disabled={!selectedProfileType}
                             onClick={() => {
                               const preset =
@@ -723,7 +724,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
                   px: { xs: 2, sm: 0 },
                   py: { xs: 1.5, sm: 0 },
                   mx: { xs: -2, sm: 0 },
-                  mb: { xs: -2, sm: 0 },
+                  mb: 0,
                 }}
               >
                 <Stack
