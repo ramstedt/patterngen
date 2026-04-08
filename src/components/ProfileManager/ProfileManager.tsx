@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -120,6 +120,13 @@ const MEN_SIZES: MenSize[] = [
   'C70',
 ];
 
+type ProfileManagerMode = 'view' | 'edit' | 'new';
+
+type ProfileQueryState = {
+  activeId: string | null;
+  mode: ProfileManagerMode;
+};
+
 function getVisibleFields(profileType: ProfileType | undefined) {
   if (profileType === 'women') {
     return FIELDS.filter((field) => !MEN_ONLY_FIELDS.includes(field.key));
@@ -145,6 +152,51 @@ function createBlankMeasurements(): Measurements {
   return Object.fromEntries(
     FIELDS.map(({ key }) => [key, Number.NaN]),
   ) as Measurements;
+}
+
+function createBlankFormValues(): FormValues {
+  return {
+    name: '',
+    profileType: '' as ProfileType,
+    ...createBlankMeasurements(),
+  };
+}
+
+function getProfileQueryState(): ProfileQueryState {
+  const params = new URLSearchParams(window.location.search);
+  const modeParam = params.get('mode');
+  const mode: ProfileManagerMode =
+    modeParam === 'edit' || modeParam === 'new' ? modeParam : 'view';
+  const activeId = params.get('profile');
+  return { activeId, mode };
+}
+
+function writeProfileQueryState({
+  activeId,
+  mode,
+}: ProfileQueryState) {
+  const params = new URLSearchParams(window.location.search);
+
+  params.delete('profile');
+  params.delete('mode');
+
+  if (activeId) {
+    params.set('profile', activeId);
+  }
+
+  if (mode !== 'view') {
+    params.set('mode', mode);
+  }
+
+  const nextSearch = params.toString();
+  const nextUrl = nextSearch
+    ? `${window.location.pathname}?${nextSearch}`
+    : window.location.pathname;
+  const currentUrl = `${window.location.pathname}${window.location.search}`;
+
+  if (nextUrl !== currentUrl) {
+    window.history.replaceState({}, '', nextUrl);
+  }
 }
 
 function getCurrentTimestamp() {
@@ -204,13 +256,17 @@ function renderMeasurementField(
 
 export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) {
   const { t } = useI18n();
+  const initialQueryState = useMemo(() => getProfileQueryState(), []);
   const initialProfiles = useMemo(() => loadProfiles(), []);
-  const initialActiveProfile = initialProfiles[0] ?? null;
+  const initialActiveProfile =
+    initialProfiles.find((profile) => profile.id === initialQueryState.activeId) ??
+    initialProfiles[0] ??
+    null;
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
   const [activeId, setActiveId] = useState<string | null>(
-    initialActiveProfile?.id ?? null,
+    initialQueryState.activeId ?? initialActiveProfile?.id ?? null,
   );
-  const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view');
+  const [mode, setMode] = useState<ProfileManagerMode>(initialQueryState.mode);
   const [savedMsg, setSavedMsg] = useState(false);
   const [womenSize, setWomenSize] = useState<StandardSize>('C44');
   const [menSize, setMenSize] = useState<MenSize>('C50');
@@ -238,7 +294,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
           profileType: initialActiveProfile.profileType,
           ...initialActiveProfile.measurements,
         }
-      : { name: '', profileType: '' as ProfileType, ...createBlankMeasurements() },
+      : createBlankFormValues(),
     mode: 'onSubmit',
   });
 
@@ -417,6 +473,19 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
       return typeof value === 'number' && !Number.isNaN(value);
     });
   }, [selectedProfileType, visibleFields, watchedValues]);
+
+  useEffect(() => {
+    if (activeId && !profiles.some((profile) => profile.id === activeId)) {
+      setActiveId(profiles[0]?.id ?? null);
+    }
+  }, [activeId, profiles]);
+
+  useEffect(() => {
+    writeProfileQueryState({
+      activeId,
+      mode,
+    });
+  }, [activeId, mode]);
 
   return (
     <Stack spacing={3} sx={{ width: '100%', maxWidth: 922, mx: 'auto' }}>

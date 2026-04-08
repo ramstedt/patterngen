@@ -42,6 +42,34 @@ const PatternPage = lazy(() =>
 
 type AppPage = 'start' | 'profiles' | 'patterns';
 
+const APP_PAGE_PATHS: Record<AppPage, string> = {
+  start: '/',
+  profiles: '/profiles',
+  patterns: '/patterns',
+};
+
+function normalizePath(pathname: string) {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname || '/';
+}
+
+function getPageFromPath(pathname: string): AppPage {
+  const normalizedPath = normalizePath(pathname);
+
+  if (normalizedPath === APP_PAGE_PATHS.profiles) {
+    return 'profiles';
+  }
+
+  if (normalizedPath === APP_PAGE_PATHS.patterns) {
+    return 'patterns';
+  }
+
+  return 'start';
+}
+
 function PageLoader() {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
@@ -158,9 +186,34 @@ const languagePickerSx = {
 export default function App() {
   const { lang, setLang, t } = useI18n();
   const localizedPatchNotes = patchNotes[lang];
-  const [currentPage, setCurrentPage] = useState<AppPage>('start');
+  const [currentPage, setCurrentPage] = useState<AppPage>(() =>
+    getPageFromPath(window.location.pathname),
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileCount, setProfileCount] = useState(0);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromPath(window.location.pathname));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  function navigateToPage(page: AppPage) {
+    const nextPath = APP_PAGE_PATHS[page];
+    const currentPath = normalizePath(window.location.pathname);
+
+    if (currentPath !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+    }
+
+    setCurrentPage(page);
+  }
 
   useEffect(() => {
     const syncProfiles = () => {
@@ -180,7 +233,7 @@ export default function App() {
   );
 
   function handleMobilePageSelect(page: AppPage) {
-    setCurrentPage(page);
+    navigateToPage(page);
     setMobileMenuOpen(false);
   }
 
@@ -236,12 +289,17 @@ export default function App() {
               direction='row'
               spacing={{ xs: 1, md: 1.5 }}
               alignItems='center'
-              component='button'
-              type='button'
-              onClick={() => setCurrentPage('start')}
+              component='a'
+              href={APP_PAGE_PATHS.start}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateToPage('start');
+              }}
               sx={{
                 appearance: 'none',
                 border: 0,
+                textDecoration: 'none',
+                color: 'inherit',
                 background: 'transparent',
                 p: 0,
                 m: 0,
@@ -337,8 +395,13 @@ export default function App() {
                     key={link.id}
                     variant='text'
                     color='primary'
+                    component='a'
+                    href={APP_PAGE_PATHS[link.id]}
                     focusRipple
-                    onClick={() => setCurrentPage(link.id)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      navigateToPage(link.id);
+                    }}
                     aria-current={currentPage === link.id ? 'page' : undefined}
                     sx={{
                       minHeight: 48,
@@ -427,8 +490,13 @@ export default function App() {
           {pageLinks.map((link) => (
             <ListItemButton
               key={link.id}
+              component='a'
+              href={APP_PAGE_PATHS[link.id]}
               selected={currentPage === link.id}
-              onClick={() => handleMobilePageSelect(link.id)}
+              onClick={(event) => {
+                event.preventDefault();
+                handleMobilePageSelect(link.id);
+              }}
             >
               <ListItemText primary={link.label} />
             </ListItemButton>
@@ -536,13 +604,23 @@ export default function App() {
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25}>
                     <Button
                       variant='contained'
-                      onClick={() => setCurrentPage('profiles')}
+                      component='a'
+                      href={APP_PAGE_PATHS.profiles}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigateToPage('profiles');
+                      }}
                     >
                       {t('goToProfiles')}
                     </Button>
                     <Button
                       variant='outlined'
-                      onClick={() => setCurrentPage('patterns')}
+                      component='a'
+                      href={APP_PAGE_PATHS.patterns}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigateToPage('patterns');
+                      }}
                     >
                       {t('goToPatterns')}
                     </Button>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import Alert from '@mui/material/Alert';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -51,6 +51,60 @@ const SECTION_ORDER = [
   'dartPlacement',
 ] as const;
 const STEP_LABEL_MIN_HEIGHT = 32;
+
+type PatternQueryState = {
+  category: PatternCategory | '';
+  pattern: PatternOption | '';
+  profileId: string;
+  movementEase: number | '';
+  sleeveCap: PatternSleeveCap | '';
+  generated: boolean;
+};
+
+function getPatternQueryState(): PatternQueryState {
+  const params = new URLSearchParams(window.location.search);
+  const category = params.get('category');
+  const pattern = params.get('pattern');
+  const profileId = params.get('profile') ?? '';
+  const movementEaseParam = params.get('ease');
+  const sleeveCap = params.get('sleeveCap');
+
+  return {
+    category:
+      category && PATTERN_CATEGORIES.some((entry) => entry.category === category)
+        ? (category as PatternCategory)
+        : '',
+    pattern: pattern ? (pattern as PatternOption) : '',
+    profileId,
+    movementEase: movementEaseParam ? Number(movementEaseParam) : '',
+    sleeveCap:
+      sleeveCap === 'high' || sleeveCap === 'low'
+        ? (sleeveCap as PatternSleeveCap)
+        : '',
+    generated: params.get('generated') === '1',
+  };
+}
+
+function writePatternQueryState(state: PatternQueryState) {
+  const params = new URLSearchParams();
+
+  if (state.category) params.set('category', state.category);
+  if (state.pattern) params.set('pattern', state.pattern);
+  if (state.profileId) params.set('profile', state.profileId);
+  if (state.movementEase) params.set('ease', String(state.movementEase));
+  if (state.sleeveCap) params.set('sleeveCap', state.sleeveCap);
+  if (state.generated) params.set('generated', '1');
+
+  const nextSearch = params.toString();
+  const nextUrl = nextSearch
+    ? `${window.location.pathname}?${nextSearch}`
+    : window.location.pathname;
+  const currentUrl = `${window.location.pathname}${window.location.search}`;
+
+  if (nextUrl !== currentUrl) {
+    window.history.replaceState({}, '', nextUrl);
+  }
+}
 
 function renderCalculationSection(
   section: string,
@@ -149,24 +203,25 @@ export function PatternSection({
   showHeader?: boolean;
 }) {
   const { t } = useI18n();
+  const initialQueryState = useMemo(() => getPatternQueryState(), []);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<
-    PatternCategory | ''
-  >('');
+  const [selectedProfileId, setSelectedProfileId] = useState(
+    initialQueryState.profileId,
+  );
+  const [selectedCategory, setSelectedCategory] = useState<PatternCategory | ''>(
+    initialQueryState.category,
+  );
   const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>(
-    '',
+    initialQueryState.pattern,
   );
   const [selectedMovementEase, setSelectedMovementEase] = useState<number | ''>(
-    '',
+    initialQueryState.movementEase,
   );
   const [selectedSleeveCap, setSelectedSleeveCap] = useState<
     PatternSleeveCap | ''
-  >('');
+  >(initialQueryState.sleeveCap);
   const [submittedProfileId, setSubmittedProfileId] = useState('');
-  const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>(
-    '',
-  );
+  const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>('');
   const [submittedMovementEase, setSubmittedMovementEase] = useState<
     number | ''
   >('');
@@ -174,6 +229,7 @@ export function PatternSection({
     PatternSleeveCap | ''
   >('');
   const [isMovementEaseHelpOpen, setIsMovementEaseHelpOpen] = useState(false);
+  const hasRestoredGeneratedState = useRef(false);
 
   useEffect(() => {
     const syncProfiles = () => {
@@ -349,6 +405,13 @@ export function PatternSection({
     () => (selectedPattern ? getPatternDefinition(selectedPattern) : null),
     [selectedPattern],
   );
+  const selectedPatternExistsInCategory = useMemo(
+    () =>
+      selectedPattern
+        ? availablePatternsForCategory.includes(selectedPattern)
+        : true,
+    [availablePatternsForCategory, selectedPattern],
+  );
   const hasPatternProfileTypeMismatch = useMemo(
     () =>
       Boolean(
@@ -366,6 +429,84 @@ export function PatternSection({
     Boolean(selectedProfileId) &&
     (!requiresMovementEase || Boolean(selectedMovementEase)) &&
     (!requiresSleeveCap || Boolean(selectedSleeveCap));
+
+  useEffect(() => {
+    if (selectedPattern && !selectedPatternExistsInCategory) {
+      setSelectedPattern('');
+      setSelectedMovementEase('');
+      setSelectedSleeveCap('');
+      setSelectedProfileId('');
+    }
+  }, [selectedPattern, selectedPatternExistsInCategory]);
+
+  useEffect(() => {
+    writePatternQueryState({
+      category: selectedCategory,
+      pattern: selectedPattern,
+      profileId: selectedProfileId,
+      movementEase: selectedMovementEase,
+      sleeveCap: selectedSleeveCap,
+      generated:
+        submittedPattern === selectedPattern &&
+        submittedProfileId === selectedProfileId &&
+        submittedMovementEase === selectedMovementEase &&
+        submittedSleeveCap === selectedSleeveCap &&
+        Boolean(submittedPattern),
+    });
+  }, [
+    selectedCategory,
+    selectedPattern,
+    selectedProfileId,
+    selectedMovementEase,
+    selectedSleeveCap,
+    submittedPattern,
+    submittedProfileId,
+    submittedMovementEase,
+    submittedSleeveCap,
+  ]);
+
+  useEffect(() => {
+    if (hasRestoredGeneratedState.current || !initialQueryState.generated) {
+      return;
+    }
+
+    if (!selectedPatternExistsInCategory) {
+      hasRestoredGeneratedState.current = true;
+      return;
+    }
+
+    const hasMatchingProfile = profiles.some(
+      (profile) => profile.id === selectedProfileId,
+    );
+
+    if (!selectedPattern || !selectedProfileId || !hasMatchingProfile) {
+      return;
+    }
+
+    if (selectedPattern === 'bodiceWithoutDarts') {
+      if (!selectedMovementEase || !selectedSleeveCap) {
+        return;
+      }
+    }
+
+    setSubmittedProfileId(selectedProfileId);
+    setSubmittedPattern(selectedPattern);
+    setSubmittedMovementEase(
+      selectedPattern === 'bodiceWithoutDarts' ? selectedMovementEase : '',
+    );
+    setSubmittedSleeveCap(
+      selectedPattern === 'bodiceWithoutDarts' ? selectedSleeveCap : '',
+    );
+    hasRestoredGeneratedState.current = true;
+  }, [
+    initialQueryState.generated,
+    profiles,
+    selectedPattern,
+    selectedProfileId,
+    selectedMovementEase,
+    selectedSleeveCap,
+    selectedPatternExistsInCategory,
+  ]);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
