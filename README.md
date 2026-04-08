@@ -14,8 +14,8 @@ The project now includes working straight skirt and bodice workflows:
 - printable PDF export
 - print calibration square and first-page printing instructions
 - profile-driven straight skirt dart rules, including extra darts for large waist-to-hip differences
-- multistep pattern selection with movement ease for patterns that require it
-- a drafted bodice without darts workflow with bodice-specific calculation tables and geometry
+- multistep pattern selection with movement ease and sleeve-cap selection for patterns that require it
+- a drafted bodice without darts workflow with bodice and sleeve calculation tables and geometry
 
 Implemented pattern support:
 
@@ -28,9 +28,10 @@ Implemented pattern support:
 - Standard measurement model covering skirt, bodice, sleeve, and trouser-related body data
 - Straight skirt calculations with visible drafting values
 - Bodice without darts calculations with visible drafting values
+- Sleeve calculations for bodice drafting with high-cap and low-cap options
 - SVG pattern preview with draft lines, labels, and pattern outline
-- PDF printing pipeline with calibration square and assembly instructions
-- Movement ease selection for bodice drafting
+- PDF printing pipeline with calibration square, assembly instructions, fold annotations, and combined bodice-plus-sleeve export
+- Movement ease and sleeve-cap selection for bodice drafting
 - Swedish/English translations across the UI
 - Responsive React interface for desktop and mobile
 
@@ -44,6 +45,7 @@ The current straight skirt implementation includes:
 - secondary front/back darts only when the waist-to-hip difference is large
 - shaped front and back waistlines
 - shaped side seam passing through fixed drafting anchor points
+- fold annotations on center front and center back
 - browser preview and printable PDF output
 
 The draft is built from explicit points, sampled curves, and dart geometry in:
@@ -56,12 +58,15 @@ The draft is built from explicit points, sampled curves, and dart geometry in:
 The current bodice without darts implementation includes:
 
 - movement-ease driven bodice calculations
+- sleeve-cap selection with separate high-cap and low-cap sleeve workflows
 - armhole depth lookup data and ease tables for bodice drafting
 - front and back neckline calculations with control measurements
 - fixed drafting measures for shoulder rises and drops
 - drafted front and back neckline geometry
 - drafted front and back armhole geometry
-- browser preview and printable PDF output
+- drafted sleeve geometry for both high-cap and low-cap sleeves
+- browser preview and printable PDF output, including the sleeve in the exported file
+- collapsible calculation breakdowns, split into bodice and sleeve sections in the UI
 
 The draft is built from explicit points, construction lines, and curve geometry in:
 
@@ -107,13 +112,13 @@ http://localhost:5173
 
 - Measurement values are stored in centimeters.
 - Profiles are stored locally in the browser.
-- Pattern generation currently supports both the straight skirt and bodice without darts workflows.
+- Pattern generation currently supports both the straight skirt and bodice without darts workflows, including sleeve drafting for the bodice.
 - Drafting logic is geometry-first: points, distances, intersections, shaping, and curve construction are preferred over visual tweaks.
 
 ## Roadmap
 
 - Expand from the current skirt and bodice workflows to additional working pattern types
-- Continue building out the bodice without darts draft and related sleeve workflow
+- Continue refining bodice and sleeve drafting geometry and shared geometry helpers
 - Continue extracting reusable geometry helpers shared across garment types
 - Extend printing/export options after the drafting layer is stable
 

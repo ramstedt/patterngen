@@ -1017,16 +1017,10 @@ export function buildStraightSkirtDraft(
     markers: [],
     lines: [
       {
-        id: 'grundlineHiddenTop',
+        id: 'centerBackFold',
         from: 'start',
-        to: 'grundlineVisibleTop',
-        kind: 'hidden',
-      },
-      {
-        id: 'skirtLengthLine',
-        from: 'grundlineVisibleTop',
         to: 'end',
-        kind: 'outline',
+        kind: 'fold',
       },
       {
         id: 'bottomWidthLine',
@@ -1035,10 +1029,10 @@ export function buildStraightSkirtDraft(
         kind: 'outline',
       },
       {
-        id: 'leftVerticalLine',
+        id: 'centerFrontFold',
         from: 'bottomLeft',
         to: 'topLeft',
-        kind: 'outline',
+        kind: 'fold',
       },
       {
         id: 'waistLine',
@@ -1215,24 +1209,17 @@ export function buildStraightSkirtDraft(
     ],
     labels: [
       {
-        id: 'centerBackLabel',
-        text: t('centerBack'),
-        x: lineX - 12,
-        y: endY - 66,
+        id: 'backLabel',
+        text: t('back'),
+        x: lineX - 18,
+        y: startY + (endY - startY) * 0.22,
         rotate: 90,
       },
       {
-        id: 'centerFrontLabel',
-        text: t('centerFront'),
-        x: leftX + 12,
-        y: endY - 66,
-        rotate: 90,
-      },
-      {
-        id: 'sideLineLabel',
-        text: t('sideLineLabel'),
-        x: sideLineX + 12,
-        y: endY - 66,
+        id: 'frontLabel',
+        text: t('front'),
+        x: leftX + 18,
+        y: startY + (endY - startY) * 0.22,
         rotate: 90,
       },
     ],

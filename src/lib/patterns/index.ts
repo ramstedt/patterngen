@@ -38,6 +38,7 @@ export type {
   PatternPrintConfig,
   PatternSettings,
   PatternSectionKey,
+  PatternSleeveCap,
 } from './types';
 
 export function calculatePattern(
@@ -66,11 +67,12 @@ export function getPatternPrintConfig(
   pattern: PatternOption,
   profile?: Profile,
   t?: Translate,
+  settings?: PatternSettings,
 ): PatternPrintConfig | undefined {
   const definition = patternRegistry[pattern];
 
   if (definition.buildPrintConfig && profile && t) {
-    return definition.buildPrintConfig(profile, t);
+    return definition.buildPrintConfig(profile, t, settings);
   }
 
   return definition.printConfig;

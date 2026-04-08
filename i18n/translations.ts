@@ -68,6 +68,7 @@ const en = {
     'Align the marks when taping the pages together.',
   pdfPrintingInstructionNoSeamAllowance:
     'No seam allowance is included in the draft.',
+  pdfPrintingInstructionSleeveType: 'Included sleeve: {sleeveType}.',
   pdfPrintingInstructionSmallDartsWaistband:
     'For small darts, you can hold the darts together at the waistband instead of sewing them closed.',
   noProfilesAvailable: 'Create a profile before calculating a pattern.',
@@ -113,6 +114,11 @@ const en = {
   movementEaseIntro:
     'Movement ease is the extra width added to the body measurements so the garment has room to move and match the intended garment type.',
   selectMovementEase: 'Select movement ease',
+  sleeveCap: 'Sleeve cap',
+  selectSleeveCap: 'Select sleeve cap',
+  sleeveCapRequired: 'Select a sleeve cap before calculating this bodice.',
+  highCapSleeve: 'High-cap sleeve',
+  lowCapSleeve: 'Low-cap sleeve',
   movementEaseRequired:
     'Select a movement ease before calculating this bodice.',
   movementEaseHelperShirt: '8-16 cm suits a shirt.',
@@ -126,8 +132,12 @@ const en = {
   skirtLength: 'Skirt length',
   basicMeasurements: 'Basic measurements',
   calculationBreakdown: 'Calculation breakdown',
+  bodiceCalculations: 'Bodice calculations',
   controlMeasurements: 'Control measurements',
   fixedMeasurements: 'Fixed measurements',
+  sleeveMeasurements: 'Sleeve calculations',
+  front: 'Front',
+  back: 'Back',
   dartPlacement: 'Dart placement',
   dartWidth: 'Dart width',
   dartWidthLargeDifferenceHelp:
@@ -139,6 +149,9 @@ const en = {
   seatLine: 'Seat line',
   centerFront: 'Center front',
   centerBack: 'Center back',
+  cutOnFoldLabel: 'Cut On Fold',
+  frontSectionLabel: 'Front',
+  backSectionLabel: 'Back',
   waistToHipDifference: 'Difference between waist and hip circumference',
   frontDartPlacement: 'Front dart',
   backDartPlacement: 'Back dart',
@@ -223,9 +236,39 @@ const en = {
   backArmholeWidthExplanation:
     'Back share of the armhole width after subtracting the front share.',
   bodiceShoulderExtensionAdjustment:
-    'The shoulder had to be extended by {value} cm beyond the calculated shoulder width. Shorten the sleeve by the same amount.',
+    'The shoulder had to be extended by {value} cm beyond the calculated shoulder width. The sleeve was therefore shortened by the same amount.',
   bodiceLowCapSleeveRecommendation:
     'A low sleeve cap is recommended for these measurements.',
+  highSleeveCapHeightExplanation:
+    'Sleeve-cap height for a high sleeve cap, based on armhole width divided by three.',
+  lowSleeveCapHeightExplanation:
+    'Sleeve-cap height for a low sleeve cap, based on armhole width divided by five.',
+  sleeveLengthWithEaseExplanation:
+    'Measured arm length plus the selected sleeve-length ease from the table. If the shoulder had to be extended to reach the armhole, subtract that extra amount from the sleeve length.',
+  upperArmWidthWithHighCapExplanation:
+    'Measured upper arm circumference plus the first upper-arm ease value for a high sleeve cap.',
+  upperArmWidthWithLowCapExplanation:
+    'Measured upper arm circumference plus the second upper-arm ease value for a low sleeve cap.',
+  halfUpperArmWidthWithEaseExplanation:
+    'Half of the upper arm width with ease. Used for the high sleeve cap.',
+  wristWidthWithEaseExplanation:
+    'Measured wrist circumference plus the wrist ease from the sleeve table.',
+  elbowHeightExplanation:
+    'Elbow height based on sleeve length with ease divided by two, plus 3 cm.',
+  sleeveBackCapGuideExplanation:
+    'Back guide value from the helper table for the selected sleeve-cap option.',
+  sleeveFrontCapGuideExplanation:
+    'Front guide value from the helper table for the selected sleeve-cap option.',
+  sleeveArmholeWidthExplanation:
+    'Total armhole width is measured on the bodice the sleeve is drafted for.',
+  sleeveBackArmholeWidthExplanation:
+    'Back armhole width is measured on the bodice the sleeve is drafted for.',
+  sleeveFrontArmholeWidthExplanation:
+    'Front armhole width is measured on the bodice the sleeve is drafted for.',
+  sleeveBackArmholeWidthLowCapExplanation:
+    'For a low sleeve cap, measure the back armhole width on the bodice and use it in the sleeve construction.',
+  sleeveFrontArmholeWidthLowCapExplanation:
+    'For a low sleeve cap, measure the front armhole width on the bodice and use it in the sleeve construction.',
 
   // measurements (from the measurement chart)
   backWaistLength: 'Back waist length',
@@ -258,6 +301,17 @@ const en = {
   inseamLength: 'Inseam length',
   rise: 'Rise',
   crotchDepth: 'Crotch depth',
+  sleeveCapHeight: 'Sleeve cap height',
+  sleeveLengthWithEase: 'Sleeve length with ease',
+  upperArmWidthWithEase: 'Upper arm width with ease',
+  halfUpperArmWidthWithEase: 'Half upper arm width with ease',
+  wristWidthWithEase: 'Wrist width with ease',
+  elbowHeight: 'Elbow height',
+  sleeveArmholeWidth: 'Armhole width',
+  sleeveBackArmholeWidth: 'Back armhole width',
+  sleeveFrontArmholeWidth: 'Front armhole width',
+  sleeveBackCapGuide: 'Back sleeve-cap guide',
+  sleeveFrontCapGuide: 'Front sleeve-cap guide',
 } as const;
 
 const sv: Record<keyof typeof en, string> = {
@@ -328,6 +382,7 @@ const sv: Record<keyof typeof en, string> = {
   pdfPrintingInstructionAssemble:
     'Passa ihop markeringarna när du tejpar samman sidorna.',
   pdfPrintingInstructionNoSeamAllowance: 'Ingen sömsmån ingår i ritningen.',
+  pdfPrintingInstructionSleeveType: 'Inkluderad ärm: {sleeveType}.',
   pdfPrintingInstructionSmallDartsWaistband:
     'Vid små insnitt kan man hålla ihop insnitten vid linningen istället för att sy ihop dem.',
   noProfilesAvailable: 'Skapa en profil innan du beräknar ett mönster.',
@@ -373,6 +428,11 @@ const sv: Record<keyof typeof en, string> = {
   movementEaseIntro:
     'Rörelsetillägg är den extra vidd som läggs till kroppsmåtten så att plagget får rörelseutrymme och passar den tänkta plaggtypen.',
   selectMovementEase: 'Välj rörelsetillägg',
+  sleeveCap: 'Ärmkulle',
+  selectSleeveCap: 'Välj ärmkulle',
+  sleeveCapRequired: 'Välj en ärmkulle innan du beräknar det här livet.',
+  highCapSleeve: 'Ärm med hög kulle',
+  lowCapSleeve: 'Ärm med låg kulle',
   movementEaseRequired:
     'Välj ett rörelsetillägg innan du beräknar det här livet.',
   movementEaseHelperShirt: '8-16 cm passar en skjorta.',
@@ -386,8 +446,12 @@ const sv: Record<keyof typeof en, string> = {
   skirtLength: 'Kjollängd',
   basicMeasurements: 'Grundmått',
   calculationBreakdown: 'Uträkningsförklaringar',
+  bodiceCalculations: 'Livkalkyler',
   controlMeasurements: 'Kontrollmått',
   fixedMeasurements: 'Fasta mått',
+  sleeveMeasurements: 'Ärmkalkyler',
+  front: 'Fram',
+  back: 'Bak',
   dartPlacement: 'Placering av insnitt',
   dartWidth: 'Insnittsbredd',
   dartWidthLargeDifferenceHelp:
@@ -399,6 +463,9 @@ const sv: Record<keyof typeof en, string> = {
   seatLine: 'stusslinje',
   centerFront: 'mitt fram',
   centerBack: 'mitt bak',
+  cutOnFoldLabel: 'mot vikt kant',
+  frontSectionLabel: 'fram',
+  backSectionLabel: 'bak',
   waistToHipDifference: 'Skillnad mellan midjevidd och stussvidd',
   frontDartPlacement: 'Fram',
   backDartPlacement: 'Bak',
@@ -481,9 +548,39 @@ const sv: Record<keyof typeof en, string> = {
   backArmholeWidthExplanation:
     'Bakstyckets andel av ärmhålsbredden efter att framstyckets andel dragits av.',
   bodiceShoulderExtensionAdjustment:
-    'Axeln behövde förlängas med {value} cm utöver den uträknade axelbredden. Korta ärmen med samma mått.',
+    'Axeln behövde förlängas med {value} cm utöver den uträknade axelbredden. Ärmen kortades därför med samma mått.',
   bodiceLowCapSleeveRecommendation:
     'En ärm med låg kulle rekommenderas för dessa mått.',
+  highSleeveCapHeightExplanation:
+    'Ärmkullens höjd för hög kulle, baserad på ärmhålsvidd delat med tre.',
+  lowSleeveCapHeightExplanation:
+    'Ärmkullens höjd för låg kulle, baserad på ärmhålsvidd delat med fem.',
+  sleeveLengthWithEaseExplanation:
+    'Uppmätt armlängd plus valt rörelsetillägg för ärmlängd från tabellen. Om axeln behövde förlängas för att nå ut i ärmhålet dras det extra tillägget av från ärmlängden.',
+  upperArmWidthWithHighCapExplanation:
+    'Uppmätt överarmsvidd plus det första överarmsmåttet i tabellen för en hög ärmkulle.',
+  upperArmWidthWithLowCapExplanation:
+    'Uppmätt överarmsvidd plus det andra överarmsmåttet i tabellen för en låg ärmkulle.',
+  halfUpperArmWidthWithEaseExplanation:
+    'Halva överarmsvidden med tillägg. Används för hög ärmkulle.',
+  wristWidthWithEaseExplanation:
+    'Uppmätt handledsvidd plus handledsvidden från ärmtabellen.',
+  elbowHeightExplanation:
+    'Armbågshöjd baserad på ärmlängd med tillägg delat med två, plus 3 cm.',
+  sleeveBackCapGuideExplanation:
+    'Bakre hjälpmått från tabellen för den valda ärmkullen.',
+  sleeveFrontCapGuideExplanation:
+    'Främre hjälpmått från tabellen för den valda ärmkullen.',
+  sleeveArmholeWidthExplanation:
+    'Total ärmhålsvidd mäts på livet som ärmen ska konstrueras till.',
+  sleeveBackArmholeWidthExplanation:
+    'Ärmhålsvidden bak mäts på livet som ärmen ska konstrueras till.',
+  sleeveFrontArmholeWidthExplanation:
+    'Ärmhålsvidden fram mäts på livet som ärmen ska konstrueras till.',
+  sleeveBackArmholeWidthLowCapExplanation:
+    'Vid låg kulle mäts ärmhålsvidden bak på livet som ärmen ska konstrueras till och används i konstruktionen.',
+  sleeveFrontArmholeWidthLowCapExplanation:
+    'Vid låg kulle mäts ärmhålsvidden fram på livet som ärmen ska konstrueras till och används i konstruktionen.',
 
   // measurements (from the measurement chart)
   backWaistLength: 'Livlängd bak',
@@ -516,6 +613,17 @@ const sv: Record<keyof typeof en, string> = {
   inseamLength: 'Innerbenslängd',
   rise: 'Byxhöjd',
   crotchDepth: 'Grenmått',
+  sleeveCapHeight: 'Ärmkullens höjd',
+  sleeveLengthWithEase: 'Ärmlängd med tillägg',
+  upperArmWidthWithEase: 'Överarmsvidd med tillägg',
+  halfUpperArmWidthWithEase: '½ överarmsvidd med tillägg',
+  wristWidthWithEase: 'Handledsvidd med tillägg',
+  elbowHeight: 'Armbågshöjd',
+  sleeveArmholeWidth: 'Ärmhålsvidd',
+  sleeveBackArmholeWidth: 'Ärmhålsvidd bak',
+  sleeveFrontArmholeWidth: 'Ärmhålsvidd fram',
+  sleeveBackCapGuide: 'Hjälpmått ärmkulle bak',
+  sleeveFrontCapGuide: 'Hjälpmått ärmkulle fram',
 };
 
 export const translations = { en, sv } as const;
@@ -530,16 +638,26 @@ export type PatchNoteEntry = {
 export const patchNotes = {
   en: {
     latest: {
-      version: 'Version 0.3.0',
-      dateLabel: 'April 5, 2026',
+      version: 'Version 0.4.0',
+      dateLabel: 'April 8, 2026',
       items: [
-        'Added a working bodice without darts workflow with visible calculations and drafted bodice geometry.',
-        'Added movement ease selection, bodice-specific helper tables, and front/back neckline and armhole drafting logic.',
-        'Enabled tiled A4 PDF export for the bodice and standardized the print calibration square to 4 x 4 cm across drafts.',
-        'Updated the PDF printing instructions to clarify that no seam allowance is included.',
+        'Added drafted high-cap and low-cap sleeve workflows to the bodice without darts pattern, including sleeve-specific calculations and previews.',
+        'Updated the bodice flow so users choose movement ease and sleeve cap before generation, with separate collapsed bodice and sleeve calculation sections.',
+        'Expanded PDF export so the bodice sleeve is included in the same file and the first page states which sleeve type is included.',
+        'Improved print annotations with cut-on-fold rendering, clearer page information, and fold labels that follow preview placement more closely.',
       ],
     },
     previous: [
+      {
+        version: 'Version 0.3.0',
+        dateLabel: 'April 5, 2026',
+        items: [
+          'Added a working bodice without darts workflow with visible calculations and drafted bodice geometry.',
+          'Added movement ease selection, bodice-specific helper tables, and front/back neckline and armhole drafting logic.',
+          'Enabled tiled A4 PDF export for the bodice and standardized the print calibration square to 4 x 4 cm across drafts.',
+          'Updated the PDF printing instructions to clarify that no seam allowance is included.',
+        ],
+      },
       {
         version: 'Version 0.2.0',
         dateLabel: 'March 29, 2026',
@@ -563,16 +681,26 @@ export const patchNotes = {
   },
   sv: {
     latest: {
-      version: 'Version 0.3.0',
-      dateLabel: '5 april 2026',
+      version: 'Version 0.4.0',
+      dateLabel: '8 april 2026',
       items: [
-        'Lade till ett fungerande arbetsflöde för liv utan insnitt med synliga beräkningar och ritad livgeometri.',
-        'Lade till val av rörelsevidd, hjälptabeller för livets konstruktion samt geometri för halsringning och ärmhål fram och bak.',
-        'Aktiverade uppdelad A4-PDF för livet och standardiserade testkvadraten till 4 x 4 cm för alla draftar.',
-        'Uppdaterade utskriftsinstruktionerna i PDF så att det framgår att ingen sömsmån ingår.',
+        'Lade till ritade ärmar med hög och låg kulle till liv utan insnitt, inklusive egna kalkyler och previews.',
+        'Uppdaterade livflödet så att användaren väljer rörelsetillägg och ärmkulle före generering, med separata ihopfällda sektioner för liv- och ärmkalkyler.',
+        'Utökade PDF-exporten så att ärmen följer med i samma fil och att första sidan anger vilken ärmtyp som ingår.',
+        'Förbättrade utskriftsannoteringarna med cut on fold-rendering, tydligare sidinformation och fold-etiketter som bättre följer placeringen i previewn.',
       ],
     },
     previous: [
+      {
+        version: 'Version 0.3.0',
+        dateLabel: '5 april 2026',
+        items: [
+          'Lade till ett fungerande arbetsflöde för liv utan insnitt med synliga beräkningar och ritad livgeometri.',
+          'Lade till val av rörelsevidd, hjälptabeller för livets konstruktion samt geometri för halsringning och ärmhål fram och bak.',
+          'Aktiverade uppdelad A4-PDF för livet och standardiserade testkvadraten till 4 x 4 cm för alla draftar.',
+          'Uppdaterade utskriftsinstruktionerna i PDF så att det framgår att ingen sömsmån ingår.',
+        ],
+      },
       {
         version: 'Version 0.2.0',
         dateLabel: '29 mars 2026',

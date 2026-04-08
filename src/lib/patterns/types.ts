@@ -3,11 +3,13 @@ import type { Measurements, Profile, ProfileType } from '../../types/measurement
 
 export type PatternOption = 'straightSkirt' | 'bodiceWithoutDarts';
 export type PatternCategory = 'skirts' | 'bodices';
+export type PatternSleeveCap = 'high' | 'low';
 
 export type PatternSectionKey =
   | 'basicMeasurements'
   | 'controlMeasurements'
   | 'fixedMeasurements'
+  | 'sleeveMeasurements'
   | 'dartPlacement'
   | 'dartWidth'
   | 'sideLine';
@@ -38,7 +40,8 @@ export type DraftLine = {
   id: string;
   from: string;
   to: string;
-  kind?: 'outline' | 'construction' | 'hidden' | 'grainline';
+  kind?: 'outline' | 'construction' | 'hidden' | 'grainline' | 'fold';
+  label?: string;
 };
 
 export type DraftLabel = {
@@ -52,7 +55,7 @@ export type DraftLabel = {
 export type DraftPath = {
   id: string;
   d: string;
-  kind?: 'outline' | 'construction' | 'hidden' | 'grainline';
+  kind?: 'outline' | 'construction' | 'hidden' | 'grainline' | 'fold';
 };
 
 export type DraftRenderable = {
@@ -76,6 +79,11 @@ export type DraftNote = {
 export type PatternDraft = DraftRenderable & {
   units: 'mm';
   notes?: DraftNote[];
+  supplementalDrafts?: {
+    id: string;
+    title: string;
+    draft: DraftRenderable & { units: 'mm'; notes?: DraftNote[] };
+  }[];
 };
 
 export type PatternFirstPageInstructions = {
@@ -104,6 +112,7 @@ export type PatternPrintConfig = {
 export type Translate = (key: TranslationKey) => string;
 export type PatternSettings = {
   movementEase?: number;
+  sleeveCap?: PatternSleeveCap;
 };
 
 export type PatternDefinition = {
@@ -112,7 +121,11 @@ export type PatternDefinition = {
   supportedProfileTypes: ProfileType[];
   requiredMeasurements: (keyof Measurements)[];
   printConfig?: PatternPrintConfig;
-  buildPrintConfig?: (profile: Profile, t: Translate) => PatternPrintConfig;
+  buildPrintConfig?: (
+    profile: Profile,
+    t: Translate,
+    settings?: PatternSettings,
+  ) => PatternPrintConfig;
   calculate: (
     profile: Profile,
     t: Translate,

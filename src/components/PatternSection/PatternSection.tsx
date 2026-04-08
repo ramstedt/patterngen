@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Alert from '@mui/material/Alert';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -16,6 +19,7 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import type { TranslationKey } from '../../../i18n/translations';
 import { useI18n } from '../../../i18n/useI18n';
@@ -27,6 +31,7 @@ import {
   getPatternDefinition,
   getPatternPrintConfig,
   type PatternCategory,
+  type PatternSleeveCap,
   type PatternSettings,
   type PatternOption,
 } from '../../lib/patterns';
@@ -40,11 +45,103 @@ const SECTION_ORDER = [
   'basicMeasurements',
   'controlMeasurements',
   'fixedMeasurements',
+  'sleeveMeasurements',
   'dartWidth',
   'sideLine',
   'dartPlacement',
 ] as const;
 const STEP_LABEL_MIN_HEIGHT = 32;
+
+function renderCalculationSection(
+  section: string,
+  sectionCalculations: {
+    id: string;
+    label: string;
+    value: number;
+    explanation?: string;
+    description?: string;
+  }[],
+  t: (key: TranslationKey) => string,
+  showLargeDifferenceDartHelp: boolean,
+  hideTitle = false,
+) {
+  return (
+    <Box key={section}>
+      {!hideTitle && (
+        <Typography variant='h6' sx={{ mb: 1.5 }}>
+          {t(
+            (section === 'basicMeasurements'
+              ? 'calculationBreakdown'
+              : section) as TranslationKey,
+          )}
+        </Typography>
+      )}
+
+      {section === 'dartWidth' && showLargeDifferenceDartHelp && (
+        <Alert severity='info' sx={{ mb: 1.5 }}>
+          {t('dartWidthLargeDifferenceHelp')}
+        </Alert>
+      )}
+      {section === 'controlMeasurements' && (
+        <Alert severity='info' sx={{ mb: 1.5 }}>
+          {t('controlMeasurementsHelp')}
+        </Alert>
+      )}
+      {section === 'fixedMeasurements' && (
+        <Alert severity='info' sx={{ mb: 1.5 }}>
+          {t('fixedMeasurementsHelp')}
+        </Alert>
+      )}
+
+      <Table size='small'>
+        <TableBody>
+          {sectionCalculations.map((calculation) => (
+            <TableRow key={calculation.id}>
+              <TableCell sx={{ pl: 0, fontSize: '0.95rem' }}>
+                <Stack spacing={0.5}>
+                  <Typography fontWeight={600} sx={{ fontSize: '0.95rem' }}>
+                    {calculation.label}
+                  </Typography>
+                  {calculation.explanation && (
+                    <Typography
+                      variant='body2'
+                      color='text.secondary'
+                      sx={{ fontSize: '0.875rem' }}
+                    >
+                      {calculation.explanation}
+                    </Typography>
+                  )}
+                  {calculation.description && (
+                    <Typography
+                      variant='body2'
+                      color='text.secondary'
+                      sx={{
+                        fontSize: '0.8rem',
+                        fontFamily: 'monospace',
+                      }}
+                    >
+                      {calculation.description}
+                    </Typography>
+                  )}
+                </Stack>
+              </TableCell>
+              <TableCell
+                align='right'
+                sx={{
+                  pr: 0,
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.95rem',
+                }}
+              >
+                {formatMeasurement(calculation.value)} cm
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
+  );
+}
 
 export function PatternSection({
   showHeader = true,
@@ -63,12 +160,18 @@ export function PatternSection({
   const [selectedMovementEase, setSelectedMovementEase] = useState<number | ''>(
     '',
   );
+  const [selectedSleeveCap, setSelectedSleeveCap] = useState<
+    PatternSleeveCap | ''
+  >('');
   const [submittedProfileId, setSubmittedProfileId] = useState('');
   const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>(
     '',
   );
   const [submittedMovementEase, setSubmittedMovementEase] = useState<
     number | ''
+  >('');
+  const [submittedSleeveCap, setSubmittedSleeveCap] = useState<
+    PatternSleeveCap | ''
   >('');
   const [isMovementEaseHelpOpen, setIsMovementEaseHelpOpen] = useState(false);
 
@@ -91,6 +194,7 @@ export function PatternSection({
         setSubmittedProfileId('');
         setSubmittedPattern('');
         setSubmittedMovementEase('');
+        setSubmittedSleeveCap('');
       }
     };
 
@@ -117,16 +221,22 @@ export function PatternSection({
     [selectedCategory],
   );
   const requiresMovementEase = selectedPattern === 'bodiceWithoutDarts';
+  const requiresSleeveCap = selectedPattern === 'bodiceWithoutDarts';
   const movementEaseOptions = useMemo(
     () => easeNoDarts.entries.map((entry) => entry.ease),
     [],
   );
   const submittedSettings = useMemo<PatternSettings | undefined>(
     () =>
-      submittedPattern === 'bodiceWithoutDarts' && submittedMovementEase
-        ? { movementEase: submittedMovementEase }
+      submittedPattern === 'bodiceWithoutDarts' &&
+      submittedMovementEase &&
+      submittedSleeveCap
+        ? {
+            movementEase: submittedMovementEase,
+            sleeveCap: submittedSleeveCap,
+          }
         : undefined,
-    [submittedMovementEase, submittedPattern],
+    [submittedMovementEase, submittedPattern, submittedSleeveCap],
   );
 
   const calculations = useMemo(() => {
@@ -178,9 +288,14 @@ export function PatternSection({
   const submittedPatternPrintConfig = useMemo(
     () =>
       submittedPattern && submittedProfile
-        ? getPatternPrintConfig(submittedPattern, submittedProfile, t)
+        ? getPatternPrintConfig(
+            submittedPattern,
+            submittedProfile,
+            t,
+            submittedSettings,
+          )
         : undefined,
-    [submittedPattern, submittedProfile, t],
+    [submittedPattern, submittedProfile, submittedSettings, t],
   );
 
   const showLargeDifferenceDartHelp = useMemo(
@@ -191,6 +306,20 @@ export function PatternSection({
           calculation.id === 'backDartWidthSecondary',
       ),
     [calculations],
+  );
+  const bodiceCalculationSections = useMemo(
+    () =>
+      calculationsBySection.filter(
+        ([section]) => section !== 'sleeveMeasurements',
+      ),
+    [calculationsBySection],
+  );
+  const sleeveCalculationSections = useMemo(
+    () =>
+      calculationsBySection.filter(
+        ([section]) => section === 'sleeveMeasurements',
+      ),
+    [calculationsBySection],
   );
 
   const requiredMeasurementStatus = useMemo(
@@ -235,14 +364,16 @@ export function PatternSection({
     Boolean(selectedCategory) &&
     Boolean(selectedPattern) &&
     Boolean(selectedProfileId) &&
-    (!requiresMovementEase || Boolean(selectedMovementEase));
+    (!requiresMovementEase || Boolean(selectedMovementEase)) &&
+    (!requiresSleeveCap || Boolean(selectedSleeveCap));
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (
       !selectedProfileId ||
       !selectedPattern ||
-      (selectedPattern === 'bodiceWithoutDarts' && !selectedMovementEase)
+      (selectedPattern === 'bodiceWithoutDarts' &&
+        (!selectedMovementEase || !selectedSleeveCap))
     ) {
       return;
     }
@@ -251,6 +382,9 @@ export function PatternSection({
     setSubmittedPattern(selectedPattern);
     setSubmittedMovementEase(
       selectedPattern === 'bodiceWithoutDarts' ? selectedMovementEase : '',
+    );
+    setSubmittedSleeveCap(
+      selectedPattern === 'bodiceWithoutDarts' ? selectedSleeveCap : '',
     );
   }
 
@@ -344,6 +478,7 @@ export function PatternSection({
                 setSelectedCategory(nextCategory);
                 setSelectedPattern('');
                 setSelectedMovementEase('');
+                setSelectedSleeveCap('');
                 setSelectedProfileId('');
               }}
               size='small'
@@ -381,6 +516,7 @@ export function PatternSection({
 
                   if (nextPattern !== 'bodiceWithoutDarts') {
                     setSelectedMovementEase('');
+                    setSelectedSleeveCap('');
                   }
                 }}
                 size='small'
@@ -439,7 +575,8 @@ export function PatternSection({
           )}
 
           {selectedPattern &&
-            (!requiresMovementEase || selectedMovementEase) && (
+            (!requiresMovementEase || selectedMovementEase) &&
+            requiresSleeveCap && (
               <Stack spacing={1}>
                 <Box
                   sx={{
@@ -449,7 +586,45 @@ export function PatternSection({
                   }}
                 >
                   <Typography variant='body2' color='text.secondary'>
-                    {requiresMovementEase ? '4.' : '3.'} {t('selectProfile')}
+                    4. {t('sleeveCap')}
+                  </Typography>
+                </Box>
+                <TextField
+                  select
+                  label={t('sleeveCap')}
+                  value={selectedSleeveCap}
+                  onChange={(event) =>
+                    setSelectedSleeveCap(
+                      event.target.value as PatternSleeveCap | '',
+                    )
+                  }
+                  size='small'
+                >
+                  <MenuItem value=''>{t('selectSleeveCap')}</MenuItem>
+                  <MenuItem value='high'>{t('highCapSleeve')}</MenuItem>
+                  <MenuItem value='low'>{t('lowCapSleeve')}</MenuItem>
+                </TextField>
+              </Stack>
+            )}
+
+          {selectedPattern &&
+            (!requiresMovementEase || selectedMovementEase) &&
+            (!requiresSleeveCap || selectedSleeveCap) && (
+              <Stack spacing={1}>
+                <Box
+                  sx={{
+                    minHeight: STEP_LABEL_MIN_HEIGHT,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='body2' color='text.secondary'>
+                    {requiresSleeveCap
+                      ? '5.'
+                      : requiresMovementEase
+                        ? '4.'
+                        : '3.'}{' '}
+                    {t('selectProfile')}
                   </Typography>
                 </Box>
                 <TextField
@@ -478,6 +653,18 @@ export function PatternSection({
               {t('movementEaseRequired')}
             </Typography>
           )}
+          {requiresSleeveCap &&
+            Boolean(selectedPattern) &&
+            Boolean(selectedMovementEase) &&
+            !selectedSleeveCap && (
+              <Typography
+                variant='body2'
+                color='text.secondary'
+                sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+              >
+                {t('sleeveCapRequired')}
+              </Typography>
+            )}
           {isReadyToGenerate && (
             <Stack
               spacing={1}
@@ -495,7 +682,12 @@ export function PatternSection({
                 }}
               >
                 <Typography variant='body2' color='text.secondary'>
-                  {requiresMovementEase ? '5.' : '4.'} {t('calculatePattern')}
+                  {requiresSleeveCap
+                    ? '6.'
+                    : requiresMovementEase
+                      ? '5.'
+                      : '4.'}{' '}
+                  {t('calculatePattern')}
                 </Typography>
               </Box>
               <Button
@@ -554,7 +746,6 @@ export function PatternSection({
         >
           <Stack spacing={3}>
             <Stack spacing={0.5}>
-              <Typography variant='h6'>{t(submittedPattern)}</Typography>
               <Typography color='text.secondary'>
                 {t('patternCalculationPending').replace(
                   '{profileName}',
@@ -579,7 +770,41 @@ export function PatternSection({
               </Alert>
             )}
 
-            {draft && <PatternDraftPreview draft={draft} />}
+            {draft && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gap: 3,
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    md: 'repeat(2, minmax(0, 1fr))',
+                  },
+                  alignItems: 'start',
+                }}
+              >
+                <Stack spacing={1}>
+                  <Typography
+                    variant='h6'
+                    sx={{ minHeight: { xs: 'auto', md: '1.5em' } }}
+                  >
+                    {t(submittedPattern)}
+                  </Typography>
+                  <PatternDraftPreview draft={draft} />
+                </Stack>
+
+                {draft.supplementalDrafts?.map((supplementalDraft) => (
+                  <Stack key={supplementalDraft.id} spacing={1}>
+                    <Typography
+                      variant='h6'
+                      sx={{ minHeight: { xs: 'auto', md: '1.5em' } }}
+                    >
+                      {supplementalDraft.title}
+                    </Typography>
+                    <PatternDraftPreview draft={supplementalDraft.draft} />
+                  </Stack>
+                ))}
+              </Box>
+            )}
 
             {draft && submittedPatternPrintConfig?.enabled && (
               <Stack spacing={1} alignItems='flex-start'>
@@ -592,83 +817,78 @@ export function PatternSection({
               </Stack>
             )}
 
-            {calculationsBySection.map(([section, sectionCalculations]) => (
-              <Box key={section}>
-                <Typography variant='h6' sx={{ mb: 1.5 }}>
-                  {t(
-                    (section === 'basicMeasurements'
-                      ? 'calculationBreakdown'
-                      : section) as TranslationKey,
-                  )}
-                </Typography>
+            {submittedPattern === 'bodiceWithoutDarts' ? (
+              <>
+                <Accordion disableGutters elevation={0} sx={{ bgcolor: 'transparent' }}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant='h6'>
+                      {t('bodiceCalculations')}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ px: 0 }}>
+                    <Stack spacing={3}>
+                      {bodiceCalculationSections.map(
+                        ([section, sectionCalculations]) =>
+                          renderCalculationSection(
+                            section,
+                            sectionCalculations,
+                            t,
+                            showLargeDifferenceDartHelp,
+                          ),
+                      )}
+                    </Stack>
+                  </AccordionDetails>
+                </Accordion>
 
-                {section === 'dartWidth' && showLargeDifferenceDartHelp && (
-                  <Alert severity='info' sx={{ mb: 1.5 }}>
-                    {t('dartWidthLargeDifferenceHelp')}
-                  </Alert>
+                {sleeveCalculationSections.length > 0 && (
+                  <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{ bgcolor: 'transparent' }}
+                  >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                      <Typography variant='h6'>
+                        {t('sleeveMeasurements')}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ px: 0 }}>
+                      <Stack spacing={3}>
+                        {sleeveCalculationSections.map(
+                          ([section, sectionCalculations]) =>
+                            renderCalculationSection(
+                              section,
+                              sectionCalculations,
+                              t,
+                              showLargeDifferenceDartHelp,
+                            ),
+                        )}
+                      </Stack>
+                    </AccordionDetails>
+                  </Accordion>
                 )}
-                {section === 'controlMeasurements' && (
-                  <Alert severity='info' sx={{ mb: 1.5 }}>
-                    {t('controlMeasurementsHelp')}
-                  </Alert>
-                )}
-                {section === 'fixedMeasurements' && (
-                  <Alert severity='info' sx={{ mb: 1.5 }}>
-                    {t('fixedMeasurementsHelp')}
-                  </Alert>
-                )}
-
-                <Table size='small'>
-                  <TableBody>
-                    {sectionCalculations.map((calculation) => (
-                      <TableRow key={calculation.id}>
-                        <TableCell sx={{ pl: 0, fontSize: '0.95rem' }}>
-                          <Stack spacing={0.5}>
-                            <Typography
-                              fontWeight={600}
-                              sx={{ fontSize: '0.95rem' }}
-                            >
-                              {calculation.label}
-                            </Typography>
-                            {calculation.explanation && (
-                              <Typography
-                                variant='body2'
-                                color='text.secondary'
-                                sx={{ fontSize: '0.875rem' }}
-                              >
-                                {calculation.explanation}
-                              </Typography>
-                            )}
-                            {calculation.description && (
-                              <Typography
-                                variant='body2'
-                                color='text.secondary'
-                                sx={{
-                                  fontSize: '0.8rem',
-                                  fontFamily: 'monospace',
-                                }}
-                              >
-                                {calculation.description}
-                              </Typography>
-                            )}
-                          </Stack>
-                        </TableCell>
-                        <TableCell
-                          align='right'
-                          sx={{
-                            pr: 0,
-                            whiteSpace: 'nowrap',
-                            fontSize: '0.95rem',
-                          }}
-                        >
-                          {formatMeasurement(calculation.value)} cm
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            ))}
+              </>
+            ) : (
+              <Accordion disableGutters elevation={0} sx={{ bgcolor: 'transparent' }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant='h6'>
+                    {t('calculationBreakdown')}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ px: 0 }}>
+                  <Stack spacing={3}>
+                    {calculationsBySection.map(([section, sectionCalculations]) =>
+                      renderCalculationSection(
+                        section,
+                        sectionCalculations,
+                        t,
+                        showLargeDifferenceDartHelp,
+                        section === 'basicMeasurements',
+                      ),
+                    )}
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
+            )}
           </Stack>
         </Paper>
       )}
