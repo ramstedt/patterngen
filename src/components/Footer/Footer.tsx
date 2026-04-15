@@ -130,7 +130,17 @@ export function Footer() {
           <Divider />
 
           <Typography variant='caption' color='text.secondary'>
-            {t('footerTitle')} • contact@sewmetry.io
+            {t('footerTitle')} • contact@sewmetry.io •{' '}
+            {t('footerIllustrations')}{' '}
+            <Link
+              href='https://www.fiverr.com/bondarukyana'
+              target='_blank'
+              rel='noreferrer'
+              underline='hover'
+              color='text.secondary'
+            >
+              Yana B
+            </Link>
           </Typography>
         </Stack>
       </Container>

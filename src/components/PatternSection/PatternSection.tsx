@@ -37,8 +37,7 @@ import {
 } from '../../lib/patterns';
 import easeNoDarts from '../../data/easeNoDarts.json';
 import { formatMeasurement } from '../../lib/measurements';
-import { loadProfiles, subscribeProfiles } from '../../storage/profiles';
-import type { Profile } from '../../types/measurements';
+import { useProfiles } from '../../hooks/useProfiles';
 import { downloadPatternPdf } from '../../lib/printing/patternPdf';
 
 const SECTION_ORDER = [
@@ -204,7 +203,7 @@ export function PatternSection({
 }) {
   const { t } = useI18n();
   const initialQueryState = useMemo(() => getPatternQueryState(), []);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const { profiles } = useProfiles();
   const [selectedProfileId, setSelectedProfileId] = useState(
     initialQueryState.profileId,
   );
@@ -232,31 +231,23 @@ export function PatternSection({
   const hasRestoredGeneratedState = useRef(false);
 
   useEffect(() => {
-    const syncProfiles = () => {
-      const nextProfiles = loadProfiles();
-      setProfiles(nextProfiles);
+    if (
+      selectedProfileId &&
+      !profiles.some((profile) => profile.id === selectedProfileId)
+    ) {
+      setSelectedProfileId('');
+    }
 
-      if (
-        selectedProfileId &&
-        !nextProfiles.some((profile) => profile.id === selectedProfileId)
-      ) {
-        setSelectedProfileId('');
-      }
-
-      if (
-        submittedProfileId &&
-        !nextProfiles.some((profile) => profile.id === submittedProfileId)
-      ) {
-        setSubmittedProfileId('');
-        setSubmittedPattern('');
-        setSubmittedMovementEase('');
-        setSubmittedSleeveCap('');
-      }
-    };
-
-    syncProfiles();
-    return subscribeProfiles(syncProfiles);
-  }, [selectedProfileId, submittedProfileId]);
+    if (
+      submittedProfileId &&
+      !profiles.some((profile) => profile.id === submittedProfileId)
+    ) {
+      setSubmittedProfileId('');
+      setSubmittedPattern('');
+      setSubmittedMovementEase('');
+      setSubmittedSleeveCap('');
+    }
+  }, [profiles, selectedProfileId, submittedProfileId]);
 
   const submittedProfile = useMemo(
     () => profiles.find((profile) => profile.id === submittedProfileId) ?? null,

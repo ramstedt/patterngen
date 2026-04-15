@@ -31,11 +31,7 @@ import {
   MEASUREMENT_FIELDS,
   roundToHalf,
 } from '../../lib/measurements';
-import {
-  deleteProfile,
-  loadProfiles,
-  upsertProfile,
-} from '../../storage/profiles';
+import { useProfiles } from '../../hooks/useProfiles';
 import {
   measurementsFromMenStandardSize,
   measurementsFromStandardSize,
@@ -256,20 +252,33 @@ function renderMeasurementField(
 
 export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) {
   const { t } = useI18n();
+  const { profiles, loading: profilesLoading, upsert: upsertProfile, remove: removeProfile } = useProfiles();
   const initialQueryState = useMemo(() => getProfileQueryState(), []);
-  const initialProfiles = useMemo(() => loadProfiles(), []);
-  const initialActiveProfile =
-    initialProfiles.find((profile) => profile.id === initialQueryState.activeId) ??
-    initialProfiles[0] ??
-    null;
-  const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
   const [activeId, setActiveId] = useState<string | null>(
-    initialQueryState.activeId ?? initialActiveProfile?.id ?? null,
+    initialQueryState.activeId ?? null,
   );
   const [mode, setMode] = useState<ProfileManagerMode>(initialQueryState.mode);
+  const [initialised, setInitialised] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
   const [womenSize, setWomenSize] = useState<StandardSize>('C44');
   const [menSize, setMenSize] = useState<MenSize>('C50');
+
+  // Once profiles load for the first time, pick the initial active profile
+  useEffect(() => {
+    if (profilesLoading || initialised) return;
+    setInitialised(true);
+    const queryId = initialQueryState.activeId;
+    const match = queryId ? profiles.find((p) => p.id === queryId) : null;
+    const firstProfile = match ?? profiles[0] ?? null;
+    if (firstProfile) {
+      setActiveId(firstProfile.id);
+      form.reset({
+        name: firstProfile.name,
+        profileType: firstProfile.profileType,
+        ...firstProfile.measurements,
+      });
+    }
+  }, [profilesLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const active = useMemo(
     () => profiles.find((profile) => profile.id === activeId) ?? null,
@@ -288,13 +297,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: initialActiveProfile
-      ? {
-          name: initialActiveProfile.name,
-          profileType: initialActiveProfile.profileType,
-          ...initialActiveProfile.measurements,
-        }
-      : createBlankFormValues(),
+    defaultValues: createBlankFormValues(),
     mode: 'onSubmit',
   });
 
@@ -353,13 +356,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
   }
 
-  function refresh() {
-    const nextProfiles = loadProfiles();
-    setProfiles(nextProfiles);
-    if (!nextProfiles.find((profile) => profile.id === activeId)) {
-      setActiveId(nextProfiles[0]?.id ?? null);
-    }
-  }
+
 
   function startNew() {
     setMode('new');
@@ -403,7 +400,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     );
   }
 
-  function onSave(values: FormValues) {
+  async function onSave(values: FormValues) {
     if (isDuplicateName(values.name)) {
       alert(t('profileExists'));
       return;
@@ -426,38 +423,23 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
       updatedAt: now,
     };
 
-    upsertProfile(profile);
-    refresh();
-    setActiveId(profile.id);
+    const saved = await upsertProfile(profile);
+    setActiveId(saved.id);
     setMode('view');
     setSavedMsg(true);
     window.setTimeout(() => setSavedMsg(false), 1200);
   }
 
-  function onDelete() {
+  async function onDelete() {
     if (!active) return;
     if (!confirm(t('confirmDeleteProfile'))) return;
 
-    deleteProfile(active.id);
+    await removeProfile(active.id);
 
-    const nextProfiles = loadProfiles();
-    setProfiles(nextProfiles);
-    const nextActiveId = nextProfiles[0]?.id ?? null;
-    setActiveId(nextActiveId);
+    // profiles state is updated by the hook — pick the next active
+    setActiveId(null);
     setMode('view');
-
-    if (nextActiveId) {
-      const nextProfile = nextProfiles.find((profile) => profile.id === nextActiveId);
-      if (nextProfile) {
-        form.reset({
-          name: nextProfile.name,
-          profileType: nextProfile.profileType,
-          ...nextProfile.measurements,
-        });
-      }
-    } else {
-      form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
-    }
+    form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
   }
 
   const canEdit = mode === 'edit' || mode === 'new';
@@ -475,10 +457,19 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   }, [selectedProfileType, visibleFields, watchedValues]);
 
   useEffect(() => {
-    if (activeId && !profiles.some((profile) => profile.id === activeId)) {
-      setActiveId(profiles[0]?.id ?? null);
+    if (!initialised) return;
+    const activeExists = activeId && profiles.some((p) => p.id === activeId);
+    if (!activeExists && profiles.length > 0) {
+      const next = profiles[0];
+      setActiveId(next.id);
+      form.reset({
+        name: next.name,
+        profileType: next.profileType,
+        ...next.measurements,
+      });
+      if (mode !== 'new') setMode('view');
     }
-  }, [activeId, profiles]);
+  }, [activeId, profiles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     writeProfileQueryState({
