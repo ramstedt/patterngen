@@ -131,21 +131,21 @@ test.describe('Measurement profiles', () => {
     // User B should not see it
     const userB = await registerUser(api);
 
-    // List — should be empty for B
+    // List - should be empty for B
     const listRes = await api.get('/api/measurement-profiles', {
       headers: authHeader(userB.token),
     });
     const bProfiles = await listRes.json();
     expect(bProfiles.length).toBe(0);
 
-    // Direct access — should 404
+    // Direct access - should 404
     const getRes = await api.put(`/api/measurement-profiles/${profileId}`, {
       headers: authHeader(userB.token),
       data: { name: 'hacked' },
     });
     expect(getRes.status()).toBe(404);
 
-    // Delete — should 404
+    // Delete - should 404
     const delRes = await api.delete(`/api/measurement-profiles/${profileId}`, {
       headers: authHeader(userB.token),
     });

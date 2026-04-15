@@ -436,7 +436,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
     await removeProfile(active.id);
 
-    // profiles state is updated by the hook — pick the next active
+    // profiles state is updated by the hook - pick the next active
     setActiveId(null);
     setMode('view');
     form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });

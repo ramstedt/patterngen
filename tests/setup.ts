@@ -31,17 +31,23 @@ export function uniqueEmail() {
   return `test_${Date.now()}_${++counter}@example.com`;
 }
 
-/** Register + return { token, email, password }. */
+/** Register + login, return { token, email, password }. */
 export async function registerUser(
   api: APIRequestContext,
   email?: string,
   password = 'TestPass123!',
 ) {
   const e = email ?? uniqueEmail();
-  const res = await api.post('/api/auth/register', {
+  const regRes = await api.post('/api/auth/register', {
     data: { email: e, password },
   });
-  const body = await res.json();
+  if (regRes.status() !== 201) {
+    throw new Error(`Register failed: ${regRes.status()} ${await regRes.text()}`);
+  }
+  const loginRes = await api.post('/api/auth/login', {
+    data: { email: e, password },
+  });
+  const body = await loginRes.json();
   return { token: body.token as string, email: e, password };
 }
 

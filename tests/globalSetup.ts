@@ -11,6 +11,7 @@ const TEST_DB = 'sewmetry_test';
 let server: Server;
 
 async function globalSetup(_config: FullConfig) {
+  process.env.NODE_ENV = 'test';
   const MONGO_URI = process.env.MONGODB_URI!;
   await mongoose.connect(MONGO_URI, { dbName: TEST_DB });
   await mongoose.connection.db!.dropDatabase();

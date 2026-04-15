@@ -31,7 +31,7 @@ export function AccountInfo() {
           <strong>{t('accountLastLogin')}:</strong>{' '}
           {accountUser.lastLoginAt
             ? new Date(accountUser.lastLoginAt).toLocaleString()
-            : '—'}
+            : '-'}
         </Typography>
         <Typography>
           <strong>{t('accountSavedProfiles')}:</strong> {accountUser.measurementProfileCount}

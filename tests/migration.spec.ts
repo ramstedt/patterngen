@@ -74,7 +74,7 @@ test.describe('LocalStorage → DB migration', () => {
   test('import respects max 10 profile limit', async ({ api }) => {
     const { token } = await registerUser(api);
 
-    // Try to import 12 profiles — only 10 should be accepted
+    // Try to import 12 profiles - only 10 should be accepted
     const localProfiles = Array.from({ length: 12 }, (_, i) => ({
       name: `Profile ${i + 1}`,
       profileType: 'women' as const,

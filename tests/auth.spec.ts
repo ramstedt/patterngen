@@ -1,6 +1,16 @@
 import { test, expect, uniqueEmail, registerUser } from './setup.js';
 
+interface SentEmail {
+  to: string;
+  subject: string;
+  text: string;
+}
+
 test.describe('Auth', () => {
+  test.beforeEach(async ({ api }) => {
+    await api.delete('/api/test/emails');
+  });
+
   test('register success', async ({ api }) => {
     const email = uniqueEmail();
     const res = await api.post('/api/auth/register', {
@@ -9,8 +19,26 @@ test.describe('Auth', () => {
 
     expect(res.status()).toBe(201);
     const body = await res.json();
-    expect(body.token).toBeTruthy();
-    expect(body.accountUser.email).toBe(email.toLowerCase());
+    expect(body.message).toBeTruthy();
+    // Should NOT return a token (no auto-login)
+    expect(body.token).toBeUndefined();
+  });
+
+  test('register sends welcome email', async ({ api }) => {
+    const email = uniqueEmail();
+    await api.post('/api/auth/register', {
+      data: { email, password: 'TestPass123!' },
+    });
+
+    // Wait briefly for fire-and-forget email to be logged
+    await new Promise((r) => setTimeout(r, 200));
+
+    const emails: SentEmail[] = await (await api.get('/api/test/emails')).json();
+    const welcome = emails.find((e) => e.to === email.toLowerCase());
+    expect(welcome).toBeDefined();
+    expect(welcome!.subject).toContain('Welcome');
+    expect(welcome!.text).toContain(email.toLowerCase());
+    expect(welcome!.text).toContain('sewmetry.io');
   });
 
   test('register duplicate email returns 409', async ({ api }) => {
@@ -61,14 +89,23 @@ test.describe('Auth', () => {
 
   test('password reset flow', async ({ api }) => {
     const { email } = await registerUser(api);
+    await api.delete('/api/test/emails');
 
     // 1. Request reset
     const reqRes = await api.post('/api/auth/request-password-reset', {
       data: { email },
     });
     expect(reqRes.status()).toBe(200);
-    const { resetToken } = await reqRes.json();
-    expect(resetToken).toBeTruthy();
+
+    // Extract token from the logged email
+    const emails: SentEmail[] = await (await api.get('/api/test/emails')).json();
+    const resetEmail = emails.find(
+      (e) => e.to === email.toLowerCase() && e.subject.includes('Password reset'),
+    );
+    expect(resetEmail).toBeDefined();
+    const tokenMatch = resetEmail!.text.match(/Your reset token:\n(\S+)/);
+    expect(tokenMatch).toBeTruthy();
+    const resetToken = tokenMatch![1];
 
     // 2. Reset password
     const newPassword = 'NewSecure456!';
@@ -88,6 +125,22 @@ test.describe('Auth', () => {
       data: { email, password: newPassword },
     });
     expect(newLoginRes.status()).toBe(200);
+  });
+
+  test('password reset sends email with token', async ({ api }) => {
+    const { email } = await registerUser(api);
+    await api.delete('/api/test/emails');
+
+    await api.post('/api/auth/request-password-reset', {
+      data: { email },
+    });
+
+    const emails: SentEmail[] = await (await api.get('/api/test/emails')).json();
+    const resetEmail = emails.find(
+      (e) => e.to === email.toLowerCase() && e.subject.includes('Password reset'),
+    );
+    expect(resetEmail).toBeDefined();
+    expect(resetEmail!.text).toContain('reset token');
   });
 
   test('reset with invalid token returns 400', async ({ api }) => {

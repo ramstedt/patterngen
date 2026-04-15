@@ -72,6 +72,11 @@ export function AuthPage({ initialView = 'login' }: { initialView?: AuthView }) 
             setError('');
             navigate('/login');
           }}
+          onRegistered={() => {
+            setError('');
+            setInfo(t('authRegistrationSuccess'));
+            navigate('/login');
+          }}
         />
       )}
       {view === 'forgot' && (
@@ -166,13 +171,14 @@ function RegisterForm({
   error,
   setError,
   onSwitchToLogin,
+  onRegistered,
 }: {
   error: string;
   setError: (e: string) => void;
   onSwitchToLogin: () => void;
+  onRegistered: () => void;
 }) {
   const { t } = useI18n();
-  const register = useAuthStore((s) => s.register);
   const [loading, setLoading] = useState(false);
   const captcha = useServerCaptcha();
 
@@ -232,7 +238,7 @@ function RegisterForm({
           required
           inputProps={{ minLength: 8 }}
         />
-        {/* Honeypot — invisible to humans, bots auto-fill it */}
+        {/* Honeypot - invisible to humans, bots auto-fill it */}
         <Box
           component="input"
           name="website"
@@ -292,6 +298,7 @@ function ForgotPasswordForm({
 }) {
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -300,11 +307,9 @@ function ForgotPasswordForm({
     setLoading(true);
     const data = new FormData(e.currentTarget);
     try {
-      const res = await requestPasswordReset(data.get('email') as string);
-      setInfo(res.message);
-      if (res.resetToken) {
-        onTokenReceived();
-      }
+      await requestPasswordReset(data.get('email') as string);
+      setInfo(t('authResetEmailSent'));
+      setSent(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t('authRequestFailed'));
     } finally {
@@ -317,10 +322,15 @@ function ForgotPasswordForm({
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {info && <Alert severity="success" sx={{ mb: 2 }}>{info}</Alert>}
       <Stack spacing={2}>
-        <TextField name="email" label={t('authEmail')} type="email" required autoFocus />
-        <Button type="submit" variant="contained" disabled={loading}>
+        <TextField name="email" label={t('authEmail')} type="email" required autoFocus disabled={sent} />
+        <Button type="submit" variant="contained" disabled={loading || sent}>
           {loading ? t('authSending') : t('authSendResetLink')}
         </Button>
+        {sent && (
+          <Button variant="outlined" onClick={onTokenReceived}>
+            {t('authHaveResetToken')}
+          </Button>
+        )}
         <Button size="small" onClick={onBack}>
           {t('authBackToLogin')}
         </Button>
@@ -343,6 +353,7 @@ function ResetPasswordForm({
   setError: (e: string) => void;
   setInfo: (i: string) => void;
   onBack: () => void;
+  onSuccess: () => void;
 }) {
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
@@ -354,11 +365,12 @@ function ResetPasswordForm({
     setLoading(true);
     const data = new FormData(e.currentTarget);
     try {
-      const res = await resetPassword(
+      await resetPassword(
         data.get('token') as string,
         data.get('password') as string,
       );
-      setInfo(res.message);
+      setInfo(t('authResetSuccess'));
+      onSuccess();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t('authResetFailed'));
     } finally {

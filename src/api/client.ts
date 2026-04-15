@@ -71,7 +71,7 @@ export function register(
   captchaAnswer: number,
   website?: string,
 ) {
-  return request<AuthResponse>('/api/auth/register', {
+  return request<{ message: string }>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify({ email, password, captchaToken, captchaAnswer, website }),
   });
@@ -85,7 +85,7 @@ export function login(email: string, password: string) {
 }
 
 export function requestPasswordReset(email: string) {
-  return request<{ message: string; resetToken?: string }>(
+  return request<{ message: string }>(
     '/api/auth/request-password-reset',
     { method: 'POST', body: JSON.stringify({ email }) },
   );

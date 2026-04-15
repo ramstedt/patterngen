@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import measurementProfileRoutes from './routes/measurementProfiles.js';
+import { getSentEmails, clearSentEmails } from './utils/email.js';
 
 export function createApp() {
   const app = express();
@@ -16,6 +17,17 @@ export function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/me', userRoutes);
   app.use('/api/measurement-profiles', measurementProfileRoutes);
+
+  // ── Test-only: email log endpoints ───────────
+  if (process.env.NODE_ENV === 'test') {
+    app.get('/api/test/emails', (_req, res) => {
+      res.json(getSentEmails());
+    });
+    app.delete('/api/test/emails', (_req, res) => {
+      clearSentEmails();
+      res.json({ cleared: true });
+    });
+  }
 
   return app;
 }

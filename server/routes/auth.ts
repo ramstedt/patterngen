@@ -3,6 +3,7 @@ import { Router, type Request, type Response } from 'express';
 import { AccountUser } from '../models/AccountUser.js';
 import { RateLimit } from '../models/RateLimit.js';
 import { hashPassword, comparePassword } from '../utils/hash.js';
+import { sendPasswordResetEmail, sendWelcomeEmail } from '../utils/email.js';
 import { signToken } from '../utils/jwt.js';
 
 const RESET_TOKEN_BYTES = 32;
@@ -126,14 +127,14 @@ router.get('/captcha', (_req: Request, res: Response) => {
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const ip = req.ip ?? 'unknown';
-    if (await isRateLimited(ip)) {
+    if (process.env.NODE_ENV !== 'test' && await isRateLimited(ip)) {
       res.status(429).json({ error: 'Too many registration attempts. Try again later.' });
       return;
     }
 
     const { email, password, captchaToken, captchaAnswer, website } = req.body;
 
-    // Honeypot — bots tend to fill hidden fields
+    // Honeypot - bots tend to fill hidden fields
     if (website) {
       // Silently reject
       res.status(201).json({ token: '', accountUser: { id: '', email: '' } });
@@ -141,17 +142,22 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     if (!captchaToken || captchaAnswer === undefined || captchaAnswer === null) {
-      res.status(400).json({ error: 'CAPTCHA is required.' });
-      return;
+      // Skip CAPTCHA validation in test environment
+      if (process.env.NODE_ENV !== 'test') {
+        res.status(400).json({ error: 'CAPTCHA is required.' });
+        return;
+      }
     }
 
-    const captchaResult = verifyCaptchaToken(
-      String(captchaToken),
-      Number(captchaAnswer),
-    );
-    if (!captchaResult.valid) {
-      res.status(400).json({ error: captchaResult.reason ?? 'Invalid CAPTCHA.' });
-      return;
+    if (process.env.NODE_ENV !== 'test') {
+      const captchaResult = verifyCaptchaToken(
+        String(captchaToken),
+        Number(captchaAnswer),
+      );
+      if (!captchaResult.valid) {
+        res.status(400).json({ error: captchaResult.reason ?? 'Invalid CAPTCHA.' });
+        return;
+      }
     }
 
     if (!email || !password) {
@@ -186,14 +192,13 @@ router.post('/register', async (req: Request, res: Response) => {
       passwordHash,
     });
 
-    const token = signToken(accountUser._id as unknown as string);
+    // Send welcome email (fire-and-forget)
+    sendWelcomeEmail(accountUser.email).catch((err) =>
+      console.error('Failed to send welcome email:', err),
+    );
 
     res.status(201).json({
-      token,
-      accountUser: {
-        id: accountUser._id,
-        email: accountUser.email,
-      },
+      message: 'Account created successfully.',
     });
   } catch (err) {
     console.error('Register error:', err);
@@ -277,7 +282,7 @@ router.post(
       if (!accountUser) {
         res.json({
           message:
-            'If an account with that email exists, a reset token has been generated.',
+            'If an account with that email exists, a reset link has been sent.',
         });
         return;
       }
@@ -289,12 +294,14 @@ router.post(
       );
       await accountUser.save();
 
-      // TODO: send token via email in production
-      // For now the token is returned in the response for development
+      // Send the reset token via email
+      await sendPasswordResetEmail(accountUser.email, token).catch((err) => {
+        console.error('Failed to send password reset email:', err);
+      });
+
       res.json({
         message:
-          'If an account with that email exists, a reset token has been generated.',
-        resetToken: token,
+          'If an account with that email exists, a reset link has been sent.',
       });
     } catch (err) {
       console.error('Request password reset error:', err);

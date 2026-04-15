@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const accountUser = await fetchMe();
       set({ token, accountUser, loading: false });
     } catch {
-      // Token invalid / expired — clear it
+      // Token invalid / expired - clear it
       clearToken();
       set({ token: null, accountUser: null, loading: false });
     }

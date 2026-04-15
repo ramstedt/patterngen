@@ -9,7 +9,7 @@ export interface IRateLimit extends Document {
 const rateLimitSchema = new Schema<IRateLimit>({
   key: { type: String, required: true, unique: true, index: true },
   count: { type: Number, default: 0 },
-  expiresAt: { type: Date, required: true, index: true },
+  expiresAt: { type: Date, required: true },
 });
 
 // TTL index — MongoDB automatically deletes expired documents

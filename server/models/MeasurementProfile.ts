@@ -3,7 +3,7 @@ import mongoose, { type Document, Schema, type Types } from 'mongoose';
 export const MAX_MEASUREMENT_PROFILES = 10;
 
 /**
- * All measurement fields are optional — a profile may store only
+ * All measurement fields are optional - a profile may store only
  * a subset of measurements depending on which patterns the user needs.
  * Field names mirror src/types/measurements.ts (Measurements type).
  */
