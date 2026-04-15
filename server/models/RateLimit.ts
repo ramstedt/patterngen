@@ -12,7 +12,7 @@ const rateLimitSchema = new Schema<IRateLimit>({
   expiresAt: { type: Date, required: true },
 });
 
-// TTL index — MongoDB automatically deletes expired documents
+// TTL index - MongoDB automatically deletes expired documents
 rateLimitSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const RateLimit = mongoose.model<IRateLimit>(

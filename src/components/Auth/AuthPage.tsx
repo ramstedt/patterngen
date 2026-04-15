@@ -43,6 +43,7 @@ function useServerCaptcha() {
 }
 
 export function AuthPage({ initialView = 'login' }: { initialView?: AuthView }) {
+  const { t } = useI18n();
   const [view, setView] = useState<AuthView>(initialView);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -179,6 +180,7 @@ function RegisterForm({
   onRegistered: () => void;
 }) {
   const { t } = useI18n();
+  const register = useAuthStore((s) => s.register);
   const [loading, setLoading] = useState(false);
   const captcha = useServerCaptcha();
 
@@ -210,6 +212,7 @@ function RegisterForm({
         captcha.token,
         captchaAnswer,
       );
+      onRegistered();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t('authRegistrationFailed'));
       captcha.refresh();
@@ -353,7 +356,6 @@ function ResetPasswordForm({
   setError: (e: string) => void;
   setInfo: (i: string) => void;
   onBack: () => void;
-  onSuccess: () => void;
 }) {
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
@@ -370,7 +372,6 @@ function ResetPasswordForm({
         data.get('password') as string,
       );
       setInfo(t('authResetSuccess'));
-      onSuccess();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t('authResetFailed'));
     } finally {

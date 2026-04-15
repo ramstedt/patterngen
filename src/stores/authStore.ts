@@ -58,11 +58,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   async register(email, password, captchaToken, captchaAnswer) {
-    const res = await apiRegister(email, password, captchaToken, captchaAnswer);
-    setToken(res.token);
-    await migrateLocalProfiles().catch(() => {});
-    const accountUser = await fetchMe();
-    set({ token: res.token, accountUser });
+    await apiRegister(email, password, captchaToken, captchaAnswer);
   },
 
   logout() {

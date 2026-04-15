@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './tests',
   timeout: 30_000,
   retries: 0,
-  workers: 1, // serial — tests share the same DB
+  workers: 1, // serial - tests share the same DB
   reporter: 'list',
   globalSetup: './tests/globalSetup.ts',
   globalTeardown: './tests/globalTeardown.ts',

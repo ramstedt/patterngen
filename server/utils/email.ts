@@ -4,11 +4,14 @@ const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const SENDGRID_DATA_RESIDENCY = process.env.SENDGRID_DATA_RESIDENCY;
 const FROM_EMAIL = process.env.EMAIL_FROM ?? 'noreply@sewmetry.io';
 const APP_NAME = 'Sewmetry';
+type SendGridMailWithResidency = typeof sgMail & {
+  setDataResidency?: (region: 'eu') => void;
+};
 
 if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
   if (SENDGRID_DATA_RESIDENCY === 'eu') {
-    sgMail.setDataResidency('eu');
+    (sgMail as SendGridMailWithResidency).setDataResidency?.('eu');
   }
 }
 
