@@ -1,4 +1,5 @@
 import type { Profile } from '../../types/measurements';
+import { bodiceWithDartsPattern } from './bodiceWithDarts';
 import { bodiceWithoutDartsPattern } from './bodiceWithoutDarts';
 import { straightSkirtPattern } from './straightSkirt';
 import type {
@@ -13,19 +14,21 @@ import type {
 } from './types';
 
 const patternRegistry = {
+  bodiceWithDarts: bodiceWithDartsPattern,
   bodiceWithoutDarts: bodiceWithoutDartsPattern,
   straightSkirt: straightSkirtPattern,
 } satisfies Record<string, PatternDefinition>;
 
 export const PATTERN_OPTIONS: PatternOption[] = [
   'straightSkirt',
+  'bodiceWithDarts',
   'bodiceWithoutDarts',
 ];
 export const PATTERN_CATEGORIES: {
   category: PatternCategory;
   patterns: PatternOption[];
 }[] = [
-  { category: 'bodices', patterns: ['bodiceWithoutDarts'] },
+  { category: 'bodices', patterns: ['bodiceWithDarts', 'bodiceWithoutDarts'] },
   { category: 'skirts', patterns: ['straightSkirt'] },
 ];
 

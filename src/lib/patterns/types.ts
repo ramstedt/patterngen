@@ -1,7 +1,10 @@
 import type { TranslationKey } from '../../../i18n/translations';
 import type { Measurements, Profile, ProfileType } from '../../types/measurements';
 
-export type PatternOption = 'straightSkirt' | 'bodiceWithoutDarts';
+export type PatternOption =
+  | 'straightSkirt'
+  | 'bodiceWithoutDarts'
+  | 'bodiceWithDarts';
 export type PatternCategory = 'skirts' | 'bodices';
 export type PatternSleeveCap = 'high' | 'low';
 

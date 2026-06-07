@@ -134,7 +134,9 @@ const en = {
   bodices: 'Bodices',
   skirts: 'Skirts',
   straightSkirt: 'Straight skirt',
+  bodiceWithDarts: 'Bodice with darts',
   bodiceWithoutDarts: 'Bodice without darts',
+  recommendedForWomen: 'Recommended for women.',
   patternInPreparation: 'Pattern in preparation',
   skirtLength: 'Skirt length',
   basicMeasurements: 'Basic measurements',
@@ -173,11 +175,14 @@ const en = {
   armholeWidth: 'Armhole width',
   frontArmholeWidth: 'Front armhole width',
   backArmholeWidth: 'Back armhole width',
+  backNeck: 'Back neck',
+  neckWidthBodice: 'Neck width with ease',
   neckWidth: 'Neck width',
   neckDepth: 'Neck depth',
   backNecklineCheck: 'Back neckline check',
   frontNecklineCheck: 'Front neckline check',
   backInnerShoulderRise: 'Back inner shoulder rise',
+  backShoulderDart: 'Back shoulder dart',
   frontInnerShoulderRise: 'Front inner shoulder rise',
   backOuterShoulderDrop: 'Back outer shoulder drop',
   frontOuterShoulderDrop: 'Front outer shoulder drop',
@@ -187,6 +192,8 @@ const en = {
   halfHighHipWithEase: 'Half hip with ease',
   halfSeatWithEase: 'Half seat with ease',
   halfBustWithEase: 'Half bust with ease',
+  halfBackWidthWithEase: 'Half back width with ease',
+  halfChestWidthWithEase: 'Half chest width with ease',
 
   // calculation explanations
   waistCircumferenceExplanation: 'Half the waist measurement plus 1 cm ease.',
@@ -213,6 +220,36 @@ const en = {
     'The following values are the same for every movement-ease option.',
   backWaistLengthBodiceExplanation:
     'The back waist length is taken from the profile.',
+  backWaistLengthBodiceWithDartsExplanation:
+    'The back waist length is taken from the profile.',
+  frontWaistLengthWithDartsExplanation:
+    'The front waist length is taken from the profile.',
+  bustHeightWithDartsExplanation:
+    'The bust height is taken from the profile.',
+  sideHeightWithDartsExplanation:
+    'The side height is taken from the profile and increased by 3 cm.',
+  armholeDepthWithDartsExplanation:
+    'Back waist length minus side measurement, plus 2 cm and the armhole-depth ease from the bodice-with-darts table.',
+  halfWaistWithDartsExplanation:
+    'Measured waist circumference plus the average waist-width ease from the bodice-with-darts table, then divided by two.',
+  halfChestWidthWithDartsExplanation:
+    'Measured chest width plus the back-or-chest-width ease from the bodice-with-darts table, then divided by two. Used as a control measurement when the front armhole shape looks unusual.',
+  shoulderHeightBackWithDartsExplanation:
+    'Use the back measurement from the shoulder side whose full measurement is greatest in the profile.',
+  shoulderHeightFrontWithDartsExplanation:
+    'Use the full shoulder-height measurement from the selected side minus its back shoulder-height measurement.',
+  halfBackWidthWithEaseExplanation:
+    'Measured back width plus the back-width ease from the table, then divided by two.',
+  armholeWidthWithDartsExplanation:
+    'Armhole width is based on half bust with ease. Below 110 cm bust, use one quarter of the value and add the table value with its existing sign. At 110 cm or above, use one third of the value and subtract the over-110 table value.',
+  bustPointWithDartsExplanation:
+    'For movement ease 2-10, use half of the measured bust-point distance. For movement ease 12-30, use bust width with ease divided by ten.',
+  backNeckExplanation:
+    'Construction value for reducing the front bodice length, based on neck width with ease divided by five, minus 0.5 cm.',
+  shoulderWidthWithDartsExplanation:
+    'Measured shoulder width plus the shoulder-width ease from the bodice-with-darts table.',
+  neckWidthWithDartsExplanation:
+    'Measured neck circumference plus the neck-width ease from the bodice-with-darts table.',
   armholeDepthBodiceExplanation:
     'Armhole depth from the armhole-depth table for the measured bust, plus movement ease.',
   halfBustWithEaseExplanation:
@@ -225,11 +262,15 @@ const en = {
     'Neck width based on neck measurement with ease divided by five, minus 1 cm.',
   neckDepthExplanation:
     'Neck depth based on neck measurement with ease divided by five, plus 0.5 cm.',
+  neckDepthWithDartsExplanation:
+    'Neck depth based on neck width with ease divided by five. Add 1 cm for movement ease 2-10, and 0.5 cm for movement ease 12-30.',
   backNecklineCheckExplanation: 'Control value for the back neckline curve.',
   frontNecklineCheckExplanation:
     'Control value for the front neckline curve after subtracting the back neckline check.',
   backInnerShoulderRiseExplanation:
     'Fixed value for raising the back inner shoulder point.',
+  backShoulderDartExplanation:
+    'Fixed value for the back shoulder dart.',
   frontInnerShoulderRiseExplanation:
     'Fixed value for raising the front inner shoulder point.',
   backOuterShoulderDropExplanation:
@@ -319,6 +360,8 @@ const en = {
   sleeveFrontArmholeWidth: 'Front armhole width',
   sleeveBackCapGuide: 'Back sleeve-cap guide',
   sleeveFrontCapGuide: 'Front sleeve-cap guide',
+  shoulderHeightBack: 'Back shoulder height',
+  shoulderHeightFront: 'Front shoulder height',
 
   // auth & account
   authLogIn: 'Log in',
@@ -494,7 +537,9 @@ const sv: Record<keyof typeof en, string> = {
   bodices: 'Liv',
   skirts: 'Kjolar',
   straightSkirt: 'Grundkjol',
+  bodiceWithDarts: 'Liv med insnitt',
   bodiceWithoutDarts: 'Liv utan insnitt',
+  recommendedForWomen: 'Rekommenderas för dam.',
   patternInPreparation: 'Mönster under arbete',
   skirtLength: 'Kjollängd',
   basicMeasurements: 'Grundmått',
@@ -533,11 +578,14 @@ const sv: Record<keyof typeof en, string> = {
   armholeWidth: 'Ärmhålsbredd',
   frontArmholeWidth: 'Ärmhålsbredd fram',
   backArmholeWidth: 'Ärmhålsbredd bak',
+  backNeck: 'Bakhals',
+  neckWidthBodice: 'Halsvidd med tillägg',
   neckWidth: 'Halsbredd',
   neckDepth: 'Halsdjup',
   backNecklineCheck: 'Halsringning bak',
   frontNecklineCheck: 'Halsringning fram',
   backInnerShoulderRise: 'Höjning inre axelspets bak',
+  backShoulderDart: 'Axelinsnitt bak',
   frontInnerShoulderRise: 'Höjning inre axelspets fram',
   backOuterShoulderDrop: 'Sänkning yttre axelspets bak',
   frontOuterShoulderDrop: 'Sänkning yttre axelspets fram',
@@ -547,6 +595,8 @@ const sv: Record<keyof typeof en, string> = {
   halfHighHipWithEase: 'Halv höftvidd med tillägg',
   halfSeatWithEase: 'Halv stussvidd med tillägg',
   halfBustWithEase: 'Halv bystvidd med tillägg',
+  halfBackWidthWithEase: 'Halv ryggbredd med tillägg',
+  halfChestWidthWithEase: 'Halv bröstbredd med tillägg',
 
   // calculation explanations
   waistCircumferenceExplanation: 'Halva mideljevidden plus 1 cm viddsrum.',
@@ -572,6 +622,36 @@ const sv: Record<keyof typeof en, string> = {
   fixedMeasurementsHelp: 'Följande mått är samma för alla rörelsetillägg.',
   backWaistLengthBodiceExplanation:
     'Livlängd bak är taget från profilens mått.',
+  backWaistLengthBodiceWithDartsExplanation:
+    'Livlängd bak är taget från profilens mått.',
+  frontWaistLengthWithDartsExplanation:
+    'Livlängd fram är taget från profilens mått.',
+  bustHeightWithDartsExplanation:
+    'Bysthöjd är taget från profilens mått.',
+  sideHeightWithDartsExplanation:
+    'Sidhöjd är taget från profilens mått och ökas med 3 cm.',
+  armholeDepthWithDartsExplanation:
+    'Livlängd bak minus sidmått, plus 2 cm och rörelsetillägget för ärmhålsdjup från tabellen för liv med insnitt.',
+  halfWaistWithDartsExplanation:
+    'Uppmätt midjevidd plus medelvärdet av rörelsetillägget för midjevidd från tabellen för liv med insnitt, därefter delat i två.',
+  halfChestWidthWithDartsExplanation:
+    'Uppmätt bröstbredd plus rörelsetillägget för ryggbredd/bröstbredd från tabellen för liv med insnitt, därefter delat i två. Används som kontrollmått när framstyckets ärmhål får en märklig form.',
+  shoulderHeightBackWithDartsExplanation:
+    'Använd bakmåttet från den axelsida vars hela mått är störst i profilen.',
+  shoulderHeightFrontWithDartsExplanation:
+    'Använd hela axelhöjdsmåttet från den valda sidan minus dess bakre axelhöjdsmått.',
+  halfBackWidthWithEaseExplanation:
+    'Uppmätt ryggbredd plus rörelsetillägget för ryggbredd från tabellen, därefter delat i två.',
+  armholeWidthWithDartsExplanation:
+    'Ärmhålsbredden baseras på halv bystvidd med tillägg. Under 110 cm byst används en fjärdedel av värdet och tabellvärdet med sitt befintliga tecken. Vid 110 cm eller mer används en tredjedel av värdet och över-110-värdet dras av.',
+  bustPointWithDartsExplanation:
+    'Vid rörelsetillägg 2-10 används halva det uppmätta bystpunktsmåttet. Vid rörelsetillägg 12-30 används bystvidd med tillägg delat med tio.',
+  backNeckExplanation:
+    'Konstruktionsmått för minskning av livlängd fram, baserat på halsvidd med tillägg delat med fem, minus 0.5 cm.',
+  shoulderWidthWithDartsExplanation:
+    'Uppmätt axelbredd plus rörelsetillägget för axelbredd från tabellen för liv med insnitt.',
+  neckWidthWithDartsExplanation:
+    'Uppmätt halsvidd plus rörelsetillägget för halsvidd från tabellen för liv med insnitt.',
   armholeDepthBodiceExplanation:
     'Ärmhålsdjup från tabellen för ärmhålsdjup utifrån uppmätt bystvidd, plus rörelsetillägg.',
   halfBustWithEaseExplanation:
@@ -583,11 +663,15 @@ const sv: Record<keyof typeof en, string> = {
     'Halsbredd baserad på halsvidd med tillägg delat med fem, minus 1 cm.',
   neckDepthExplanation:
     'Halsdjup baserat på halsvidd med tillägg delat med fem, plus 0.5 cm.',
+  neckDepthWithDartsExplanation:
+    'Halsdjup baserat på halsvidd med tillägg delat med fem. Lägg till 1 cm vid rörelsetillägg 2-10 och 0.5 cm vid rörelsetillägg 12-30.',
   backNecklineCheckExplanation: 'Kontrollmått för bakre halskurva.',
   frontNecklineCheckExplanation:
     'Kontrollmått för främre halskurva efter avdrag för halsringning bak.',
   backInnerShoulderRiseExplanation:
     'Fast värde för höjning av inre axelspets bak.',
+  backShoulderDartExplanation:
+    'Fast värde för axelinsnitt bak.',
   frontInnerShoulderRiseExplanation:
     'Fast värde för höjning av inre axelspets fram.',
   backOuterShoulderDropExplanation:
@@ -677,6 +761,8 @@ const sv: Record<keyof typeof en, string> = {
   sleeveFrontArmholeWidth: 'Ärmhålsvidd fram',
   sleeveBackCapGuide: 'Hjälpmått ärmkulle bak',
   sleeveFrontCapGuide: 'Hjälpmått ärmkulle fram',
+  shoulderHeightBack: 'Axelhöjd bak',
+  shoulderHeightFront: 'Axelhöjd fram',
 
   // auth & account
   authLogIn: 'Logga in',

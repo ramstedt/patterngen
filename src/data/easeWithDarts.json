@@ -1,0 +1,280 @@
+{
+  "meta": {
+    "unit": "cm",
+    "description": "Movement ease values for bodice and sleeve drafting with darts.",
+    "rounding": "0.5cm increments recommended",
+    "usage": "Select by target ease value for bodices with darts."
+  },
+  "entries": [
+    {
+      "ease": 2,
+      "bodice": {
+        "armholeDepth": -1,
+        "bustWidth": 2,
+        "backOrChestWidth": 0,
+        "armholeWidth": { "bustUnder110": -2, "bustOverOrEqual110": -6.4 },
+        "shoulderWidth": 0,
+        "neckWidth": -1.5,
+        "waistWidthRange": [2],
+        "hipWidthRange": [2]
+      },
+      "sleeve": {
+        "length": 0,
+        "upperArmWidthRange": [3, 4],
+        "wristWidth": 6.5
+      }
+    },
+    {
+      "ease": 4,
+      "bodice": {
+        "armholeDepth": -0.5,
+        "bustWidth": 4,
+        "backOrChestWidth": 0.6,
+        "armholeWidth": { "bustUnder110": -1.75, "bustOverOrEqual110": -6.2 },
+        "shoulderWidth": 0,
+        "neckWidth": -0.75,
+        "waistWidthRange": [2, 4],
+        "hipWidthRange": [2, 3]
+      },
+      "sleeve": {
+        "length": 0,
+        "upperArmWidthRange": [4, 5],
+        "wristWidth": 7
+      }
+    },
+    {
+      "ease": 6,
+      "bodice": {
+        "armholeDepth": 0,
+        "bustWidth": 6,
+        "backOrChestWidth": 1.2,
+        "armholeWidth": { "bustUnder110": -1.5, "bustOverOrEqual110": -6 },
+        "shoulderWidth": 0,
+        "neckWidth": 0,
+        "waistWidthRange": [4, 6],
+        "hipWidthRange": [4]
+      },
+      "sleeve": {
+        "length": 0,
+        "upperArmWidthRange": [5, 6],
+        "wristWidth": 7.5
+      }
+    },
+    {
+      "ease": 8,
+      "bodice": {
+        "armholeDepth": 0.5,
+        "bustWidth": 8,
+        "backOrChestWidth": 1.8,
+        "armholeWidth": { "bustUnder110": -1.25, "bustOverOrEqual110": -5.8 },
+        "shoulderWidth": 0,
+        "neckWidth": 0.75,
+        "waistWidthRange": [6, 8],
+        "hipWidthRange": [6]
+      },
+      "sleeve": {
+        "length": 0,
+        "upperArmWidthRange": [6, 7],
+        "wristWidth": 8
+      }
+    },
+    {
+      "ease": 10,
+      "bodice": {
+        "armholeDepth": 1,
+        "bustWidth": 10,
+        "backOrChestWidth": 2.4,
+        "armholeWidth": { "bustUnder110": -1, "bustOverOrEqual110": -5.6 },
+        "shoulderWidth": 0,
+        "neckWidth": 1.5,
+        "waistWidthRange": [8, 10],
+        "hipWidthRange": [8]
+      },
+      "sleeve": {
+        "length": 0,
+        "upperArmWidthRange": [7, 8],
+        "wristWidth": 8.5
+      }
+    },
+    {
+      "ease": 12,
+      "bodice": {
+        "armholeDepth": 1.5,
+        "bustWidth": 12,
+        "backOrChestWidth": 3,
+        "armholeWidth": { "bustUnder110": -0.75, "bustOverOrEqual110": -5.4 },
+        "shoulderWidth": 1,
+        "neckWidth": 2.25,
+        "waistWidthRange": [10, 12],
+        "hipWidthRange": [10]
+      },
+      "sleeve": {
+        "length": 1,
+        "upperArmWidthRange": [8, 9],
+        "wristWidth": 9.5
+      }
+    },
+    {
+      "ease": 14,
+      "bodice": {
+        "armholeDepth": 2,
+        "bustWidth": 14,
+        "backOrChestWidth": 3.6,
+        "armholeWidth": { "bustUnder110": -0.5, "bustOverOrEqual110": -5.2 },
+        "shoulderWidth": 1,
+        "neckWidth": 3,
+        "waistWidthRange": [12, 14],
+        "hipWidthRange": [12]
+      },
+      "sleeve": {
+        "length": 1,
+        "upperArmWidthRange": [9, 10],
+        "wristWidth": 10.5
+      }
+    },
+    {
+      "ease": 16,
+      "bodice": {
+        "armholeDepth": 2.5,
+        "bustWidth": 16,
+        "backOrChestWidth": 4.2,
+        "armholeWidth": { "bustUnder110": -0.25, "bustOverOrEqual110": -5 },
+        "shoulderWidth": 1,
+        "neckWidth": 3.75,
+        "waistWidthRange": [14, 16],
+        "hipWidthRange": [14]
+      },
+      "sleeve": {
+        "length": 1,
+        "upperArmWidthRange": [10, 11],
+        "wristWidth": 11.5
+      }
+    },
+    {
+      "ease": 18,
+      "bodice": {
+        "armholeDepth": 3,
+        "bustWidth": 18,
+        "backOrChestWidth": 4.8,
+        "armholeWidth": { "bustUnder110": 0, "bustOverOrEqual110": -4.8 },
+        "shoulderWidth": 1,
+        "neckWidth": 4.5,
+        "waistWidthRange": [16, 18],
+        "hipWidthRange": [16]
+      },
+      "sleeve": {
+        "length": 1,
+        "upperArmWidthRange": [11, 12],
+        "wristWidth": 12.5
+      }
+    },
+    {
+      "ease": 20,
+      "bodice": {
+        "armholeDepth": 3.5,
+        "bustWidth": 20,
+        "backOrChestWidth": 5.4,
+        "armholeWidth": { "bustUnder110": 0.25, "bustOverOrEqual110": -4.6 },
+        "shoulderWidth": 1,
+        "neckWidth": 5.25,
+        "waistWidthRange": [18, 20],
+        "hipWidthRange": [18]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [12, 13],
+        "wristWidth": 13.5
+      }
+    },
+    {
+      "ease": 22,
+      "bodice": {
+        "armholeDepth": 4,
+        "bustWidth": 22,
+        "backOrChestWidth": 6,
+        "armholeWidth": { "bustUnder110": 0.5, "bustOverOrEqual110": -4.4 },
+        "shoulderWidth": 2,
+        "neckWidth": 6,
+        "waistWidthRange": [20, 22],
+        "hipWidthRange": [20]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [13, 14],
+        "wristWidth": 14.5
+      }
+    },
+    {
+      "ease": 24,
+      "bodice": {
+        "armholeDepth": 4.5,
+        "bustWidth": 24,
+        "backOrChestWidth": 6.6,
+        "armholeWidth": { "bustUnder110": 0.75, "bustOverOrEqual110": -4.2 },
+        "shoulderWidth": 2,
+        "neckWidth": 6.25,
+        "waistWidthRange": [22, 24],
+        "hipWidthRange": [22]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [14, 15],
+        "wristWidth": 15.5
+      }
+    },
+    {
+      "ease": 26,
+      "bodice": {
+        "armholeDepth": 5,
+        "bustWidth": 26,
+        "backOrChestWidth": 7.2,
+        "armholeWidth": { "bustUnder110": 1, "bustOverOrEqual110": -4 },
+        "shoulderWidth": 2,
+        "neckWidth": 6.5,
+        "waistWidthRange": [24, 26],
+        "hipWidthRange": [24]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [15, 16],
+        "wristWidth": 16.5
+      }
+    },
+    {
+      "ease": 28,
+      "bodice": {
+        "armholeDepth": 5.5,
+        "bustWidth": 28,
+        "backOrChestWidth": 7.8,
+        "armholeWidth": { "bustUnder110": 1.25, "bustOverOrEqual110": -3.8 },
+        "shoulderWidth": 2,
+        "neckWidth": 6.75,
+        "waistWidthRange": [26, 28],
+        "hipWidthRange": [26]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [16, 17],
+        "wristWidth": 17.5
+      }
+    },
+    {
+      "ease": 30,
+      "bodice": {
+        "armholeDepth": 6,
+        "bustWidth": 30,
+        "backOrChestWidth": 8.4,
+        "armholeWidth": { "bustUnder110": 1.5, "bustOverOrEqual110": -3.6 },
+        "shoulderWidth": 2,
+        "neckWidth": 7,
+        "waistWidthRange": [28, 30],
+        "hipWidthRange": [28]
+      },
+      "sleeve": {
+        "length": 2,
+        "upperArmWidthRange": [17, 18],
+        "wristWidth": 18.5
+      }
+    }
+  ]
+}
