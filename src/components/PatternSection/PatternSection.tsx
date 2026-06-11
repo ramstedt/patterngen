@@ -50,15 +50,6 @@ const SECTION_ORDER = [
   'dartPlacement',
 ] as const;
 const STEP_LABEL_MIN_HEIGHT = 32;
-const MOVEMENT_EASE_PATTERNS: PatternOption[] = [
-  'bodiceWithoutDarts',
-  'bodiceWithDarts',
-];
-const SLEEVE_CAP_PATTERNS: PatternOption[] = ['bodiceWithoutDarts'];
-
-function isMissingRequiredMeasurement(value: unknown) {
-  return typeof value !== 'number' || Number.isNaN(value) || value <= 0;
-}
 
 type PatternQueryState = {
   category: PatternCategory | '';
@@ -276,50 +267,33 @@ export function PatternSection({
         ?.patterns ?? [],
     [selectedCategory],
   );
-  const requiresMovementEase =
-    !!selectedPattern && MOVEMENT_EASE_PATTERNS.includes(selectedPattern);
-  const requiresSleeveCap =
-    !!selectedPattern && SLEEVE_CAP_PATTERNS.includes(selectedPattern);
+  const requiresMovementEase = selectedPattern === 'bodiceWithoutDarts';
+  const requiresSleeveCap = selectedPattern === 'bodiceWithoutDarts';
   const movementEaseOptions = useMemo(
     () => easeNoDarts.entries.map((entry) => entry.ease),
     [],
   );
   const submittedSettings = useMemo<PatternSettings | undefined>(
-    () => {
-      if (!submittedPattern) {
-        return undefined;
-      }
-
-      const nextSettings: PatternSettings = {};
-
-      if (
-        MOVEMENT_EASE_PATTERNS.includes(submittedPattern) &&
-        submittedMovementEase
-      ) {
-        nextSettings.movementEase = submittedMovementEase;
-      }
-
-      if (SLEEVE_CAP_PATTERNS.includes(submittedPattern) && submittedSleeveCap) {
-        nextSettings.sleeveCap = submittedSleeveCap;
-      }
-
-      return Object.keys(nextSettings).length > 0 ? nextSettings : undefined;
-    },
+    () =>
+      submittedPattern === 'bodiceWithoutDarts' &&
+      submittedMovementEase &&
+      submittedSleeveCap
+        ? {
+            movementEase: submittedMovementEase,
+            sleeveCap: submittedSleeveCap,
+          }
+        : undefined,
     [submittedMovementEase, submittedPattern, submittedSleeveCap],
   );
 
   const calculations = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return [];
-    try {
-      return calculatePattern(
-        submittedPattern,
-        submittedProfile,
-        t,
-        submittedSettings,
-      );
-    } catch {
-      return [];
-    }
+    return calculatePattern(
+      submittedPattern,
+      submittedProfile,
+      t,
+      submittedSettings,
+    );
   }, [submittedPattern, submittedProfile, submittedSettings, t]);
 
   const calculationsBySection = useMemo(() => {
@@ -351,34 +325,23 @@ export function PatternSection({
 
   const draft = useMemo(() => {
     if (!submittedProfile || !submittedPattern) return null;
-    try {
-      return buildPatternDraft(
-        submittedPattern,
-        submittedProfile,
-        t,
-        submittedSettings,
-      );
-    } catch {
-      return null;
-    }
+    return buildPatternDraft(
+      submittedPattern,
+      submittedProfile,
+      t,
+      submittedSettings,
+    );
   }, [submittedPattern, submittedProfile, submittedSettings, t]);
   const submittedPatternPrintConfig = useMemo(
-    () => {
-      if (!submittedPattern || !submittedProfile) {
-        return undefined;
-      }
-
-      try {
-        return getPatternPrintConfig(
-          submittedPattern,
-          submittedProfile,
-          t,
-          submittedSettings,
-        );
-      } catch {
-        return undefined;
-      }
-    },
+    () =>
+      submittedPattern && submittedProfile
+        ? getPatternPrintConfig(
+            submittedPattern,
+            submittedProfile,
+            t,
+            submittedSettings,
+          )
+        : undefined,
     [submittedPattern, submittedProfile, submittedSettings, t],
   );
 
@@ -418,15 +381,13 @@ export function PatternSection({
   );
   const hasMissingRequiredMeasurements = useMemo(
     () =>
-      requiredMeasurementStatus.some((measurement) =>
-        isMissingRequiredMeasurement(measurement.value),
-      ),
+      requiredMeasurementStatus.some((measurement) => measurement.value === 0),
     [requiredMeasurementStatus],
   );
   const missingRequiredMeasurements = useMemo(
     () =>
       requiredMeasurementStatus.filter(
-        (measurement) => isMissingRequiredMeasurement(measurement.value),
+        (measurement) => measurement.value === 0,
       ),
     [requiredMeasurementStatus],
   );
@@ -452,10 +413,6 @@ export function PatternSection({
         ),
       ),
     [selectedPatternDefinition, selectedProfile],
-  );
-  const isRecommendedForWomen = useMemo(
-    () => selectedPattern === 'straightSkirt' || selectedPattern === 'bodiceWithDarts',
-    [selectedPattern],
   );
   const isReadyToGenerate =
     Boolean(selectedCategory) &&
@@ -517,14 +474,8 @@ export function PatternSection({
       return;
     }
 
-    if (selectedPattern && MOVEMENT_EASE_PATTERNS.includes(selectedPattern)) {
-      if (!selectedMovementEase) {
-        return;
-      }
-    }
-
-    if (selectedPattern && SLEEVE_CAP_PATTERNS.includes(selectedPattern)) {
-      if (!selectedSleeveCap) {
+    if (selectedPattern === 'bodiceWithoutDarts') {
+      if (!selectedMovementEase || !selectedSleeveCap) {
         return;
       }
     }
@@ -553,9 +504,8 @@ export function PatternSection({
     if (
       !selectedProfileId ||
       !selectedPattern ||
-      (MOVEMENT_EASE_PATTERNS.includes(selectedPattern) &&
-        !selectedMovementEase) ||
-      (SLEEVE_CAP_PATTERNS.includes(selectedPattern) && !selectedSleeveCap)
+      (selectedPattern === 'bodiceWithoutDarts' &&
+        (!selectedMovementEase || !selectedSleeveCap))
     ) {
       return;
     }
@@ -563,10 +513,10 @@ export function PatternSection({
     setSubmittedProfileId(selectedProfileId);
     setSubmittedPattern(selectedPattern);
     setSubmittedMovementEase(
-      MOVEMENT_EASE_PATTERNS.includes(selectedPattern) ? selectedMovementEase : '',
+      selectedPattern === 'bodiceWithoutDarts' ? selectedMovementEase : '',
     );
     setSubmittedSleeveCap(
-      SLEEVE_CAP_PATTERNS.includes(selectedPattern) ? selectedSleeveCap : '',
+      selectedPattern === 'bodiceWithoutDarts' ? selectedSleeveCap : '',
     );
   }
 
@@ -696,19 +646,8 @@ export function PatternSection({
                   setSelectedPattern(nextPattern);
                   setSelectedProfileId('');
 
-                  if (
-                    !MOVEMENT_EASE_PATTERNS.includes(
-                      nextPattern as PatternOption,
-                    )
-                  ) {
+                  if (nextPattern !== 'bodiceWithoutDarts') {
                     setSelectedMovementEase('');
-                  }
-
-                  if (
-                    !SLEEVE_CAP_PATTERNS.includes(
-                      nextPattern as PatternOption,
-                    )
-                  ) {
                     setSelectedSleeveCap('');
                   }
                 }}
@@ -896,11 +835,6 @@ export function PatternSection({
         {hasPatternProfileTypeMismatch && (
           <Alert severity='warning' sx={{ mt: 2 }}>
             {t('patternProfileTypeWarning')}
-          </Alert>
-        )}
-        {!hasPatternProfileTypeMismatch && isRecommendedForWomen && (
-          <Alert severity='info' sx={{ mt: 2 }}>
-            {t('recommendedForWomen')}
           </Alert>
         )}
       </Paper>

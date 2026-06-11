@@ -77,7 +77,7 @@ type ProfileTypeFormValue = ProfileType | '';
 
 const FIELDS = MEASUREMENT_FIELDS;
 const WOMEN_ONLY_FIELDS: (keyof Measurements)[] = ['bustPoint', 'bustHeight'];
-const MEN_ONLY_FIELDS: (keyof Measurements)[] = [];
+const MEN_ONLY_FIELDS: (keyof Measurements)[] = ['chestWidth'];
 const MEN_HIDDEN_FIELDS: (keyof Measurements)[] = ['hipDepth', 'hipHeight'];
 const WOMEN_SIZES: StandardSize[] = [
   'C30',

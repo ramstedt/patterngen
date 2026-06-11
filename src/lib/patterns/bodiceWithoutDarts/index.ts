@@ -1044,14 +1044,13 @@ function buildSleeveDraft({
 export const bodiceWithoutDartsPattern: PatternDefinition = {
   id: 'bodiceWithoutDarts',
   category: 'bodices',
-  supportedProfileTypes: ['women', 'men'],
+  supportedProfileTypes: ['women'],
   requiredMeasurements: [
     'backWaistLength',
     'bustCircumference',
-    'shoulderWidth',
-    'neckCircumference',
     'armLength',
     'upperArmCircumference',
+    'wristCircumference',
   ],
   calculate(profile, t, settings) {
     const movementEase = settings?.movementEase;

@@ -2,22 +2,7 @@ import { calculateStraightSkirt } from './calculations';
 import { buildStraightSkirtDraft } from './draft';
 import type {
   PatternDefinition,
-  PatternDraft,
 } from '../types';
-
-function createEmptyDraft(): PatternDraft {
-  return {
-    units: 'mm',
-    width: 240,
-    height: 240,
-    points: [],
-    markers: [],
-    lines: [],
-    paths: [],
-    labels: [],
-    notes: [],
-  };
-}
 
 export const straightSkirtPattern: PatternDefinition = {
   id: 'straightSkirt',
@@ -68,17 +53,6 @@ export const straightSkirtPattern: PatternDefinition = {
     };
   },
   buildDraft(profile, t) {
-    const hasMissingRequiredMeasurements = this.requiredMeasurements.some(
-      (measurement) => {
-        const value = profile.measurements[measurement];
-        return typeof value !== 'number' || Number.isNaN(value) || value <= 0;
-      },
-    );
-
-    if (hasMissingRequiredMeasurements) {
-      return createEmptyDraft();
-    }
-
     const calculations = calculateStraightSkirt(profile, t);
     return buildStraightSkirtDraft(profile, t, calculations);
   },

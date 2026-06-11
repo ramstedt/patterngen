@@ -17,28 +17,10 @@ function parseRange(range: string) {
   return { min, max };
 }
 
-function getArmholeDepthFromTorso(
-  torsoCircumference: number,
-  profileType: Profile['profileType'],
-) {
-  if (profileType === 'men') {
-    const entry = armholeDepthTable.men.find((row) => {
-      const { min, max } = parseRange(row.chestRange);
-      return torsoCircumference >= min && torsoCircumference <= max;
-    });
-
-    if (!entry) {
-      throw new Error(
-        'Could not find an armhole depth entry for the measured chest.',
-      );
-    }
-
-    return entry.armholeDepth;
-  }
-
+function getArmholeDepthFromBust(bustCircumference: number) {
   const entry = armholeDepthTable.women.find((row) => {
     const { min, max } = parseRange(row.bustRange);
-    return torsoCircumference >= min && torsoCircumference <= max;
+    return bustCircumference >= min && bustCircumference <= max;
   });
 
   if (!entry) {
@@ -521,20 +503,13 @@ export function calculateBodiceWithoutDarts(
   sleeveCap: PatternSleeveCap = 'high',
 ): PatternCalculation[] {
   const backWaistLength = roundToHalf(profile.measurements.backWaistLength);
-  const measuredTorsoCircumference = roundToHalf(
-    profile.measurements.bustCircumference,
-  );
+  const measuredBust = roundToHalf(profile.measurements.bustCircumference);
   const measuredShoulderWidth = roundToHalf(profile.measurements.shoulderWidth);
   const measuredNeckCircumference = roundToHalf(
     profile.measurements.neckCircumference,
   );
   const easeEntry = getEaseEntry(movementEase);
-  const armholeDepthFromTable = roundToHalf(
-    getArmholeDepthFromTorso(
-      measuredTorsoCircumference,
-      profile.profileType,
-    ),
-  );
+  const armholeDepthFromTable = roundToHalf(getArmholeDepthFromBust(measuredBust));
   const armholeDepthEase = roundToHalf(easeEntry.bodice.armholeDepth);
   const armholeDepth = roundToHalf(armholeDepthFromTable + armholeDepthEase);
   const bustEase = roundToHalf(easeEntry.bodice.bustWidth);
@@ -552,14 +527,14 @@ export function calculateBodiceWithoutDarts(
   const frontNecklineCheck = roundToHalf(
     neckWidthWithEase / 2 - backNecklineCheck,
   );
-  const bustWithEase = roundToHalf(measuredTorsoCircumference + bustEase);
+  const bustWithEase = roundToHalf(measuredBust + bustEase);
   const halfBustWithEase = roundToHalf(bustWithEase / 2);
   const armholeWidthAdjustment =
-    measuredTorsoCircumference < 110
+    measuredBust < 110
       ? roundToHalf(easeEntry.bodice.armholeWidth.bustUnder110)
       : roundToHalf(easeEntry.bodice.armholeWidth.bustOverOrEqual110);
   const armholeWidthBase =
-    measuredTorsoCircumference < 110
+    measuredBust < 110
       ? roundToHalf(halfBustWithEase / 4)
       : roundToHalf(halfBustWithEase / 3);
   const armholeWidth = roundToHalf(armholeWidthBase + armholeWidthAdjustment);
@@ -633,14 +608,14 @@ export function calculateBodiceWithoutDarts(
       description: `${formatMeasurement(armholeDepthFromTable)} + ${formatMeasurement(
         armholeDepthEase,
       )} = ${formatMeasurement(armholeDepth)}`,
-        explanation: t('armholeDepthBodiceExplanation'),
+      explanation: t('armholeDepthBodiceExplanation'),
       section: 'basicMeasurements',
     },
     {
       id: 'halfBustWithEase',
       label: t('halfBustWithEase'),
       value: halfBustWithEase,
-      description: `${formatMeasurement(measuredTorsoCircumference)} + ${formatMeasurement(
+      description: `${formatMeasurement(measuredBust)} + ${formatMeasurement(
         bustEase,
       )} = ${formatMeasurement(bustWithEase)}, ${formatMeasurement(
         bustWithEase,
@@ -653,7 +628,7 @@ export function calculateBodiceWithoutDarts(
       label: t('armholeWidth'),
       value: armholeWidth,
       description:
-        measuredTorsoCircumference < 110
+        measuredBust < 110
           ? `${formatMeasurement(halfBustWithEase)} / 4 = ${formatMeasurement(
               armholeWidthBase,
             )}, ${formatMeasurement(armholeWidthBase)} ${armholeWidthAdjustment < 0 ? '-' : '+'} ${formatMeasurement(
