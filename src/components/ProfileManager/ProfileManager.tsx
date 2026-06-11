@@ -163,7 +163,7 @@ function getProfileQueryState(): ProfileQueryState {
   const modeParam = params.get('mode');
   const mode: ProfileManagerMode =
     modeParam === 'edit' || modeParam === 'new' ? modeParam : 'view';
-  const activeId = params.get('profile');
+  const activeId = mode === 'new' ? null : params.get('profile');
   return { activeId, mode };
 }
 
@@ -176,7 +176,7 @@ function writeProfileQueryState({
   params.delete('profile');
   params.delete('mode');
 
-  if (activeId) {
+  if (mode !== 'new' && activeId) {
     params.set('profile', activeId);
   }
 
@@ -263,26 +263,12 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
   const [womenSize, setWomenSize] = useState<StandardSize>('C44');
   const [menSize, setMenSize] = useState<MenSize>('C50');
 
-  // Once profiles load for the first time, pick the initial active profile
-  useEffect(() => {
-    if (profilesLoading || initialised) return;
-    setInitialised(true);
-    const queryId = initialQueryState.activeId;
-    const match = queryId ? profiles.find((p) => p.id === queryId) : null;
-    const firstProfile = match ?? profiles[0] ?? null;
-    if (firstProfile) {
-      setActiveId(firstProfile.id);
-      form.reset({
-        name: firstProfile.name,
-        profileType: firstProfile.profileType,
-        ...firstProfile.measurements,
-      });
-    }
-  }, [profilesLoading]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const active = useMemo(
-    () => profiles.find((profile) => profile.id === activeId) ?? null,
-    [profiles, activeId],
+    () =>
+      mode === 'new'
+        ? null
+        : profiles.find((profile) => profile.id === activeId) ?? null,
+    [profiles, activeId, mode],
   );
 
   const schema = useMemo(
@@ -312,6 +298,28 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     () => getVisibleFields(active?.profileType),
     [active?.profileType],
   );
+
+  // Once profiles load for the first time, pick the initial active profile.
+  useEffect(() => {
+    if (profilesLoading || initialised) return;
+    setInitialised(true);
+    if (initialQueryState.mode === 'new') {
+      setActiveId(null);
+      form.reset(createBlankFormValues());
+      return;
+    }
+    const queryId = initialQueryState.activeId;
+    const match = queryId ? profiles.find((p) => p.id === queryId) : null;
+    const firstProfile = match ?? profiles[0] ?? null;
+    if (firstProfile) {
+      setActiveId(firstProfile.id);
+      form.reset({
+        name: firstProfile.name,
+        profileType: firstProfile.profileType,
+        ...firstProfile.measurements,
+      });
+    }
+  }, [profilesLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function setProfileType(nextProfileType: ProfileTypeFormValue) {
     form.setValue(
@@ -356,12 +364,10 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
   }
 
-
-
   function startNew() {
     setMode('new');
     setActiveId(null);
-    form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
+    form.reset(createBlankFormValues());
   }
 
   function startEdit() {
@@ -376,9 +382,18 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
         profileType: active.profileType,
         ...active.measurements,
       });
+    } else if (profiles[0]) {
+      const next = profiles[0];
+      setActiveId(next.id);
+      form.reset({
+        name: next.name,
+        profileType: next.profileType,
+        ...next.measurements,
+      });
+    } else {
+      form.reset(createBlankFormValues());
     }
     setMode('view');
-    if (!active && profiles[0]) setActiveId(profiles[0].id);
   }
 
   function applyPresetToForm(preset: Partial<Measurements>) {
@@ -393,10 +408,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
   function isDuplicateName(name: string) {
     const normalized = name.trim().toLowerCase();
+    const currentProfileId = mode === 'edit' ? active?.id : null;
     return profiles.some(
       (profile) =>
         profile.name.trim().toLowerCase() === normalized &&
-        profile.id !== active?.id,
+        profile.id !== currentProfileId,
     );
   }
 
@@ -415,11 +431,11 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     ) as Measurements;
 
     const profile: Profile = {
-      id: active?.id ?? uid(),
+      id: mode === 'edit' && active ? active.id : uid(),
       name: values.name,
       profileType: values.profileType,
       measurements,
-      createdAt: active?.createdAt ?? now,
+      createdAt: mode === 'edit' && active ? active.createdAt : now,
       updatedAt: now,
     };
 
@@ -439,7 +455,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
     // profiles state is updated by the hook - pick the next active
     setActiveId(null);
     setMode('view');
-    form.reset({ name: '', profileType: '' as ProfileType, ...createBlankMeasurements() });
+    form.reset(createBlankFormValues());
   }
 
   const canEdit = mode === 'edit' || mode === 'new';
@@ -458,6 +474,7 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
 
   useEffect(() => {
     if (!initialised) return;
+    if (mode === 'new') return;
     const activeExists = activeId && profiles.some((p) => p.id === activeId);
     if (!activeExists && profiles.length > 0) {
       const next = profiles[0];
@@ -467,9 +484,9 @@ export function ProfileManager({ showHeader = true }: { showHeader?: boolean }) 
         profileType: next.profileType,
         ...next.measurements,
       });
-      if (mode !== 'new') setMode('view');
+      setMode('view');
     }
-  }, [activeId, profiles]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeId, mode, profiles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     writeProfileQueryState({

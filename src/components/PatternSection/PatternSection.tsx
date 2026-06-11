@@ -70,7 +70,8 @@ function getPatternQueryState(): PatternQueryState {
 
   return {
     category:
-      category && PATTERN_CATEGORIES.some((entry) => entry.category === category)
+      category &&
+      PATTERN_CATEGORIES.some((entry) => entry.category === category)
         ? (category as PatternCategory)
         : '',
     pattern: pattern ? (pattern as PatternOption) : '',
@@ -123,7 +124,7 @@ function renderCalculationSection(
       {!hideTitle && (
         <Typography variant='h6' sx={{ mb: 1.5 }}>
           {t(
-            (section === 'basicMeasurements'
+            (section === 'basicMeasurements' || section === 'sleeveMeasurements'
               ? 'calculationBreakdown'
               : section) as TranslationKey,
           )}
@@ -207,9 +208,9 @@ export function PatternSection({
   const [selectedProfileId, setSelectedProfileId] = useState(
     initialQueryState.profileId,
   );
-  const [selectedCategory, setSelectedCategory] = useState<PatternCategory | ''>(
-    initialQueryState.category,
-  );
+  const [selectedCategory, setSelectedCategory] = useState<
+    PatternCategory | ''
+  >(initialQueryState.category);
   const [selectedPattern, setSelectedPattern] = useState<PatternOption | ''>(
     initialQueryState.pattern,
   );
@@ -220,7 +221,9 @@ export function PatternSection({
     PatternSleeveCap | ''
   >(initialQueryState.sleeveCap);
   const [submittedProfileId, setSubmittedProfileId] = useState('');
-  const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>('');
+  const [submittedPattern, setSubmittedPattern] = useState<PatternOption | ''>(
+    '',
+  );
   const [submittedMovementEase, setSubmittedMovementEase] = useState<
     number | ''
   >('');
@@ -951,7 +954,11 @@ export function PatternSection({
 
             {submittedPattern === 'bodiceWithoutDarts' ? (
               <>
-                <Accordion disableGutters elevation={0} sx={{ bgcolor: 'transparent' }}>
+                <Accordion
+                  disableGutters
+                  elevation={0}
+                  sx={{ bgcolor: 'transparent' }}
+                >
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant='h6'>
                       {t('bodiceCalculations')}
@@ -1000,7 +1007,11 @@ export function PatternSection({
                 )}
               </>
             ) : (
-              <Accordion disableGutters elevation={0} sx={{ bgcolor: 'transparent' }}>
+              <Accordion
+                disableGutters
+                elevation={0}
+                sx={{ bgcolor: 'transparent' }}
+              >
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography variant='h6'>
                     {t('calculationBreakdown')}
@@ -1008,14 +1019,15 @@ export function PatternSection({
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 0 }}>
                   <Stack spacing={3}>
-                    {calculationsBySection.map(([section, sectionCalculations]) =>
-                      renderCalculationSection(
-                        section,
-                        sectionCalculations,
-                        t,
-                        showLargeDifferenceDartHelp,
-                        section === 'basicMeasurements',
-                      ),
+                    {calculationsBySection.map(
+                      ([section, sectionCalculations]) =>
+                        renderCalculationSection(
+                          section,
+                          sectionCalculations,
+                          t,
+                          showLargeDifferenceDartHelp,
+                          section === 'basicMeasurements',
+                        ),
                     )}
                   </Stack>
                 </AccordionDetails>
